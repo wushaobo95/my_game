@@ -157,12 +157,15 @@
             return currentStr + bonusStr;
         }
 
+        var criticalPercent = (p.criticalChance * 100).toFixed(0);
+        
         var statsHTML = '';
         var statItems = [
             [STAT_STR.ATTACK_POWER, formatStat(baseAttackPower, p.attackPower, attackPowerBonus, '')],
             [STAT_STR.ATTACK_SPEED, formatStat(1/baseAttackCooldown, 1/p.attackCooldown, attackSpeedBonus, '/s') + UI_STR.ATTACK_SPEED_SUFFIX],
             [STAT_STR.BULLET_SPEED, formatStat(baseBulletSpeed, p.bulletSpeed, bulletSpeedBonus, '')],
             [STAT_STR.MOVE_SPEED, formatStat(baseSpeed, p.speed, speedBonus, '')],
+            [STAT_STR.CRITICAL, criticalPercent + '%'],
             [STAT_STR.HP_REGEN, formatStat(baseRegenRate, p.regenRate, regenRateBonus, '/s') + UI_STR.HP_RECOVERY_SUFFIX],
             [STAT_STR.PICKUP_RANGE, formatStat(basePickupRange, p.pickupRange, pickupRangeBonus, '')]
         ];

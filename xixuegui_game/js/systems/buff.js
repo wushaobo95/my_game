@@ -45,7 +45,7 @@ ArcSurvivors.BuffPickup.prototype.activate = function() {
             var damage = BC.TYPES.bomb.DAMAGE;
             var enemies = ArcSurvivors.enemies;
             for (var i = 0; i < enemies.length; i++) {
-                if (enemies[i].active) {
+                if (enemies[i].active && enemies[i].type !== 'boss') {
                     enemies[i].takeDamage(damage);
                 }
             }
@@ -57,7 +57,7 @@ ArcSurvivors.BuffPickup.prototype.activate = function() {
             var duration = BC.TYPES.ice.DURATION;
             var enemies = ArcSurvivors.enemies;
             for (var i = 0; i < enemies.length; i++) {
-                if (enemies[i].active) {
+                if (enemies[i].active && enemies[i].type !== 'boss') {
                     enemies[i].frozen = true;
                     enemies[i].frozenTimer = duration;
                 }

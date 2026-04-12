@@ -113,13 +113,13 @@ ArcSurvivors.Enemy.prototype.update = function(dt) {
 
 ArcSurvivors.Enemy.prototype.bossShoot = function() {
     var BC = ArcSurvivors.GAME_CONFIG.ENEMY_TYPES.boss;
-    var player = ArcSurvivors.player;
-    var angle = Math.atan2(player.y - this.y, player.x - this.x);
-
-    for (var i = -1; i <= 1; i++) {
-        ArcSurvivors.bullets.push(new ArcSurvivors.EnemyBullet(
+    var bulletCount = 12;
+    
+    for (var i = 0; i < bulletCount; i++) {
+        var angle = (i / bulletCount) * Math.PI * 2;
+        ArcSurvivors.enemyBullets.push(new ArcSurvivors.EnemyBullet(
             this.x, this.y,
-            angle + i * BC.SHOOT_SPREAD,
+            angle,
             BC.SHOOT_SPEED,
             this.damage * BC.SHOOT_DAMAGE_SCALE
         ));

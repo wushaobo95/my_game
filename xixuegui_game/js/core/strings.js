@@ -124,7 +124,8 @@ ArcSurvivors.STRINGS = {
         BULLET_SPEED: '子弹速度',
         MOVE_SPEED: '移速',
         HP_REGEN: '生命恢复',
-        PICKUP_RANGE: '拾取范围'
+        PICKUP_RANGE: '拾取范围',
+        CRITICAL: '暴击率'
     },
 
     // Buff道具文案（临时效果）

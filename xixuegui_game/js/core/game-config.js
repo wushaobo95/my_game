@@ -417,11 +417,11 @@ ArcSurvivors.GAME_CONFIG = {
                 COLOR: '#88ffff'
             },
             shield: {
-                DURATION: 10,
+                DURATION: 4,
                 COLOR: '#00ff88'
             },
             rage: {
-                DURATION: 5,
+                DURATION: 4,
                 ATTACK_MULT: 2,
                 SPEED_MULT: 2,
                 COLOR: '#ff00ff'
