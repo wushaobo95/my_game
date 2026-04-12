@@ -38,6 +38,32 @@
         console.log('Item picked up:', item.id);
     });
 
+    // 计算技能最大等级
+    function getSkillMaxLevel(skillId) {
+        var UPGRADE_LIMITS = {
+            1: 5,   // 攻击强化 - 最大5级
+            2: 5,   // 急速射击 - 最大5级
+            3: 5,   // 弹道加速 - 最大5级
+            5: 5,   // 生命强化 - 最大5级
+            7: 5,   // 疾风步 - 最大5级
+            9: CFG.UPGRADES.MAX_EXTRA_PROJECTILES,  // 多重射击
+            10: Math.floor(CFG.UPGRADES.CRITICAL_MAX / CFG.UPGRADES.CRITICAL_CHANCE_BONUS),  // 暴击强化
+            11: CFG.UPGRADES.LIGHTNING_CHAIN_MAX    // 闪电链
+        };
+        return UPGRADE_LIMITS[skillId] || 5;
+    }
+
+    // 计算技能当前等级
+    function getSkillCurrentLevel(skillId, player) {
+        var count = 0;
+        for (var i = 0; i < player.acquiredUpgrades.length; i++) {
+            if (player.acquiredUpgrades[i].id == skillId) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     GS.gameOver = function() {
         var ui = STR.UI;
         GS.gameState.running = false;
@@ -65,6 +91,10 @@
         document.getElementById('upgradeScreen').style.display = 'none';
         document.getElementById('pauseScreen').style.display = 'none';
         Audio.startBGM();
+        
+        // 重置状态面板缓存
+        lastSkillsHash = '';
+        lastItemsHash = '';
         
         EventSystem.emit(Events.GAME_RESET);
     };
@@ -141,65 +171,83 @@
             }
         }
 
-        var skillsHTML = '';
-        if (skills.length === 0) {
-            skillsHTML = '<div style="color:#555;font-size:12px">' + UI_STR.NO_SKILLS + '</div>';
-        } else {
-            var skillCounts = {};
-            for (var k = 0; k < skills.length; k++) {
-                var s = skills[k];
-                if (!skillCounts[s.id]) {
-                    skillCounts[s.id] = { count: 0, id: s.id };
-                }
-                skillCounts[s.id].count++;
-            }
-            for (var sId in skillCounts) {
-                var skillItem = skillCounts[sId];
-                var skillDef = null;
-                for (var si = 0; si < GS.UPGRADES.length; si++) {
-                    if (GS.UPGRADES[si].id == sId) {
-                        skillDef = GS.UPGRADES[si];
-                        break;
-                    }
-                }
-                var isMaxed = skillDef && !skillDef.canAppear(p);
-                var display = GS.getUpgradeDisplay(skillDef || { id: parseInt(sId) });
-                skillsHTML += '<div class="upgrade-item skill-item" data-upgrade-id="' + sId + '"><span class="icon">' + display.icon + '</span><span>' + display.name;
-                if (skillItem.count > 1) skillsHTML += ' x' + skillItem.count;
-                if (isMaxed) skillsHTML += ' <span style="color:#ffcc00;font-size:10px">' + UI_STR.MAXED_LABEL + '</span>';
-                skillsHTML += '</span></div>';
-            }
-        }
-        document.getElementById('skillsList').innerHTML = skillsHTML;
+        // 生成技能和道具的哈希值用于缓存比较
+        var skillsHash = skills.map(function(s) { return s.id; }).sort().join(',');
+        var itemsHash = items.map(function(i) { return i.id; }).sort().join(',');
 
-        var itemsHTML = '';
-        if (items.length === 0) {
-            itemsHTML = '<div style="color:#555;font-size:12px">' + UI_STR.NO_ITEMS + '</div>';
-        } else {
-            var itemCounts = {};
-            for (var m = 0; m < items.length; m++) {
-                var it = items[m];
-                if (!itemCounts[it.id]) {
-                    itemCounts[it.id] = { count: 0, id: it.id };
-                }
-                itemCounts[it.id].count++;
-            }
-            for (var iId in itemCounts) {
-                var itemItem = itemCounts[iId];
-                var itemDef = null;
-                for (var ii = 0; ii < GS.ITEMS.length; ii++) {
-                    if (GS.ITEMS[ii].id == iId) {
-                        itemDef = GS.ITEMS[ii];
-                        break;
+        // 只在技能或道具变化时更新DOM
+        if (skillsHash !== lastSkillsHash) {
+            lastSkillsHash = skillsHash;
+            var skillsHTML = '';
+            if (skills.length === 0) {
+                skillsHTML = '<div style="color:#555;font-size:12px">' + UI_STR.NO_SKILLS + '</div>';
+            } else {
+                var skillCounts = {};
+                for (var k = 0; k < skills.length; k++) {
+                    var s = skills[k];
+                    if (!skillCounts[s.id]) {
+                        skillCounts[s.id] = { count: 0, id: s.id };
                     }
+                    skillCounts[s.id].count++;
                 }
-                var itemDisplay = GS.getItemDisplay(itemDef || { id: parseInt(iId) });
-                itemsHTML += '<div class="upgrade-item item-item" data-upgrade-id="' + iId + '"><span class="icon">' + itemDisplay.icon + '</span><span>' + itemDisplay.name;
-                if (itemItem.count > 1) itemsHTML += ' x' + itemItem.count;
-                itemsHTML += '</span></div>';
+                for (var sId in skillCounts) {
+                    var skillItem = skillCounts[sId];
+                    var skillDef = null;
+                    for (var si = 0; si < GS.UPGRADES.length; si++) {
+                        if (GS.UPGRADES[si].id == sId) {
+                            skillDef = GS.UPGRADES[si];
+                            break;
+                        }
+                    }
+                    var isMaxed = skillDef && !skillDef.canAppear(p);
+                    var display = GS.getUpgradeDisplay(skillDef || { id: parseInt(sId) });
+                    var currentLevel = skillItem.count;
+                    var maxLevel = getSkillMaxLevel(parseInt(sId));
+                    var levelText = isMaxed ? 'MAX' : currentLevel.toString();
+                    
+                    skillsHTML += '<div class="upgrade-item skill-item" data-upgrade-id="' + sId + '">';
+                    skillsHTML += '<span class="icon">' + display.icon + '</span>';
+                    skillsHTML += '<span class="level-indicator ' + (isMaxed ? 'maxed' : '') + '">' + levelText + '</span>';
+                    skillsHTML += '</div>';
+                }
             }
+            document.getElementById('skillsList').innerHTML = skillsHTML;
         }
-        document.getElementById('itemsList').innerHTML = itemsHTML;
+
+        if (itemsHash !== lastItemsHash) {
+            lastItemsHash = itemsHash;
+            var itemsHTML = '';
+            if (items.length === 0) {
+                itemsHTML = '<div style="color:#555;font-size:12px">' + UI_STR.NO_ITEMS + '</div>';
+            } else {
+                var itemCounts = {};
+                for (var m = 0; m < items.length; m++) {
+                    var it = items[m];
+                    if (!itemCounts[it.id]) {
+                        itemCounts[it.id] = { count: 0, id: it.id };
+                    }
+                    itemCounts[it.id].count++;
+                }
+                for (var iId in itemCounts) {
+                    var itemItem = itemCounts[iId];
+                    var itemDef = null;
+                    for (var ii = 0; ii < GS.ITEMS.length; ii++) {
+                        if (GS.ITEMS[ii].id == iId) {
+                            itemDef = GS.ITEMS[ii];
+                            break;
+                        }
+                    }
+                    var itemDisplay = GS.getItemDisplay(itemDef || { id: parseInt(iId) });
+                    itemsHTML += '<div class="upgrade-item item-item" data-upgrade-id="' + iId + '">';
+                    itemsHTML += '<span class="icon">' + itemDisplay.icon + '</span>';
+                    if (itemItem.count > 1) {
+                        itemsHTML += '<span class="item-count">' + itemItem.count + '</span>';
+                    }
+                    itemsHTML += '</div>';
+                }
+            }
+            document.getElementById('itemsList').innerHTML = itemsHTML;
+        }
     };
 
     document.addEventListener('keydown', function(e) {
@@ -289,6 +337,8 @@
 
     var lastTime = 0;
     var panelUpdateTimer = 0;
+    var lastSkillsHash = '';
+    var lastItemsHash = '';
 
     function gameLoop(timestamp) {
         var dt = Math.min((timestamp - lastTime) / 1000, CFG.MAX_DT);

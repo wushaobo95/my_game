@@ -1,9 +1,9 @@
 /**
- * systems/buff.js - 随机临时道具系统
+ * systems/buff.js - Buff道具系统（临时效果）
  */
 var ArcSurvivors = ArcSurvivors || {};
 
-// 随机道具拾取物
+// Buff道具拾取物
 ArcSurvivors.BuffPickup = function(x, y, type) {
     var BC = ArcSurvivors.GAME_CONFIG.BUFF_ITEMS;
     this.x = x;
@@ -125,7 +125,7 @@ ArcSurvivors.BuffPickup.prototype.draw = function(ctx) {
     ctx.restore();
 };
 
-// 随机掉落道具
+// 随机掉落Buff道具
 ArcSurvivors.trySpawnBuffItem = function(enemyX, enemyY) {
     var BC = ArcSurvivors.GAME_CONFIG.BUFF_ITEMS;
     if (Math.random() < BC.DROP_CHANCE) {

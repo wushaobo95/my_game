@@ -174,9 +174,6 @@ ArcSurvivors.Enemy.prototype.die = function() {
             ArcSurvivors.itemPickups.push(new ArcSurvivors.ItemPickup(this.x, this.y, item));
         }
         
-        // 尝试生成复活石
-        ArcSurvivors.trySpawnReviveStone(this.x, this.y);
-
         ArcSurvivors.spawnParticles(this.x, this.y, BC.DEATH_PARTICLES, 'rgb(255,0,255)', BC.DEATH_PARTICLE_SIZE, BC.DEATH_PARTICLE_SPEED);
         ArcSurvivors.screenShake.intensity = BC.SHAKE_INTENSITY;
         ArcSurvivors.screenShake.duration = BC.SHAKE_DURATION;
@@ -346,20 +343,6 @@ ArcSurvivors.Enemy.prototype.draw = function(ctx) {
     }
 
     ctx.restore();
-};
-
-// 尝试生成复活石
-ArcSurvivors.trySpawnReviveStone = function(x, y) {
-    var BC = ArcSurvivors.GAME_CONFIG.ENEMY_TYPES.boss;
-    if (Math.random() < BC.REVIVE_STONE_CHANCE) {
-        // 创建复活石道具
-        var reviveStone = {
-            id: 108,
-            apply: function(p) { p.hasReviveStone = true; },
-            isItem: true
-        };
-        ArcSurvivors.itemPickups.push(new ArcSurvivors.ItemPickup(x, y, reviveStone));
-    }
 };
 
 // 敌人生成
