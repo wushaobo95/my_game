@@ -238,84 +238,46 @@ ArcSurvivors.Enemy.prototype.draw = function(ctx) {
     var CFG = ArcSurvivors.GAME_CONFIG;
     var FR = CFG.FROST;
     var RC = CFG.RENDERER;
+    var RL = ArcSurvivors.ResourceLoader;
 
     ctx.save();
 
-    if (this.frozen) {
-        ctx.fillStyle = FR.FROST_COLOR;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius + FR.FROST_RADIUS_EXTRA, 0, Math.PI * 2);
-        ctx.fill();
-    }
-
-    if (this.slowed) {
-        ctx.fillStyle = FR.SLOW_COLOR;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius + FR.SLOW_RADIUS_EXTRA, 0, Math.PI * 2);
-        ctx.fill();
-        if (Math.random() < FR.PARTICLE_CHANCE) {
-            ArcSurvivors.spawnParticles(this.x, this.y, 1, 'rgb(136,255,255)', 1, 1);
+    // 检查是否有精灵图资源
+    var spriteName = 'enemy_' + this.type;
+    if (RL && RL.hasSprite(spriteName)) {
+        // 使用精灵图绘制
+        var sprite = RL.getSprite(spriteName);
+        var drawWidth = this.radius * 2;
+        var drawHeight = this.radius * 2;
+        
+        // 绘制冰冻/减速效果
+        if (this.frozen) {
+            ctx.fillStyle = FR.FROST_COLOR;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius + FR.FROST_RADIUS_EXTRA, 0, Math.PI * 2);
+            ctx.fill();
         }
-    }
-
-    ctx.shadowColor = this.color;
-    ctx.shadowBlur = RC.SHADOW_BLUR;
-    ctx.fillStyle = this.color;
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = RC.LINE_WIDTH;
-
-    ctx.beginPath();
-    switch (this.shape) {
-        case 'circle':
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            break;
-        case 'triangle':
-            ctx.moveTo(this.x, this.y - this.radius);
-            ctx.lineTo(this.x - this.radius, this.y + this.radius);
-            ctx.lineTo(this.x + this.radius, this.y + this.radius);
-            ctx.closePath();
-            break;
-        case 'diamond':
-            ctx.moveTo(this.x, this.y - this.radius);
-            ctx.lineTo(this.x + this.radius, this.y);
-            ctx.lineTo(this.x, this.y + this.radius);
-            ctx.lineTo(this.x - this.radius, this.y);
-            ctx.closePath();
-            break;
-        case 'square':
-            ctx.rect(this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
-            break;
-        case 'boss':
-            for (var k = 0; k < 6; k++) {
-                var a = (k / 6) * Math.PI * 2 - Math.PI / 2;
-                var bx = this.x + Math.cos(a) * this.radius;
-                var by = this.y + Math.sin(a) * this.radius;
-                if (k === 0) ctx.moveTo(bx, by);
-                else ctx.lineTo(bx, by);
+        
+        if (this.slowed) {
+            ctx.fillStyle = FR.SLOW_COLOR;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius + FR.SLOW_RADIUS_EXTRA, 0, Math.PI * 2);
+            ctx.fill();
+            if (Math.random() < FR.PARTICLE_CHANCE) {
+                ArcSurvivors.spawnParticles(this.x, this.y, 1, 'rgb(136,255,255)', 1, 1);
             }
-            ctx.closePath();
-            break;
-    }
-    ctx.fill();
-    ctx.stroke();
-
-    if (this.type === 'boss') {
-        var BC = RC.BOSS;
-
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius * BC.INNER_RADIUS_SCALE, 0, Math.PI * 2);
-        ctx.fillStyle = BC.INNER_COLOR;
-        ctx.fill();
-        ctx.strokeStyle = BC.INNER_BORDER;
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.arc(this.x - BC.EYE_OFFSET_X, this.y - BC.EYE_OFFSET_Y, BC.EYE_RADIUS, 0, Math.PI * 2);
-        ctx.arc(this.x + BC.EYE_OFFSET_X, this.y - BC.EYE_OFFSET_Y, BC.EYE_RADIUS, 0, Math.PI * 2);
-        ctx.fillStyle = BC.EYE_COLOR;
-        ctx.fill();
-
-        if (this.hp < this.maxHp && this.hp > 0) {
+        }
+        
+        // 绘制精灵图
+        ctx.drawImage(sprite, 
+            this.x - this.radius, 
+            this.y - this.radius, 
+            drawWidth, 
+            drawHeight);
+        
+        // Boss血条和名称
+        if (this.type === 'boss' && this.hp < this.maxHp && this.hp > 0) {
+            var BC = RC.BOSS;
             ctx.shadowBlur = 0;
             var barW = this.radius * BC.HP_BAR_SCALE;
             var barH = BC.HP_BAR_HEIGHT;
@@ -332,14 +294,116 @@ ArcSurvivors.Enemy.prototype.draw = function(ctx) {
             ctx.font = BC.NAME_FONT;
             ctx.textAlign = 'center';
             ctx.fillText(BC.NAME_LABEL, this.x, barY - 5);
+        } else if (this.hp < this.maxHp && this.hp > 0) {
+            var EHB = RC.ENEMY_HP_BAR;
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = EHB.BG_COLOR;
+            ctx.fillRect(this.x - this.radius, this.y - this.radius - EHB.OFFSET_Y, this.radius * 2, EHB.HEIGHT);
+            ctx.fillStyle = EHB.FILL_COLOR;
+            ctx.fillRect(this.x - this.radius, this.y - this.radius - EHB.OFFSET_Y, (this.hp / this.maxHp) * this.radius * 2, EHB.HEIGHT);
         }
-    } else if (this.hp < this.maxHp && this.hp > 0) {
-        var EHB = RC.ENEMY_HP_BAR;
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = EHB.BG_COLOR;
-        ctx.fillRect(this.x - this.radius, this.y - this.radius - EHB.OFFSET_Y, this.radius * 2, EHB.HEIGHT);
-        ctx.fillStyle = EHB.FILL_COLOR;
-        ctx.fillRect(this.x - this.radius, this.y - this.radius - EHB.OFFSET_Y, (this.hp / this.maxHp) * this.radius * 2, EHB.HEIGHT);
+    } else {
+        // 回退到原有Canvas绘制
+        if (this.frozen) {
+            ctx.fillStyle = FR.FROST_COLOR;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius + FR.FROST_RADIUS_EXTRA, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        if (this.slowed) {
+            ctx.fillStyle = FR.SLOW_COLOR;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius + FR.SLOW_RADIUS_EXTRA, 0, Math.PI * 2);
+            ctx.fill();
+            if (Math.random() < FR.PARTICLE_CHANCE) {
+                ArcSurvivors.spawnParticles(this.x, this.y, 1, 'rgb(136,255,255)', 1, 1);
+            }
+        }
+
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = RC.SHADOW_BLUR;
+        ctx.fillStyle = this.color;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = RC.LINE_WIDTH;
+
+        ctx.beginPath();
+        switch (this.shape) {
+            case 'circle':
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                break;
+            case 'triangle':
+                ctx.moveTo(this.x, this.y - this.radius);
+                ctx.lineTo(this.x - this.radius, this.y + this.radius);
+                ctx.lineTo(this.x + this.radius, this.y + this.radius);
+                ctx.closePath();
+                break;
+            case 'diamond':
+                ctx.moveTo(this.x, this.y - this.radius);
+                ctx.lineTo(this.x + this.radius, this.y);
+                ctx.lineTo(this.x, this.y + this.radius);
+                ctx.lineTo(this.x - this.radius, this.y);
+                ctx.closePath();
+                break;
+            case 'square':
+                ctx.rect(this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
+                break;
+            case 'boss':
+                for (var k = 0; k < 6; k++) {
+                    var a = (k / 6) * Math.PI * 2 - Math.PI / 2;
+                    var bx = this.x + Math.cos(a) * this.radius;
+                    var by = this.y + Math.sin(a) * this.radius;
+                    if (k === 0) ctx.moveTo(bx, by);
+                    else ctx.lineTo(bx, by);
+                }
+                ctx.closePath();
+                break;
+        }
+        ctx.fill();
+        ctx.stroke();
+
+        if (this.type === 'boss') {
+            var BC = RC.BOSS;
+
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius * BC.INNER_RADIUS_SCALE, 0, Math.PI * 2);
+            ctx.fillStyle = BC.INNER_COLOR;
+            ctx.fill();
+            ctx.strokeStyle = BC.INNER_BORDER;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(this.x - BC.EYE_OFFSET_X, this.y - BC.EYE_OFFSET_Y, BC.EYE_RADIUS, 0, Math.PI * 2);
+            ctx.arc(this.x + BC.EYE_OFFSET_X, this.y - BC.EYE_OFFSET_Y, BC.EYE_RADIUS, 0, Math.PI * 2);
+            ctx.fillStyle = BC.EYE_COLOR;
+            ctx.fill();
+
+            if (this.hp < this.maxHp && this.hp > 0) {
+                ctx.shadowBlur = 0;
+                var barW = this.radius * BC.HP_BAR_SCALE;
+                var barH = BC.HP_BAR_HEIGHT;
+                var barX = this.x - barW / 2;
+                var barY = this.y - this.radius - BC.HP_BAR_OFFSET_Y;
+                ctx.fillStyle = BC.HP_BG_COLOR;
+                ctx.fillRect(barX, barY, barW, barH);
+                ctx.fillStyle = BC.HP_FILL_COLOR;
+                ctx.fillRect(barX, barY, (this.hp / this.maxHp) * barW, barH);
+                ctx.strokeStyle = BC.HP_BORDER_COLOR;
+                ctx.strokeRect(barX, barY, barW, barH);
+
+                ctx.fillStyle = BC.NAME_COLOR;
+                ctx.font = BC.NAME_FONT;
+                ctx.textAlign = 'center';
+                ctx.fillText(BC.NAME_LABEL, this.x, barY - 5);
+            }
+        } else if (this.hp < this.maxHp && this.hp > 0) {
+            var EHB = RC.ENEMY_HP_BAR;
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = EHB.BG_COLOR;
+            ctx.fillRect(this.x - this.radius, this.y - this.radius - EHB.OFFSET_Y, this.radius * 2, EHB.HEIGHT);
+            ctx.fillStyle = EHB.FILL_COLOR;
+            ctx.fillRect(this.x - this.radius, this.y - this.radius - EHB.OFFSET_Y, (this.hp / this.maxHp) * this.radius * 2, EHB.HEIGHT);
+        }
     }
 
     ctx.restore();
@@ -461,14 +525,30 @@ ArcSurvivors.EnemyBullet.prototype.update = function(dt) {
 };
 
 ArcSurvivors.EnemyBullet.prototype.draw = function(ctx) {
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    var grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
-    grad.addColorStop(0, '#ff88ff');
-    grad.addColorStop(1, '#ff0044');
-    ctx.fillStyle = grad;
-    ctx.fill();
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 1;
-    ctx.stroke();
+    var RL = ArcSurvivors.ResourceLoader;
+    
+    // 检查是否有精灵图资源
+    if (RL && RL.hasSprite('enemy_bullet')) {
+        // 使用精灵图绘制
+        var sprite = RL.getSprite('enemy_bullet');
+        var drawWidth = this.radius * 2;
+        var drawHeight = this.radius * 2;
+        ctx.drawImage(sprite, 
+            this.x - this.radius, 
+            this.y - this.radius, 
+            drawWidth, 
+            drawHeight);
+    } else {
+        // 回退到原有Canvas绘制
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        var grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+        grad.addColorStop(0, '#ff88ff');
+        grad.addColorStop(1, '#ff0044');
+        ctx.fillStyle = grad;
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    }
 };

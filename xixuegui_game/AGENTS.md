@@ -14,6 +14,7 @@ xixuegui_game/
 ├── js/
 │   ├── core/           # 核心系统
 │   │   ├── config.js   # 命名空间、全局状态、工具函数
+│   │   ├── resource-loader.js # 资源加载器（精灵图、音频文件）
 │   │   ├── game-config.js # 游戏数值配置
 │   │   ├── strings.js  # 文案配置
 │   │   ├── event.js    # 事件系统（解耦模块通信）
@@ -25,12 +26,25 @@ xixuegui_game/
 │   │   ├── gem.js      # 经验宝石、道具拾取物
 │   │   └── particle.js # 粒子系统
 │   ├── systems/        # 游戏系统
-│   │   ├── audio.js    # Web Audio API 合成音效（无外部文件）
+│   │   ├── audio.js    # Web Audio API 合成音效（支持外部音频文件）
 │   │   ├── renderer.js # 背景、UI 条、危险警告、受击特效
 │   │   ├── upgrade.js  # 升级和道具定义，升级界面 UI
 │   │   └── buff.js     # Buff道具系统（炸弹、冰冻、护盾、狂暴）
 │   └── game.js         # 主循环、输入、暂停、状态面板、初始化
-└── assets/             # 预留给未来使用
+├── assets/             # 游戏资源
+│   ├── sprites/        # 精灵图资源
+│   │   ├── player/     # 玩家精灵图
+│   │   ├── enemies/    # 敌人精灵图
+│   │   ├── bullets/    # 子弹特效
+│   │   ├── items/      # 道具图标
+│   │   ├── effects/    # 粒子特效
+│   │   └── background/ # 背景图片
+│   ├── audio/          # 音频资源
+│   │   ├── sfx/        # 音效文件
+│   │   └── music/      # 背景音乐
+│   └── 资源规格文档.md # 资源规格说明文档
+├── test-resources.html # 资源加载测试页面
+└── AGENTS.md           # 项目文档
 ```
 
 ## 运行游戏
@@ -81,18 +95,19 @@ ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.PLAYER_DIE);
 ### 脚本加载顺序（必须严格遵守）
 在 `index.html` 中定义，依赖关系从上到下：
 1. `core/config.js` — 必须最先加载，定义命名空间、全局状态、工具函数
-2. `core/game-config.js` — 游戏数值配置（依赖 config.js 的命名空间）
-3. `core/strings.js` — 文案配置（依赖 config.js 的命名空间）
-4. `core/event.js` — 事件系统
-5. `core/utils.js` — 纯函数，无依赖
-6. `entities/particle.js`、`entities/gem.js`、`entities/bullet.js` — 实体类
-7. `entities/enemy.js` — 依赖 bullet.js（EnemyBullet）、particle.js、config
-8. `entities/player.js` — 依赖 bullet.js、enemy.js（碰撞）、upgrade
-9. `systems/audio.js` — IIFE，自包含音频引擎
-10. `systems/buff.js` — 依赖 player.js、config
-11. `systems/upgrade.js` — 依赖 player.js
-12. `systems/renderer.js` — 依赖所有实体进行绘制
-13. `game.js` — 主循环，必须最后加载
+2. `core/resource-loader.js` — 资源加载器（依赖 config.js 的命名空间）
+3. `core/game-config.js` — 游戏数值配置（依赖 config.js 的命名空间）
+4. `core/strings.js` — 文案配置（依赖 config.js 的命名空间）
+5. `core/event.js` — 事件系统
+6. `core/utils.js` — 纯函数，无依赖
+7. `entities/particle.js`、`entities/gem.js`、`entities/bullet.js` — 实体类
+8. `entities/enemy.js` — 依赖 bullet.js（EnemyBullet）、particle.js、config
+9. `entities/player.js` — 依赖 bullet.js、enemy.js（碰撞）、upgrade
+10. `systems/audio.js` — IIFE，自包含音频引擎（支持外部音频文件）
+11. `systems/buff.js` — 依赖 player.js、config
+12. `systems/upgrade.js` — 依赖 player.js
+13. `systems/renderer.js` — 依赖所有实体进行绘制
+14. `game.js` — 主循环，必须最后加载
 
 **添加新 JS 文件时**，在 `index.html` 中的正确位置添加 `<script>` 标签。
 
@@ -124,6 +139,57 @@ GS.enemies = GS.enemies.filter(function(e) { return e.active; });
 - `ArcSurvivors.particles` — 视觉粒子（上限 300）
 - `ArcSurvivors.itemPickups` — 道具拾取物
 - `ArcSurvivors.buffPickups` — Buff道具拾取物
+
+## 资源系统
+
+### 资源加载器
+项目包含一个资源加载器 (`core/resource-loader.js`)，支持加载精灵图和音频文件：
+```js
+// 初始化资源加载器
+ArcSurvivors.ResourceLoader.init(
+    function(loaded, total) {
+        console.log('加载进度: ' + loaded + '/' + total);
+    },
+    function() {
+        console.log('所有资源加载完成');
+    }
+);
+
+// 检查资源是否已加载
+if (ArcSurvivors.ResourceLoader.hasSprite('player_normal')) {
+    var sprite = ArcSurvivors.ResourceLoader.getSprite('player_normal');
+    ctx.drawImage(sprite, x, y, width, height);
+}
+
+// 播放音频资源
+if (ArcSurvivors.ResourceLoader.hasAudio('sfx_shoot')) {
+    ArcSurvivors.ResourceLoader.playAudio('sfx_shoot', 1.0);
+}
+```
+
+### 资源回退机制
+所有实体绘制方法都支持资源回退：
+1. 如果资源文件存在，使用精灵图绘制
+2. 如果资源文件不存在，回退到原有的Canvas绘制
+3. 这允许逐步替换资源，无需一次性完成所有资源
+
+### 资源规格文档
+详细的资源规格请参考 `assets/资源规格文档.md`，包含：
+- 所有需要的精灵图规格（尺寸、格式、风格）
+- 所有需要的音频文件规格（时长、格式、风格）
+- 文件命名规范和目录结构
+- 颜色参考和技术规格
+
+### 添加新资源
+1. 将资源文件放入对应的 `assets/` 文件夹
+2. 在 `core/resource-loader.js` 的清单中添加资源路径
+3. 修改对应的绘制方法以支持新资源
+
+### 测试资源加载
+使用 `test-resources.html` 页面测试资源加载状态：
+- 显示所有资源的加载状态
+- 提供测试功能验证资源加载器
+- 实时日志输出便于调试
 
 ## 配置系统
 
@@ -287,9 +353,17 @@ ArcSurvivors.EventSystem.on(ArcSurvivors.Events.PLAYER_LEVEL_UP, function(level)
 
 ## 音频系统
 
-所有音效通过 Web Audio API 合成——无需外部音频文件。
+音频系统支持两种模式：
+1. **Web Audio API 合成**：默认模式，无需外部音频文件
+2. **外部音频文件**：支持 MP3/OGG 格式的音频文件
+
 音频上下文需要用户手势才能启动；`game.js` 在首次点击画布时初始化。
 播放前调用 `ArcSurvivors.Audio.init()` 然后 `resume()`。
+
+### 音频资源优先级
+1. 如果外部音频文件存在，优先使用外部文件
+2. 如果外部文件不存在，回退到 Web Audio API 合成
+3. 这允许逐步替换音频资源，无需一次性完成所有音频
 
 ## 常见陷阱
 
@@ -300,6 +374,9 @@ ArcSurvivors.EventSystem.on(ArcSurvivors.Events.PLAYER_LEVEL_UP, function(level)
 - **配置引用时机**：确保在访问 `GAME_CONFIG` 或 `STRINGS` 时对应的配置文件已加载完成（config.js → game-config.js → strings.js）
 - **Buff叠加问题**：Buff道具（狂暴、护盾）重复拾取时只延长计时器，不重复叠加效果
 - **事件系统使用**：事件系统是解耦模块的关键，应该优先使用事件而不是直接函数调用
+- **资源加载时机**：资源加载器需要在游戏初始化前加载，确保 `resource-loader.js` 在 `config.js` 之后加载
+- **资源回退机制**：所有绘制方法都支持资源回退，确保游戏在没有资源文件时仍能正常运行
+- **音频资源格式**：外部音频文件支持 MP3 和 OGG 格式，推荐使用 MP3 以获得更好的兼容性
 
 ## 架构改进说明
 
@@ -309,7 +386,13 @@ ArcSurvivors.EventSystem.on(ArcSurvivors.Events.PLAYER_LEVEL_UP, function(level)
    - 预定义游戏事件常量
    - 解耦模块间通信
 
-2. **模块化文件夹结构**
+2. **资源加载器** (`core/resource-loader.js`)
+   - 支持精灵图和音频文件加载
+   - 资源回退机制（无资源时使用Canvas绘制和Web Audio合成）
+   - 加载进度回调和完成回调
+   - 支持动态添加新资源
+
+3. **模块化文件夹结构**
    - `core/` - 核心系统
    - `entities/` - 实体类
    - `systems/` - 游戏系统
@@ -324,4 +407,5 @@ ArcSurvivors.EventSystem.on(ArcSurvivors.Events.PLAYER_LEVEL_UP, function(level)
 1. 添加新功能时，优先使用事件系统进行通信
 2. 新实体类放在 `entities/` 文件夹
 3. 新游戏系统放在 `systems/` 文件夹
+4. 添加新资源时，先更新资源加载器清单，再修改绘制方法
 4. 配置和工具函数放在 `core/` 文件夹

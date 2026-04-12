@@ -199,45 +199,68 @@ ArcSurvivors.Player.prototype.gainExp = function(amount) {
 
 ArcSurvivors.Player.prototype.draw = function(ctx) {
     var PC = ArcSurvivors.GAME_CONFIG.PLAYER;
+    var RL = ArcSurvivors.ResourceLoader;
+    
     ctx.save();
 
     if (this.invulnerable && !this.hasShieldBuff && Math.floor(Date.now() / 100) % 2 === 0) {
         ctx.globalAlpha = 0.5;
     }
 
-    if (this.pulseEffect > 0) {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius + PC.PULSE_RADIUS_EXTRA * this.pulseEffect, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(100, 50, 255, ' + (this.pulseEffect * 0.3) + ')';
-        ctx.fill();
-    }
-
+    // 检查是否有精灵图资源
+    var spriteName = 'player_normal';
     if (this.hasShieldBuff) {
-        var shieldAlpha = 0.4 + Math.sin(Date.now() / 200) * 0.2;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius + 15, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(0, 255, 136, ' + shieldAlpha + ')';
-        ctx.lineWidth = 3;
-        ctx.stroke();
-        ctx.fillStyle = 'rgba(0, 255, 136, ' + (shieldAlpha * 0.3) + ')';
-        ctx.fill();
+        spriteName = 'player_shield';
+    } else if (this.invulnerable) {
+        spriteName = 'player_invulnerable';
     }
+    
+    if (RL && RL.hasSprite(spriteName)) {
+        // 使用精灵图绘制
+        var sprite = RL.getSprite(spriteName);
+        var drawWidth = this.radius * 2;
+        var drawHeight = this.radius * 2;
+        ctx.drawImage(sprite, 
+            this.x - this.radius, 
+            this.y - this.radius, 
+            drawWidth, 
+            drawHeight);
+    } else {
+        // 回退到原有Canvas绘制
+        if (this.pulseEffect > 0) {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius + PC.PULSE_RADIUS_EXTRA * this.pulseEffect, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(100, 50, 255, ' + (this.pulseEffect * 0.3) + ')';
+            ctx.fill();
+        }
 
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    var gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
-    gradient.addColorStop(0, PC.COLORS.INNER);
-    gradient.addColorStop(1, PC.COLORS.OUTER);
-    ctx.fillStyle = gradient;
-    ctx.fill();
+        if (this.hasShieldBuff) {
+            var shieldAlpha = 0.4 + Math.sin(Date.now() / 200) * 0.2;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius + 15, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(0, 255, 136, ' + shieldAlpha + ')';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(0, 255, 136, ' + (shieldAlpha * 0.3) + ')';
+            ctx.fill();
+        }
 
-    ctx.strokeStyle = PC.COLORS.RUNE;
-    ctx.lineWidth = PC.COLORS.RUNE_WIDTH;
-    for (var i = 0; i < 3; i++) {
-        var angle = this.runeAngle + (i * Math.PI * 2 / 3);
         ctx.beginPath();
-        ctx.arc(this.x + Math.cos(angle) * (this.radius + 10), this.y + Math.sin(angle) * (this.radius + 10), 5, 0, Math.PI * 2);
-        ctx.stroke();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        var gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+        gradient.addColorStop(0, PC.COLORS.INNER);
+        gradient.addColorStop(1, PC.COLORS.OUTER);
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        ctx.strokeStyle = PC.COLORS.RUNE;
+        ctx.lineWidth = PC.COLORS.RUNE_WIDTH;
+        for (var i = 0; i < 3; i++) {
+            var angle = this.runeAngle + (i * Math.PI * 2 / 3);
+            ctx.beginPath();
+            ctx.arc(this.x + Math.cos(angle) * (this.radius + 10), this.y + Math.sin(angle) * (this.radius + 10), 5, 0, Math.PI * 2);
+            ctx.stroke();
+        }
     }
 
     ctx.restore();

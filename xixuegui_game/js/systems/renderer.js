@@ -8,24 +8,39 @@ ArcSurvivors.Renderer = {
         var RC = ArcSurvivors.GAME_CONFIG.RENDERER;
         var BG = RC.BACKGROUND;
         var CFG = ArcSurvivors.GAME_CONFIG;
+        var RL = ArcSurvivors.ResourceLoader;
 
-        ctx.fillStyle = BG.COLOR;
-        ctx.fillRect(0, 0, CFG.CANVAS_WIDTH, CFG.CANVAS_HEIGHT);
+        // 检查是否有背景精灵图
+        if (RL && RL.hasSprite('background')) {
+            // 使用背景精灵图
+            var bgSprite = RL.getSprite('background');
+            ctx.drawImage(bgSprite, 0, 0, CFG.CANVAS_WIDTH, CFG.CANVAS_HEIGHT);
+            
+            // 如果有网格覆盖层，绘制它
+            if (RL.hasSprite('background_grid')) {
+                var gridSprite = RL.getSprite('background_grid');
+                ctx.drawImage(gridSprite, 0, 0, CFG.CANVAS_WIDTH, CFG.CANVAS_HEIGHT);
+            }
+        } else {
+            // 回退到原有Canvas绘制
+            ctx.fillStyle = BG.COLOR;
+            ctx.fillRect(0, 0, CFG.CANVAS_WIDTH, CFG.CANVAS_HEIGHT);
 
-        ctx.strokeStyle = BG.GRID_COLOR;
-        ctx.lineWidth = 1;
+            ctx.strokeStyle = BG.GRID_COLOR;
+            ctx.lineWidth = 1;
 
-        for (var x = 0; x < CFG.CANVAS_WIDTH; x += BG.GRID_SIZE) {
-            ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, CFG.CANVAS_HEIGHT);
-            ctx.stroke();
-        }
-        for (var y = 0; y < CFG.CANVAS_HEIGHT; y += BG.GRID_SIZE) {
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(CFG.CANVAS_WIDTH, y);
-            ctx.stroke();
+            for (var x = 0; x < CFG.CANVAS_WIDTH; x += BG.GRID_SIZE) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, CFG.CANVAS_HEIGHT);
+                ctx.stroke();
+            }
+            for (var y = 0; y < CFG.CANVAS_HEIGHT; y += BG.GRID_SIZE) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(CFG.CANVAS_WIDTH, y);
+                ctx.stroke();
+            }
         }
     },
 

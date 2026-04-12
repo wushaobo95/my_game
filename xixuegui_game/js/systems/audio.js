@@ -125,62 +125,90 @@ ArcSurvivors.Audio = (function() {
         bgmOscillators = [];
     }
 
+    function playExternalAudio(name, fallbackFn, volume) {
+        if (ArcSurvivors.ResourceLoader && ArcSurvivors.ResourceLoader.hasAudio(name)) {
+            ArcSurvivors.ResourceLoader.playAudio(name, volume || 1.0);
+        } else if (fallbackFn) {
+            fallbackFn();
+        }
+    }
+
     function shoot() {
-        playTone(880, 0.08, 'square', 0.15);
-        playTone(1200, 0.05, 'sine', 0.1);
+        playExternalAudio('sfx_shoot', function() {
+            playTone(880, 0.08, 'square', 0.15);
+            playTone(1200, 0.05, 'sine', 0.1);
+        });
     }
 
     function hit() {
-        playTone(300, 0.06, 'sawtooth', 0.12);
+        playExternalAudio('sfx_hit', function() {
+            playTone(300, 0.06, 'sawtooth', 0.12);
+        });
     }
 
     function enemyDeath() {
-        playNoise(0.12, 0.15);
-        playTone(150, 0.15, 'sine', 0.1);
+        playExternalAudio('sfx_enemy_death', function() {
+            playNoise(0.12, 0.15);
+            playTone(150, 0.15, 'sine', 0.1);
+        });
     }
 
     function bossDeath() {
-        playNoise(0.4, 0.3);
-        playTone(100, 0.5, 'sawtooth', 0.2);
-        setTimeout(function() { playTone(80, 0.4, 'sine', 0.15); }, 100);
-        setTimeout(function() { playTone(60, 0.6, 'sine', 0.1); }, 200);
-        setTimeout(function() {
-            playTone(440, 0.2, 'triangle', 0.15);
-            playTone(554, 0.2, 'triangle', 0.12);
-            playTone(659, 0.3, 'triangle', 0.1);
-        }, 300);
+        playExternalAudio('sfx_boss_death', function() {
+            playNoise(0.4, 0.3);
+            playTone(100, 0.5, 'sawtooth', 0.2);
+            setTimeout(function() { playTone(80, 0.4, 'sine', 0.15); }, 100);
+            setTimeout(function() { playTone(60, 0.6, 'sine', 0.1); }, 200);
+            setTimeout(function() {
+                playTone(440, 0.2, 'triangle', 0.15);
+                playTone(554, 0.2, 'triangle', 0.12);
+                playTone(659, 0.3, 'triangle', 0.1);
+            }, 300);
+        });
     }
 
     function bossWarning() {
-        playTone(200, 0.3, 'sawtooth', 0.2);
-        setTimeout(function() { playTone(180, 0.3, 'sawtooth', 0.2); }, 400);
-        setTimeout(function() { playTone(160, 0.4, 'sawtooth', 0.25); }, 800);
+        playExternalAudio('sfx_boss_warning', function() {
+            playTone(200, 0.3, 'sawtooth', 0.2);
+            setTimeout(function() { playTone(180, 0.3, 'sawtooth', 0.2); }, 400);
+            setTimeout(function() { playTone(160, 0.4, 'sawtooth', 0.25); }, 800);
+        });
     }
 
     function levelUp() {
-        playTone(440, 0.15, 'sine', 0.2);
-        setTimeout(function() { playTone(554, 0.15, 'sine', 0.2); }, 100);
-        setTimeout(function() { playTone(659, 0.2, 'sine', 0.25); }, 200);
-        setTimeout(function() { playTone(880, 0.3, 'triangle', 0.15); }, 300);
+        playExternalAudio('sfx_level_up', function() {
+            playTone(440, 0.15, 'sine', 0.2);
+            setTimeout(function() { playTone(554, 0.15, 'sine', 0.2); }, 100);
+            setTimeout(function() { playTone(659, 0.2, 'sine', 0.25); }, 200);
+            setTimeout(function() { playTone(880, 0.3, 'triangle', 0.15); }, 300);
+        });
     }
 
     function playerHurt() {
-        playTone(80, 0.2, 'sawtooth', 0.2);
-        playNoise(0.1, 0.1);
+        playExternalAudio('sfx_player_hurt', function() {
+            playTone(80, 0.2, 'sawtooth', 0.2);
+            playNoise(0.1, 0.1);
+        });
     }
 
     function pickup() {
-        playTone(600, 0.05, 'sine', 0.08);
+        playExternalAudio('sfx_pickup', function() {
+            playTone(600, 0.05, 'sine', 0.08);
+        });
     }
 
     function gameOver() {
-        playTone(200, 0.4, 'sawtooth', 0.2);
-        setTimeout(function() { playTone(150, 0.4, 'sawtooth', 0.15); }, 200);
-        setTimeout(function() { playTone(100, 0.6, 'sawtooth', 0.1); }, 400);
+        playExternalAudio('sfx_game_over', function() {
+            playTone(200, 0.4, 'sawtooth', 0.2);
+            setTimeout(function() { playTone(150, 0.4, 'sawtooth', 0.15); }, 200);
+            setTimeout(function() { playTone(100, 0.6, 'sawtooth', 0.1); }, 400);
+        });
     }
 
     function pause() {
-        playTone(440, 0.1, 'sine', 0.1);
+        playExternalAudio('sfx_pause', function() {
+            playTone(440, 0.1, 'sine', 0.1);
+        });
     }
 
     function mute() {

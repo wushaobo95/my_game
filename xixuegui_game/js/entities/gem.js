@@ -36,13 +36,30 @@ ArcSurvivors.Gem.prototype.update = function(dt) {
 
 ArcSurvivors.Gem.prototype.draw = function(ctx) {
     var GC = ArcSurvivors.GAME_CONFIG.GEM;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle = this.color;
-    ctx.fill();
-    ctx.strokeStyle = GC.BORDER_COLOR;
-    ctx.lineWidth = GC.LINE_WIDTH;
-    ctx.stroke();
+    var RL = ArcSurvivors.ResourceLoader;
+    
+    // 检查是否有精灵图资源
+    var spriteName = this.type === 'large' ? 'gem_large' : 'gem_small';
+    if (RL && RL.hasSprite(spriteName)) {
+        // 使用精灵图绘制
+        var sprite = RL.getSprite(spriteName);
+        var drawWidth = this.radius * 2;
+        var drawHeight = this.radius * 2;
+        ctx.drawImage(sprite, 
+            this.x - this.radius, 
+            this.y - this.radius, 
+            drawWidth, 
+            drawHeight);
+    } else {
+        // 回退到原有Canvas绘制
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.strokeStyle = GC.BORDER_COLOR;
+        ctx.lineWidth = GC.LINE_WIDTH;
+        ctx.stroke();
+    }
 };
 
 ArcSurvivors.ItemPickup = function(x, y, item) {
@@ -86,22 +103,37 @@ ArcSurvivors.ItemPickup.prototype.applyItem = function() {
 ArcSurvivors.ItemPickup.prototype.draw = function(ctx) {
     var IC = ArcSurvivors.GAME_CONFIG.ITEM_PICKUP;
     var display = ArcSurvivors.getItemDisplay(this.item);
+    var RL = ArcSurvivors.ResourceLoader;
 
     ctx.save();
 
-    ctx.shadowColor = IC.GLOW_COLOR;
-    ctx.shadowBlur = IC.GLOW_BLUR;
+    // 检查是否有精灵图资源
+    if (RL && RL.hasSprite('item_pickup')) {
+        // 使用精灵图绘制
+        var sprite = RL.getSprite('item_pickup');
+        var drawWidth = this.radius * 2;
+        var drawHeight = this.radius * 2;
+        ctx.drawImage(sprite, 
+            this.x - this.radius, 
+            this.drawY - this.radius, 
+            drawWidth, 
+            drawHeight);
+    } else {
+        // 回退到原有Canvas绘制
+        ctx.shadowColor = IC.GLOW_COLOR;
+        ctx.shadowBlur = IC.GLOW_BLUR;
 
-    ctx.font = IC.ICON_FONT_SIZE + 'px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(display.icon, this.x, this.drawY);
+        ctx.font = IC.ICON_FONT_SIZE + 'px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(display.icon, this.x, this.drawY);
 
-    ctx.beginPath();
-    ctx.arc(this.x, this.drawY, this.radius, 0, Math.PI * 2);
-    ctx.strokeStyle = IC.GLOW_COLOR;
-    ctx.lineWidth = IC.BORDER_WIDTH;
-    ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(this.x, this.drawY, this.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = IC.GLOW_COLOR;
+        ctx.lineWidth = IC.BORDER_WIDTH;
+        ctx.stroke();
+    }
 
     ctx.restore();
 };

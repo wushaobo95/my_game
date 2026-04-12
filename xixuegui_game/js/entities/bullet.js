@@ -123,36 +123,63 @@ ArcSurvivors.Bullet.prototype.triggerLightningChain = function(hitEnemy) {
 
 ArcSurvivors.Bullet.prototype.draw = function(ctx) {
     var BC = ArcSurvivors.GAME_CONFIG.BULLET;
+    var RL = ArcSurvivors.ResourceLoader;
 
-    for (var i = 0; i < this.trail.length; i++) {
-        var point = this.trail[i];
-        ctx.beginPath();
-        ctx.arc(point.x, point.y, this.size * BC.TRAIL_SIZE_SCALE * point.alpha, 0, Math.PI * 2);
-        ctx.fillStyle = BC.COLORS.TRAIL.replace('{alpha}', point.alpha * BC.TRAIL_ALPHA_SCALE);
-        ctx.fill();
-    }
-
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    var gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
-    gradient.addColorStop(0, BC.COLORS.CORE);
-    gradient.addColorStop(0.5, BC.COLORS.MID);
-    gradient.addColorStop(1, BC.COLORS.OUTER);
-    ctx.fillStyle = gradient;
-    ctx.fill();
-    
-    // 暴击子弹效果
-    if (this.isCritical) {
-        ctx.strokeStyle = '#ffcc00';
-        ctx.lineWidth = 2;
-        ctx.stroke();
+    // 检查是否有精灵图资源
+    var spriteName = this.isCritical ? 'bullet_critical' : 'bullet_normal';
+    if (RL && RL.hasSprite(spriteName)) {
+        // 使用精灵图绘制
+        var sprite = RL.getSprite(spriteName);
+        var drawWidth = this.size * 2;
+        var drawHeight = this.size * 2;
         
-        // 暴击光晕
+        // 绘制拖尾效果（仍然使用Canvas）
+        for (var i = 0; i < this.trail.length; i++) {
+            var point = this.trail[i];
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, this.size * BC.TRAIL_SIZE_SCALE * point.alpha, 0, Math.PI * 2);
+            ctx.fillStyle = BC.COLORS.TRAIL.replace('{alpha}', point.alpha * BC.TRAIL_ALPHA_SCALE);
+            ctx.fill();
+        }
+        
+        // 绘制精灵图
+        ctx.drawImage(sprite, 
+            this.x - this.size, 
+            this.y - this.size, 
+            drawWidth, 
+            drawHeight);
+    } else {
+        // 回退到原有Canvas绘制
+        for (var i = 0; i < this.trail.length; i++) {
+            var point = this.trail[i];
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, this.size * BC.TRAIL_SIZE_SCALE * point.alpha, 0, Math.PI * 2);
+            ctx.fillStyle = BC.COLORS.TRAIL.replace('{alpha}', point.alpha * BC.TRAIL_ALPHA_SCALE);
+            ctx.fill();
+        }
+
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size + 3, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(255, 204, 0, 0.5)';
-        ctx.lineWidth = 1;
-        ctx.stroke();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        var gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
+        gradient.addColorStop(0, BC.COLORS.CORE);
+        gradient.addColorStop(0.5, BC.COLORS.MID);
+        gradient.addColorStop(1, BC.COLORS.OUTER);
+        ctx.fillStyle = gradient;
+        ctx.fill();
+        
+        // 暴击子弹效果
+        if (this.isCritical) {
+            ctx.strokeStyle = '#ffcc00';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // 暴击光晕
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size + 3, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255, 204, 0, 0.5)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
     }
 };
 
