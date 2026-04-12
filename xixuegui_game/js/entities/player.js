@@ -1,5 +1,5 @@
 /**
- * player.js - 玩家角色
+ * entities/player.js - 玩家角色
  */
 var ArcSurvivors = ArcSurvivors || {};
 
@@ -75,6 +75,7 @@ ArcSurvivors.Player.prototype.update = function(dt) {
         if (this.regenTimer >= 1) {
             this.hp = Math.min(this.maxHp, this.hp + this.regenRate);
             this.regenTimer = 0;
+            ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.PLAYER_HEAL, this.regenRate);
         }
     }
 
@@ -118,11 +119,14 @@ ArcSurvivors.Player.prototype.createBullet = function(angle, damage) {
         finalDamage *= 2; // 暴击伤害翻倍
     }
     
-    ArcSurvivors.bullets.push(new ArcSurvivors.Bullet(
+    var bullet = new ArcSurvivors.Bullet(
         this.x, this.y, angle, this.bulletSpeed,
         finalDamage, this.bulletSize, this.bulletPenetration, isCritical
-    ));
+    );
+    ArcSurvivors.bullets.push(bullet);
     ArcSurvivors.Audio.shoot();
+    
+    ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.BULLET_FIRE, bullet);
 };
 
 ArcSurvivors.Player.prototype.takeDamage = function(damage) {
@@ -135,6 +139,8 @@ ArcSurvivors.Player.prototype.takeDamage = function(damage) {
     ArcSurvivors.screenShake.intensity = HE.SCREEN_SHAKE_INTENSITY;
     ArcSurvivors.screenShake.duration = HE.SCREEN_SHAKE_DURATION;
     ArcSurvivors.Audio.playerHurt();
+    
+    ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.PLAYER_HURT, damage, this.hp);
 
     if (this.hp <= 0) {
         this.hp = 0;
@@ -145,6 +151,7 @@ ArcSurvivors.Player.prototype.takeDamage = function(damage) {
             return;
         }
         
+        ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.PLAYER_DIE);
         ArcSurvivors.gameOver();
     }
 };
@@ -173,6 +180,8 @@ ArcSurvivors.Player.prototype.revive = function() {
     
     // 播放复活音效（可以复用升级音效）
     ArcSurvivors.Audio.levelUp();
+    
+    ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.PLAYER_REVIVE);
 };
 
 ArcSurvivors.Player.prototype.gainExp = function(amount) {
@@ -183,6 +192,7 @@ ArcSurvivors.Player.prototype.gainExp = function(amount) {
         this.level++;
         this.expToLevel = Math.floor(this.expToLevel * PC.EXP_GROWTH_RATE);
         ArcSurvivors.Audio.levelUp();
+        ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.PLAYER_LEVEL_UP, this.level);
         ArcSurvivors.showUpgradeScreen();
     }
 };

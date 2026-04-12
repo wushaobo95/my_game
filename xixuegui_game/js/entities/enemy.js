@@ -1,5 +1,5 @@
 /**
- * enemy.js - 敌人系统
+ * entities/enemy.js - 敌人系统
  */
 var ArcSurvivors = ArcSurvivors || {};
 
@@ -40,6 +40,8 @@ ArcSurvivors.Enemy = function(x, y, type) {
         this.shootTimer = 0;
         this.shootInterval = EC.SHOOT_INTERVAL;
     }
+    
+    ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.ENEMY_SPAWN, this);
 };
 
 ArcSurvivors.Enemy.prototype.update = function(dt) {
@@ -139,6 +141,7 @@ ArcSurvivors.Enemy.prototype.rangedShoot = function() {
 
 ArcSurvivors.Enemy.prototype.takeDamage = function(damage) {
     this.hp -= damage;
+    ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.ENEMY_HURT, this, damage);
     if (this.hp <= 0) this.die();
 };
 
@@ -151,6 +154,8 @@ ArcSurvivors.Enemy.prototype.die = function() {
     ArcSurvivors.gameState.kills++;
     var player = ArcSurvivors.player;
     ArcSurvivors.Audio.enemyDeath();
+    
+    ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.ENEMY_DIE, this);
 
     if (this.type === 'boss') {
         for (var i = 0; i < BC.GEM_COUNT; i++) {
@@ -178,6 +183,8 @@ ArcSurvivors.Enemy.prototype.die = function() {
         ArcSurvivors.hitStop.active = true;
         ArcSurvivors.hitStop.frames = BC.HITSTOP_FRAMES;
         ArcSurvivors.Audio.bossDeath();
+        
+        ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.BOSS_DIE, this);
     } else {
         var gemType = Math.random() < BC.LARGE_GEM_CHANCE ? 'large' : 'small';
         ArcSurvivors.gems.push(new ArcSurvivors.Gem(this.x, this.y, gemType));
@@ -424,8 +431,10 @@ ArcSurvivors.spawnBoss = function() {
 
     var self = this;
     setTimeout(function() {
-        self.enemies.push(new self.Enemy(x, y, 'boss'));
+        var boss = new self.Enemy(x, y, 'boss');
+        self.enemies.push(boss);
         self.Audio.init && self.Audio.pause();
+        ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.BOSS_SPAWN, boss);
     }, SC.BOSS_WARNING_DURATION);
 };
 

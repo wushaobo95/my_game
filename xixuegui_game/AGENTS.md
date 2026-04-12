@@ -12,17 +12,21 @@ xixuegui_game/
 ├── index.html          # 入口文件，按顺序加载脚本
 ├── css/style.css       # 所有样式
 ├── js/
-│   ├── config.js       # 游戏配置、文案、全局状态、实体数组
-│   ├── utils.js        # 数学工具函数（距离、点到线距离）
-│   ├── audio.js        # Web Audio API 合成音效（无外部文件）
-│   ├── particle.js     # 粒子系统
-│   ├── gem.js          # 经验宝石、道具拾取物
-│   ├── bullet.js       # 玩家子弹 + 激光，敌方子弹在 enemy.js
-│   ├── enemy.js        # 敌人类型、Boss、生成逻辑、EnemyBullet 类
-│   ├── player.js       # 玩家移动、射击、受伤、升级
-│   ├── upgrades.js     # 升级和道具定义，升级界面 UI
-│   ├── buff.js         # 临时道具系统（炸弹、冰冻、护盾、狂暴）
-│   ├── renderer.js     # 背景、UI 条、危险警告、受击特效
+│   ├── core/           # 核心系统
+│   │   ├── config.js   # 游戏配置、文案、全局状态、实体数组
+│   │   ├── event.js    # 事件系统（解耦模块通信）
+│   │   └── utils.js    # 数学工具函数（距离、点到线距离）
+│   ├── entities/       # 实体类
+│   │   ├── player.js   # 玩家角色
+│   │   ├── enemy.js    # 敌人类型、Boss、生成逻辑、EnemyBullet 类
+│   │   ├── bullet.js   # 玩家子弹 + 激光
+│   │   ├── gem.js      # 经验宝石、道具拾取物
+│   │   └── particle.js # 粒子系统
+│   ├── systems/        # 游戏系统
+│   │   ├── audio.js    # Web Audio API 合成音效（无外部文件）
+│   │   ├── renderer.js # 背景、UI 条、危险警告、受击特效
+│   │   ├── upgrade.js  # 升级和道具定义，升级界面 UI
+│   │   └── buff.js     # 临时道具系统（炸弹、冰冻、护盾、狂暴）
 │   └── game.js         # 主循环、输入、暂停、状态面板、初始化
 └── assets/             # 预留给未来使用
 ```
@@ -41,22 +45,50 @@ npx serve .                       # Node
 
 ## 架构设计
 
+### 模块化架构
+项目采用模块化设计，按功能划分为三个主要文件夹：
+
+1. **core/** - 核心系统
+   - 配置管理、事件系统、工具函数
+   - 所有模块的基础设施
+
+2. **entities/** - 实体类
+   - 游戏中的所有对象：玩家、敌人、子弹等
+   - 每个实体都有 `update(dt)` 和 `draw(ctx)` 方法
+
+3. **systems/** - 游戏系统
+   - 音频、渲染、升级、Buff等游戏逻辑系统
+   - 负责处理游戏的各种功能
+
+### 事件系统
+使用事件系统解耦模块间通信，减少直接依赖：
+```js
+// 注册事件监听器
+ArcSurvivors.EventSystem.on(ArcSurvivors.Events.PLAYER_DIE, function() {
+    console.log('Player died');
+});
+
+// 触发事件
+ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.PLAYER_DIE);
+```
+
 ### 全局命名空间模式
 所有代码都在 `var ArcSurvivors = ArcSurvivors || {};` 下——每个文件都以此开头。
 不使用 ES6 模块（`import`/`export`），因为它们在 `file://` 协议下会失败。
 
 ### 脚本加载顺序（必须严格遵守）
 在 `index.html` 中定义，依赖关系从上到下：
-1. `config.js` — 必须最先加载，定义命名空间、游戏配置和全局状态
-2. `utils.js` — 纯函数，无依赖
-3. `audio.js` — IIFE，自包含音频引擎
-4. `particle.js`、`gem.js`、`bullet.js` — 实体类
-5. `enemy.js` — 依赖 bullet.js（EnemyBullet）、particle.js、config
-6. `player.js` — 依赖 bullet.js、enemy.js（碰撞）、upgrades
-7. `upgrades.js` — 依赖 player.js
-8. `buff.js` — 依赖 player.js、config
-9. `renderer.js` — 依赖所有实体进行绘制
-10. `game.js` — 主循环，必须最后加载
+1. `core/config.js` — 必须最先加载，定义命名空间、游戏配置和全局状态
+2. `core/event.js` — 事件系统
+3. `core/utils.js` — 纯函数，无依赖
+4. `entities/particle.js`、`entities/gem.js`、`entities/bullet.js` — 实体类
+5. `entities/enemy.js` — 依赖 bullet.js（EnemyBullet）、particle.js、config
+6. `entities/player.js` — 依赖 bullet.js、enemy.js（碰撞）、upgrade
+7. `systems/audio.js` — IIFE，自包含音频引擎
+8. `systems/buff.js` — 依赖 player.js、config
+9. `systems/upgrade.js` — 依赖 player.js
+10. `systems/renderer.js` — 依赖所有实体进行绘制
+11. `game.js` — 主循环，必须最后加载
 
 **添加新 JS 文件时**，在 `index.html` 中的正确位置添加 `<script>` 标签。
 
@@ -92,7 +124,7 @@ GS.enemies = GS.enemies.filter(function(e) { return e.active; });
 ## 配置系统
 
 ### 统一配置管理
-所有游戏数值和文案都集中在 `config.js` 中管理，方便调整：
+所有游戏数值和文案都集中在 `core/config.js` 中管理，方便调整：
 
 #### GAME_CONFIG - 游戏数值配置
 ```js
@@ -189,53 +221,65 @@ var display = ArcSurvivors.getItemDisplay(item);
 | 画布尺寸 | `CANVAS_WIDTH` / `CANVAS_HEIGHT` | 1280 × 720 |
 | 玩家生命 | `PLAYER.HP` | 100 |
 | 拾取范围 | `PLAYER.PICKUP_RANGE` | 160px |
-| 升级基础经验 | `PLAYER.BASE_EXP_TO_LEVEL` | 60, ×1.3/级 |
+| 升级基础经验 | `PLAYER.BASE_EXP_TO_LEVEL` | 80, ×1.5/级 |
 | Boss 生成 | `SPAWN.BOSS_INTERVAL` / `BOSS_MIN_TIME` | 45秒/30秒后 |
 | 粒子上限 | `PARTICLE.MAX_COUNT` | 300 |
-| 难度增长 | `DIFFICULTY` | 基础1，每60秒+0.15 |
+| 难度增长 | `DIFFICULTY` | 基础1，每45秒+0.2 |
 | Buff掉落概率 | `BUFF_ITEMS.DROP_CHANCE` | 5% |
 | 冰霜效果 | `FROST.SLOW_FACTOR` / `SLOW_DURATION` | 0.5 / 1.5秒 |
 
 ## 修改游戏指南
 
 ### 1. 添加新敌人类型
-1. 在 `config.js` 的 `ENEMY_TYPES` 中添加配置
-2. 在 `enemy.js` 的 `draw()` 方法中添加对应的绘制形状
+1. 在 `core/config.js` 的 `ENEMY_TYPES` 中添加配置
+2. 在 `entities/enemy.js` 的 `draw()` 方法中添加对应的绘制形状
 
 ### 2. 添加新升级/道具
-1. 在 `config.js` 的 `STRINGS.UPGRADES` 或 `STRINGS.ITEMS` 中添加文案
-2. 在 `upgrades.js` 的 `UPGRADES` 或 `ITEMS` 数组中添加定义
+1. 在 `core/config.js` 的 `STRINGS.UPGRADES` 或 `STRINGS.ITEMS` 中添加文案
+2. 在 `systems/upgrade.js` 的 `UPGRADES` 或 `ITEMS` 数组中添加定义
 3. 使用 `formatString()` 格式化描述中的动态数值
 
 ### 2.1 添加新临时buff道具
-1. 在 `config.js` 的 `BUFF_ITEMS.TYPES` 中添加配置（DURATION、COLOR等）
-2. 在 `config.js` 的 `STRINGS.BUFF_ITEMS` 中添加文案（name、desc、icon）
-3. 在 `buff.js` 的 `activate()` 函数中添加对应的 case 逻辑
-4. 在 `buff.js` 的 `updatePlayerBuffs()` 函数中添加计时器更新逻辑
-5. 在 `buff.js` 的 `drawBuffIndicators()` 函数中添加UI显示逻辑
+1. 在 `core/config.js` 的 `BUFF_ITEMS.TYPES` 中添加配置（DURATION、COLOR等）
+2. 在 `core/config.js` 的 `STRINGS.BUFF_ITEMS` 中添加文案（name、desc、icon）
+3. 在 `systems/buff.js` 的 `activate()` 函数中添加对应的 case 逻辑
+4. 在 `systems/buff.js` 的 `updatePlayerBuffs()` 函数中添加计时器更新逻辑
+5. 在 `systems/buff.js` 的 `drawBuffIndicators()` 函数中添加UI显示逻辑
 
 ### 3. 添加新音效
-1. 在 `config.js` 的 `AUDIO` 中添加配置（如需要）
-2. 在 `audio.js` 中添加函数，在 return 对象中暴露
+1. 在 `core/config.js` 的 `AUDIO` 中添加配置（如需要）
+2. 在 `systems/audio.js` 中添加函数，在 return 对象中暴露
 3. 在游戏代码中调用
 
 ### 4. 添加 UI 元素
 1. 在 `index.html` 中添加 HTML
 2. 在 `style.css` 中添加样式
-3. 在 `config.js` 的 `STRINGS.UI` 中添加文案
-4. 在 `renderer.js` 或 `game.js` 中更新渲染逻辑
+3. 在 `core/config.js` 的 `STRINGS.UI` 中添加文案
+4. 在 `systems/renderer.js` 或 `game.js` 中更新渲染逻辑
 
 ### 5. 添加新实体类型
-1. 创建新文件，定义构造函数 + 原型方法
+1. 在 `entities/` 文件夹创建新文件，定义构造函数 + 原型方法
 2. 在 `index.html` 中按正确顺序添加 `<script>` 标签
-3. 在 `config.js` 中添加相关配置
+3. 在 `core/config.js` 中添加相关配置
 
 ### 6. 调整游戏平衡
-直接修改 `config.js` 中的数值即可，无需改动其他文件：
+直接修改 `core/config.js` 中的数值即可，无需改动其他文件：
 - 调整玩家属性 → 修改 `PLAYER`
 - 调整敌人属性 → 修改 `ENEMY_TYPES`
 - 调整生成节奏 → 修改 `SPAWN`
 - 调整升级效果 → 修改 `UPGRADES`
+
+### 7. 使用事件系统
+在模块间通信时使用事件系统，避免直接依赖：
+```js
+// 在 player.js 中
+ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.PLAYER_LEVEL_UP, level);
+
+// 在 game.js 中
+ArcSurvivors.EventSystem.on(ArcSurvivors.Events.PLAYER_LEVEL_UP, function(level) {
+    console.log('Player leveled up to:', level);
+});
+```
 
 ## 音频系统
 
@@ -251,3 +295,29 @@ var display = ArcSurvivors.getItemDisplay(item);
 - **`Set` 使用**：Bullet 中的 `hitEnemies` 使用 ES6 Set——作为项目中唯一的 ES6 特性，可以接受
 - **配置引用时机**：确保在访问 `GAME_CONFIG` 或 `STRINGS` 时 `config.js` 已加载完成
 - **Buff叠加问题**：临时buff道具（狂暴、护盾）重复拾取时只延长计时器，不重复叠加效果
+- **事件系统使用**：事件系统是解耦模块的关键，应该优先使用事件而不是直接函数调用
+
+## 架构改进说明
+
+### 新增功能
+1. **事件系统** (`core/event.js`)
+   - 支持事件监听、触发、移除
+   - 预定义游戏事件常量
+   - 解耦模块间通信
+
+2. **模块化文件夹结构**
+   - `core/` - 核心系统
+   - `entities/` - 实体类
+   - `systems/` - 游戏系统
+
+### 设计原则
+1. **单一职责**：每个模块只负责一个功能
+2. **低耦合**：通过事件系统减少模块间直接依赖
+3. **高内聚**：相关功能组织在同一模块中
+4. **易于扩展**：新功能可以独立添加，不影响现有代码
+
+### 扩展建议
+1. 添加新功能时，优先使用事件系统进行通信
+2. 新实体类放在 `entities/` 文件夹
+3. 新游戏系统放在 `systems/` 文件夹
+4. 配置和工具函数放在 `core/` 文件夹

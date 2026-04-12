@@ -1,5 +1,5 @@
 /**
- * utils.js - 工具函数
+ * core/utils.js - 工具函数
  */
 var ArcSurvivors = ArcSurvivors || {};
 

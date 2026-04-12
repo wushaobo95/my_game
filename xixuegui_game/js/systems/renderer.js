@@ -1,5 +1,5 @@
 /**
- * renderer.js - 渲染系统（背景、UI、特效）
+ * systems/renderer.js - 渲染系统（背景、UI、特效）
  */
 var ArcSurvivors = ArcSurvivors || {};
 

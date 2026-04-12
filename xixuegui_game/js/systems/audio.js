@@ -1,5 +1,5 @@
 /**
- * audio.js - Web Audio API 合成音效（无需外部文件）
+ * systems/audio.js - Web Audio API 合成音效（无需外部文件）
  */
 var ArcSurvivors = ArcSurvivors || {};
 

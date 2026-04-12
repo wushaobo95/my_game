@@ -1,5 +1,5 @@
 /**
- * buff.js - 随机临时道具系统
+ * systems/buff.js - 随机临时道具系统
  */
 var ArcSurvivors = ArcSurvivors || {};
 

@@ -1,5 +1,5 @@
 /**
- * bullet.js - 子弹与激光
+ * entities/bullet.js - 子弹与激光
  */
 var ArcSurvivors = ArcSurvivors || {};
 
@@ -57,6 +57,8 @@ ArcSurvivors.Bullet.prototype.update = function(dt) {
                 enemy.takeDamage(this.damage);
                 this.penetration--;
                 ArcSurvivors.Audio.hit();
+                
+                ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.BULLET_HIT, this, enemy);
 
                 if (player.hasFrostSlow) {
                     if (!enemy.slowed) {

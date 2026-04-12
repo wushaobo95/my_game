@@ -1,5 +1,5 @@
 /**
- * config.js - 游戏常量、配置与全局状态
+ * core/config.js - 游戏常量、配置与全局状态
  */
 var ArcSurvivors = ArcSurvivors || {};
 

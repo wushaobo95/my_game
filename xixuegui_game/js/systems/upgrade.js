@@ -1,5 +1,5 @@
 /**
- * upgrades.js - 升级系统与道具系统
+ * systems/upgrade.js - 升级系统与道具系统
  */
 var ArcSurvivors = ArcSurvivors || {};
 
@@ -194,6 +194,8 @@ ArcSurvivors.showUpgradeScreen = function() {
     var CFG = ArcSurvivors.GAME_CONFIG;
     var STR = ArcSurvivors.STRINGS.UI;
     this.gameState.paused = true;
+    
+    ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.UPGRADE_SHOW);
 
     var available = this.UPGRADES.filter(function(u) {
         return u.canAppear(this.player);
@@ -225,6 +227,8 @@ ArcSurvivors.showUpgradeScreen = function() {
                 self.player.pulseEffect = UE.PULSE_STRENGTH;
                 document.getElementById('upgradeScreen').style.display = 'none';
                 self.gameState.paused = false;
+                
+                ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.UPGRADE_SELECT, u);
 
                 var enemies = self.enemies;
                 for (var k = 0; k < enemies.length; k++) {

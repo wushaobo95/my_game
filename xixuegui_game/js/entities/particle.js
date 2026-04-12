@@ -1,5 +1,5 @@
 /**
- * particle.js - 粒子系统
+ * entities/particle.js - 粒子系统
  */
 var ArcSurvivors = ArcSurvivors || {};
 

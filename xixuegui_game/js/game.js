@@ -6,10 +6,37 @@
     var CFG = GS.GAME_CONFIG;
     var STR = GS.STRINGS;
     var Audio = GS.Audio;
+    var EventSystem = GS.EventSystem;
+    var Events = GS.Events;
 
     var canvas = document.getElementById('gameCanvas');
     var ctx = canvas.getContext('2d');
     var muted = false;
+
+    // 注册事件监听器
+    EventSystem.on(Events.PLAYER_DIE, function() {
+        console.log('Player died');
+    });
+
+    EventSystem.on(Events.PLAYER_REVIVE, function() {
+        console.log('Player revived');
+    });
+
+    EventSystem.on(Events.BOSS_SPAWN, function(boss) {
+        console.log('Boss spawned');
+    });
+
+    EventSystem.on(Events.BOSS_DIE, function(boss) {
+        console.log('Boss defeated');
+    });
+
+    EventSystem.on(Events.UPGRADE_SELECT, function(upgrade) {
+        console.log('Upgrade selected:', upgrade.id);
+    });
+
+    EventSystem.on(Events.ITEM_PICKUP, function(item) {
+        console.log('Item picked up:', item.id);
+    });
 
     GS.gameOver = function() {
         var ui = STR.UI;
@@ -20,6 +47,8 @@
         document.getElementById('finalKills').textContent = GS.formatString(ui.FINAL_KILLS, { kills: GS.gameState.kills });
         document.getElementById('finalLevel').textContent = GS.formatString(ui.FINAL_LEVEL, { level: GS.player.level });
         document.getElementById('gameOver').style.display = 'flex';
+        
+        EventSystem.emit(Events.GAME_OVER);
     };
 
     GS.resetGame = function() {
@@ -36,6 +65,8 @@
         document.getElementById('upgradeScreen').style.display = 'none';
         document.getElementById('pauseScreen').style.display = 'none';
         Audio.startBGM();
+        
+        EventSystem.emit(Events.GAME_RESET);
     };
 
     GS.togglePause = function() {
@@ -48,9 +79,11 @@
         if (GS.gameState.paused) {
             document.getElementById('pauseScreen').style.display = 'flex';
             Audio.stopBGM();
+            EventSystem.emit(Events.GAME_PAUSE);
         } else {
             document.getElementById('pauseScreen').style.display = 'none';
             Audio.startBGM();
+            EventSystem.emit(Events.GAME_RESUME);
         }
     };
 
@@ -271,7 +304,11 @@
         if (GS.gameState.running && !GS.gameState.paused) {
             var DF = CFG.DIFFICULTY;
             GS.gameState.time += dt;
-            GS.gameState.difficultyFactor = DF.BASE + Math.floor(GS.gameState.time / DF.INCREASE_INTERVAL) * DF.INCREASE_AMOUNT;
+            var newDifficulty = DF.BASE + Math.floor(GS.gameState.time / DF.INCREASE_INTERVAL) * DF.INCREASE_AMOUNT;
+            if (newDifficulty !== GS.gameState.difficultyFactor) {
+                GS.gameState.difficultyFactor = newDifficulty;
+                EventSystem.emit(Events.DIFFICULTY_INCREASE, newDifficulty);
+            }
 
             GS.player.update(dt);
             GS.spawnEnemies(dt);
@@ -343,5 +380,6 @@
     }
 
     GS.player = new GS.Player();
+    EventSystem.emit(Events.GAME_START);
     requestAnimationFrame(gameLoop);
 })();

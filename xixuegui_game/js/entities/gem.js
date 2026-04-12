@@ -1,5 +1,5 @@
 /**
- * gem.js - 经验宝石
+ * entities/gem.js - 经验宝石
  */
 var ArcSurvivors = ArcSurvivors || {};
 
@@ -79,6 +79,7 @@ ArcSurvivors.ItemPickup.prototype.applyItem = function() {
     player.acquiredUpgrades.push(this.item);
     ArcSurvivors.spawnParticles(this.x, this.y, IC.PARTICLE_COUNT, 'rgb(255,215,0)', IC.PARTICLE_SIZE, IC.PARTICLE_SPEED);
 
+    ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.ITEM_PICKUP, this.item);
     ArcSurvivors.showItemDescription(this.item);
 };
 
