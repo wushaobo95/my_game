@@ -13,6 +13,18 @@
     var ctx = canvas.getContext('2d');
     var muted = false;
 
+    // 初始化资源加载器
+    if (GS.ResourceLoader) {
+        GS.ResourceLoader.init(
+            function(loaded, total) {
+                console.log('Resource loading: ' + loaded + '/' + total);
+            },
+            function() {
+                console.log('All resources loaded');
+            }
+        );
+    }
+
     // 注册事件监听器
     EventSystem.on(Events.PLAYER_DIE, function() {
         console.log('Player died');
