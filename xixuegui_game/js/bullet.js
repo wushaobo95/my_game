@@ -4,7 +4,7 @@
 var ArcSurvivors = ArcSurvivors || {};
 
 // 普通子弹
-ArcSurvivors.Bullet = function(x, y, angle, speed, damage, size, penetration) {
+ArcSurvivors.Bullet = function(x, y, angle, speed, damage, size, penetration, isCritical) {
     this.x = x;
     this.y = y;
     this.angle = angle;
@@ -15,11 +15,16 @@ ArcSurvivors.Bullet = function(x, y, angle, speed, damage, size, penetration) {
     this.active = true;
     this.trail = [];
     this.hitEnemies = new Set();
+    this.isCritical = isCritical || false;
 };
 
 ArcSurvivors.Bullet.prototype.update = function(dt) {
+    var CFG = ArcSurvivors.GAME_CONFIG;
+    var BC = CFG.BULLET;
+    var FR = CFG.FROST;
+
     this.trail.push({ x: this.x, y: this.y, alpha: 1 });
-    if (this.trail.length > 10) this.trail.shift();
+    if (this.trail.length > BC.TRAIL_LENGTH) this.trail.shift();
     for (var i = 0; i < this.trail.length; i++) {
         this.trail[i].alpha = i / this.trail.length;
     }
@@ -27,16 +32,15 @@ ArcSurvivors.Bullet.prototype.update = function(dt) {
     this.x += Math.cos(this.angle) * this.speed * dt * 60;
     this.y += Math.sin(this.angle) * this.speed * dt * 60;
 
-    // 墙壁弹射
     var bounced = false;
     if (this.x < 0) { this.x = 0; this.angle = Math.PI - this.angle; bounced = true; }
-    else if (this.x > ArcSurvivors.CANVAS_WIDTH) { this.x = ArcSurvivors.CANVAS_WIDTH; this.angle = Math.PI - this.angle; bounced = true; }
+    else if (this.x > CFG.CANVAS_WIDTH) { this.x = CFG.CANVAS_WIDTH; this.angle = Math.PI - this.angle; bounced = true; }
     if (this.y < 0) { this.y = 0; this.angle = -this.angle; bounced = true; }
-    else if (this.y > ArcSurvivors.CANVAS_HEIGHT) { this.y = ArcSurvivors.CANVAS_HEIGHT; this.angle = -this.angle; bounced = true; }
+    else if (this.y > CFG.CANVAS_HEIGHT) { this.y = CFG.CANVAS_HEIGHT; this.angle = -this.angle; bounced = true; }
 
     if (bounced) {
         this.bounceCount = (this.bounceCount || 0) + 1;
-        if (this.bounceCount > (ArcSurvivors.player.wallBounces || 1)) {
+        if (this.bounceCount > ArcSurvivors.player.wallBounces) {
             this.active = false;
         }
     }
@@ -54,26 +58,22 @@ ArcSurvivors.Bullet.prototype.update = function(dt) {
                 this.penetration--;
                 ArcSurvivors.Audio.hit();
 
-                if (this.penetration <= 0) {
-                    this.active = false;
+                if (player.hasFrostSlow) {
+                    if (!enemy.slowed) {
+                        enemy.speed = enemy.speed * FR.SLOW_FACTOR;
+                    }
+                    enemy.slowed = true;
+                    enemy.slowedTimer = FR.SLOW_DURATION;
+                    ArcSurvivors.spawnParticles(enemy.x, enemy.y, 5, 'rgb(136,255,255)', 4, 2);
+                }
+                
+                // 闪电连锁
+                if (player.lightningChainCount > 0) {
+                    this.triggerLightningChain(enemy);
                 }
 
-                if (player.hasBouncing && this.penetration > 0) {
-                    var closestEnemy = null;
-                    var closestDist = Infinity;
-                    for (var k = 0; k < enemies.length; k++) {
-                        var e = enemies[k];
-                        if (e !== enemy && !this.hitEnemies.has(e)) {
-                            var d = ArcSurvivors.Utils.distance(e.x, e.y, this.x, this.y);
-                            if (d < closestDist) {
-                                closestDist = d;
-                                closestEnemy = e;
-                            }
-                        }
-                    }
-                    if (closestEnemy) {
-                        this.angle = Math.atan2(closestEnemy.y - this.y, closestEnemy.x - this.x);
-                    }
+                if (this.penetration <= 0) {
+                    this.active = false;
                 }
                 break;
             }
@@ -81,34 +81,89 @@ ArcSurvivors.Bullet.prototype.update = function(dt) {
     }
 };
 
+ArcSurvivors.Bullet.prototype.triggerLightningChain = function(hitEnemy) {
+    var LC = ArcSurvivors.GAME_CONFIG.LIGHTNING_CHAIN;
+    var player = ArcSurvivors.player;
+    var enemies = ArcSurvivors.enemies;
+    var chained = [hitEnemy];
+    var current = hitEnemy;
+    
+    // 连锁伤害
+    for (var i = 0; i < player.lightningChainCount; i++) {
+        var closest = null;
+        var closestDist = LC.CHAIN_RANGE;
+        
+        // 找最近的未连锁敌人
+        for (var j = 0; j < enemies.length; j++) {
+            var enemy = enemies[j];
+            if (enemy.active && chained.indexOf(enemy) === -1) {
+                var dist = ArcSurvivors.Utils.distance(current.x, current.y, enemy.x, enemy.y);
+                if (dist < closestDist) {
+                    closestDist = dist;
+                    closest = enemy;
+                }
+            }
+        }
+        
+        if (closest) {
+            chained.push(closest);
+            closest.takeDamage(this.damage * LC.DAMAGE_SCALE);
+            
+            // 连锁特效
+            ArcSurvivors.spawnParticles(closest.x, closest.y, LC.PARTICLE_COUNT, 'rgb(255, 255, 0)', LC.PARTICLE_SIZE, LC.PARTICLE_SPEED);
+            
+            current = closest;
+        } else {
+            break;
+        }
+    }
+};
+
 ArcSurvivors.Bullet.prototype.draw = function(ctx) {
+    var BC = ArcSurvivors.GAME_CONFIG.BULLET;
+
     for (var i = 0; i < this.trail.length; i++) {
         var point = this.trail[i];
         ctx.beginPath();
-        ctx.arc(point.x, point.y, this.size * 0.5 * point.alpha, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(100, 50, 255, ' + (point.alpha * 0.5) + ')';
+        ctx.arc(point.x, point.y, this.size * BC.TRAIL_SIZE_SCALE * point.alpha, 0, Math.PI * 2);
+        ctx.fillStyle = BC.COLORS.TRAIL.replace('{alpha}', point.alpha * BC.TRAIL_ALPHA_SCALE);
         ctx.fill();
     }
 
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
     var gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
-    gradient.addColorStop(0, '#ffffff');
-    gradient.addColorStop(0.5, '#9966ff');
-    gradient.addColorStop(1, '#6633ff');
+    gradient.addColorStop(0, BC.COLORS.CORE);
+    gradient.addColorStop(0.5, BC.COLORS.MID);
+    gradient.addColorStop(1, BC.COLORS.OUTER);
     ctx.fillStyle = gradient;
     ctx.fill();
+    
+    // 暴击子弹效果
+    if (this.isCritical) {
+        ctx.strokeStyle = '#ffcc00';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // 暴击光晕
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size + 3, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255, 204, 0, 0.5)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    }
 };
 
 // 激光
 ArcSurvivors.Laser = function(x, y, angle, damage) {
+    var LC = ArcSurvivors.GAME_CONFIG.LASER;
     this.x = x;
     this.y = y;
     this.angle = angle;
     this.damage = damage;
-    this.length = 2000;
+    this.length = LC.LENGTH;
     this.active = true;
-    this.lifetime = 0.2;
+    this.lifetime = LC.LIFETIME;
     this.hitEnemies = new Set();
 };
 
@@ -130,7 +185,7 @@ ArcSurvivors.Laser.prototype.update = function(dt) {
                 this.hitEnemies.add(enemy);
                 enemy.takeDamage(this.damage);
                 ArcSurvivors.hitStop.active = true;
-                ArcSurvivors.hitStop.frames = 3;
+                ArcSurvivors.hitStop.frames = ArcSurvivors.GAME_CONFIG.LASER.HITSTOP_FRAMES;
                 ArcSurvivors.Audio.hit();
             }
         }
@@ -138,17 +193,18 @@ ArcSurvivors.Laser.prototype.update = function(dt) {
 };
 
 ArcSurvivors.Laser.prototype.draw = function(ctx) {
+    var LC = ArcSurvivors.GAME_CONFIG.LASER.COLORS;
     var endX = this.x + Math.cos(this.angle) * this.length;
     var endY = this.y + Math.sin(this.angle) * this.length;
 
     ctx.beginPath();
     ctx.moveTo(this.x, this.y);
     ctx.lineTo(endX, endY);
-    ctx.strokeStyle = '#ff00ff';
-    ctx.lineWidth = 5;
+    ctx.strokeStyle = LC.OUTER;
+    ctx.lineWidth = LC.OUTER_WIDTH;
     ctx.stroke();
 
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = LC.CORE;
+    ctx.lineWidth = LC.CORE_WIDTH;
     ctx.stroke();
 };

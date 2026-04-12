@@ -239,6 +239,12 @@ body {
     gap: 8px;
     padding: 4px 0;
     font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#statusPanel .upgrade-item:hover {
+    background-color: rgba(100, 50, 255, 0.2);
 }
 
 #statusPanel .upgrade-item .icon {
@@ -264,4 +270,65 @@ body {
 @keyframes bossFlash {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.3; }
+}
+
+#itemDescriptionScreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 60;
+}
+
+#itemDescription {
+    background: linear-gradient(180deg, #1a1a2e, #0f0f1a);
+    border: 2px solid #ffcc00;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 0 30px rgba(255, 204, 0, 0.3);
+    max-width: 400px;
+}
+
+#itemDescription .item-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+#itemDescription .item-name {
+    font-size: 24px;
+    color: #ffcc00;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+#itemDescription .item-desc {
+    font-size: 16px;
+    color: #aaa;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+#itemDescription button {
+    padding: 12px 35px;
+    font-size: 16px;
+    background: linear-gradient(135deg, #6633ff, #9966ff);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 0 15px rgba(100, 50, 255, 0.4);
+}
+
+#itemDescription button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(100, 50, 255, 0.7);
 }

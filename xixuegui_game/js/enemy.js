@@ -4,55 +4,60 @@
 var ArcSurvivors = ArcSurvivors || {};
 
 ArcSurvivors.Enemy = function(x, y, type) {
+    var CFG = ArcSurvivors.GAME_CONFIG;
+    var EC = CFG.ENEMY_TYPES[type];
+    var FR = CFG.FROST;
+
     this.x = x;
     this.y = y;
     this.type = type;
     this.active = true;
     this.frozen = false;
     this.frozenTimer = 0;
-    this.canSplit = false;
+    this.slowed = false;
+    this.slowedTimer = 0;
+    this.canSplit = EC.CAN_SPLIT || false;
 
     var gs = ArcSurvivors.gameState;
     var df = gs.difficultyFactor;
 
-    switch (type) {
-        case 'normal':
-            this.radius = 15; this.speed = 2.5;
-            this.hp = 15 + df * 8; this.maxHp = this.hp;
-            this.damage = 5; this.color = '#ff4444'; this.shape = 'circle';
-            break;
-        case 'fast':
-            this.radius = 12; this.speed = 3.8;
-            this.hp = 8 + df * 4; this.maxHp = this.hp;
-            this.damage = 8; this.color = '#ffff44'; this.shape = 'triangle';
-            break;
-        case 'split':
-            this.radius = 20; this.speed = 1.8;
-            this.hp = 25 + df * 12; this.maxHp = this.hp;
-            this.damage = 12; this.color = '#44ff44'; this.shape = 'diamond';
-            this.canSplit = true;
-            break;
-        case 'mini':
-            this.radius = 10; this.speed = 3;
-            this.hp = 8; this.maxHp = this.hp;
-            this.damage = 4; this.color = '#44ff44'; this.shape = 'diamond';
-            break;
-        case 'boss':
-            this.radius = 40; this.speed = 1.5;
-            this.hp = 200 + df * 150; this.maxHp = this.hp;
-            this.damage = 25; this.color = '#ff00ff'; this.shape = 'boss';
-            this.shootTimer = 0;
-            this.shootInterval = 2;
-            this.bossPhase = 0;
-            break;
+    this.radius = EC.RADIUS;
+    this.speed = EC.SPEED;
+    this.baseSpeed = EC.SPEED;
+    this.hp = EC.HP_BASE + df * EC.HP_SCALE;
+    this.maxHp = this.hp;
+    this.damage = EC.DAMAGE;
+    this.color = EC.COLOR;
+    this.shape = EC.SHAPE;
+
+    if (type === 'boss') {
+        this.shootTimer = 0;
+        this.shootInterval = EC.SHOOT_INTERVAL;
+        this.bossPhase = 0;
+    }
+    
+    if (type === 'ranged') {
+        this.shootTimer = 0;
+        this.shootInterval = EC.SHOOT_INTERVAL;
     }
 };
 
 ArcSurvivors.Enemy.prototype.update = function(dt) {
+    var CFG = ArcSurvivors.GAME_CONFIG;
+    var FR = CFG.FROST;
+
     if (this.frozen) {
         this.frozenTimer -= dt;
         if (this.frozenTimer <= 0) this.frozen = false;
         return;
+    }
+
+    if (this.slowed) {
+        this.slowedTimer -= dt;
+        if (this.slowedTimer <= 0) {
+            this.slowed = false;
+            this.speed = this.baseSpeed;
+        }
     }
 
     var player = ArcSurvivors.player;
@@ -71,29 +76,65 @@ ArcSurvivors.Enemy.prototype.update = function(dt) {
 
     // Boss射击行为
     if (this.type === 'boss') {
+        var BC = CFG.ENEMY_TYPES.boss;
         this.shootTimer += dt;
-        // 低血量时加速射击
-        var interval = this.hp < this.maxHp * 0.3 ? this.shootInterval * 0.5 : this.shootInterval;
+        var interval = this.hp < this.maxHp * BC.LOW_HP_THRESHOLD
+            ? this.shootInterval * BC.LOW_HP_SPEEDUP
+            : this.shootInterval;
         if (this.shootTimer >= interval) {
             this.shootTimer = 0;
             this.bossShoot();
         }
     }
+    
+    // 远程敌人射击行为
+    if (this.type === 'ranged') {
+        var RC = CFG.ENEMY_TYPES.ranged;
+        var dist = ArcSurvivors.Utils.distance(this.x, this.y, player.x, player.y);
+        
+        // 如果太近，后退
+        if (dist < RC.SHOOT_RANGE * 0.5) {
+            this.x -= (dx / dist) * this.speed * dt * 60;
+            this.y -= (dy / dist) * this.speed * dt * 60;
+        }
+        
+        // 射击逻辑
+        if (dist < RC.SHOOT_RANGE) {
+            this.shootTimer += dt;
+            if (this.shootTimer >= this.shootInterval) {
+                this.shootTimer = 0;
+                this.rangedShoot();
+            }
+        }
+    }
 };
 
 ArcSurvivors.Enemy.prototype.bossShoot = function() {
+    var BC = ArcSurvivors.GAME_CONFIG.ENEMY_TYPES.boss;
     var player = ArcSurvivors.player;
     var angle = Math.atan2(player.y - this.y, player.x - this.x);
 
-    // 发射3发子弹散射
     for (var i = -1; i <= 1; i++) {
         ArcSurvivors.bullets.push(new ArcSurvivors.EnemyBullet(
             this.x, this.y,
-            angle + i * 0.3,
-            4,
-            this.damage * 0.6
+            angle + i * BC.SHOOT_SPREAD,
+            BC.SHOOT_SPEED,
+            this.damage * BC.SHOOT_DAMAGE_SCALE
         ));
     }
+};
+
+ArcSurvivors.Enemy.prototype.rangedShoot = function() {
+    var RC = ArcSurvivors.GAME_CONFIG.ENEMY_TYPES.ranged;
+    var player = ArcSurvivors.player;
+    var angle = Math.atan2(player.y - this.y, player.x - this.x);
+    
+    ArcSurvivors.enemyBullets.push(new ArcSurvivors.EnemyBullet(
+        this.x, this.y,
+        angle,
+        RC.SHOOT_SPEED,
+        this.damage * RC.SHOOT_DAMAGE_SCALE
+    ));
 };
 
 ArcSurvivors.Enemy.prototype.takeDamage = function(damage) {
@@ -102,53 +143,69 @@ ArcSurvivors.Enemy.prototype.takeDamage = function(damage) {
 };
 
 ArcSurvivors.Enemy.prototype.die = function() {
+    var CFG = ArcSurvivors.GAME_CONFIG;
+    var BC = CFG.ENEMY_TYPES.boss;
+    var HE = CFG.HIT_EFFECTS;
+
     this.active = false;
     ArcSurvivors.gameState.kills++;
     var player = ArcSurvivors.player;
     ArcSurvivors.Audio.enemyDeath();
 
     if (this.type === 'boss') {
-        // Boss掉落：大量宝石 + 直接升级
-        for (var i = 0; i < 8; i++) {
+        for (var i = 0; i < BC.GEM_COUNT; i++) {
             var angle = Math.random() * Math.PI * 2;
-            var dist = Math.random() * 50 + 20;
+            var dist = Math.random() * (BC.GEM_DIST_MAX - BC.GEM_DIST_MIN) + BC.GEM_DIST_MIN;
             ArcSurvivors.gems.push(new ArcSurvivors.Gem(
                 this.x + Math.cos(angle) * dist,
                 this.y + Math.sin(angle) * dist,
                 'large'
             ));
         }
-        // 直接获得大量经验
-        player.gainExp(200);
-        // Boss死亡大爆炸
-        ArcSurvivors.spawnParticles(this.x, this.y, 30, 'rgb(255,0,255)', 10, 8);
-        ArcSurvivors.screenShake.intensity = 3;
-        ArcSurvivors.screenShake.duration = 0.3;
+        player.gainExp(BC.EXP_REWARD);
+
+        var item = ArcSurvivors.trySpawnItem();
+        if (item) {
+            ArcSurvivors.itemPickups.push(new ArcSurvivors.ItemPickup(this.x, this.y, item));
+        }
+        
+        // 尝试生成复活石
+        ArcSurvivors.trySpawnReviveStone(this.x, this.y);
+
+        ArcSurvivors.spawnParticles(this.x, this.y, BC.DEATH_PARTICLES, 'rgb(255,0,255)', BC.DEATH_PARTICLE_SIZE, BC.DEATH_PARTICLE_SPEED);
+        ArcSurvivors.screenShake.intensity = BC.SHAKE_INTENSITY;
+        ArcSurvivors.screenShake.duration = BC.SHAKE_DURATION;
         ArcSurvivors.hitStop.active = true;
-        ArcSurvivors.hitStop.frames = 5;
+        ArcSurvivors.hitStop.frames = BC.HITSTOP_FRAMES;
         ArcSurvivors.Audio.bossDeath();
     } else {
-        var gemType = Math.random() < 0.25 ? 'large' : 'small';
+        var gemType = Math.random() < BC.LARGE_GEM_CHANCE ? 'large' : 'small';
         ArcSurvivors.gems.push(new ArcSurvivors.Gem(this.x, this.y, gemType));
-        // 额外掉落一颗宝石
-        if (Math.random() < 0.4) {
+        if (Math.random() < BC.EXTRA_GEM_CHANCE) {
             var offsetX = (Math.random() - 0.5) * 30;
             var offsetY = (Math.random() - 0.5) * 30;
             ArcSurvivors.gems.push(new ArcSurvivors.Gem(this.x + offsetX, this.y + offsetY, 'small'));
         }
+        ArcSurvivors.trySpawnBuffItem(this.x, this.y);
+    }
+
+    if (player.hasVampireMask) {
+        player.hp = Math.min(player.maxHp, player.hp + CFG.VAMPIRE_MASK.HEAL_AMOUNT);
+        ArcSurvivors.spawnParticles(player.x, player.y, 3, 'rgb(255,0,0)', 3, 2);
     }
 
     if (player.hasKillExplosion) {
+        var KE = CFG.KILL_EXPLOSION;
         var enemies = ArcSurvivors.enemies;
         for (var j = 0; j < enemies.length; j++) {
             var e = enemies[j];
             if (e !== this && e.active) {
-                if (ArcSurvivors.Utils.distance(e.x, e.y, this.x, this.y) < 60) {
-                    e.takeDamage(player.attackPower * 0.5);
+                if (ArcSurvivors.Utils.distance(e.x, e.y, this.x, this.y) < KE.RADIUS) {
+                    e.takeDamage(player.attackPower * KE.DAMAGE_SCALE);
                 }
             }
         }
-        ArcSurvivors.spawnParticles(this.x, this.y, 10, 'rgb(255,136,68)', 8, 5);
+        ArcSurvivors.spawnParticles(this.x, this.y, KE.PARTICLE_COUNT, 'rgb(255,136,68)', 8, 5);
     }
 
     ArcSurvivors.spawnParticles(this.x, this.y, 8, 'rgb(' + this.hexToRgb(this.color) + ')', 5, 3);
@@ -164,8 +221,8 @@ ArcSurvivors.Enemy.prototype.die = function() {
         }
     }
 
-    ArcSurvivors.screenShake.intensity = 0.5;
-    ArcSurvivors.screenShake.duration = 0.05;
+    ArcSurvivors.screenShake.intensity = HE.NORMAL_SHAKE_INTENSITY;
+    ArcSurvivors.screenShake.duration = HE.NORMAL_SHAKE_DURATION;
 };
 
 ArcSurvivors.Enemy.prototype.hexToRgb = function(hex) {
@@ -174,20 +231,34 @@ ArcSurvivors.Enemy.prototype.hexToRgb = function(hex) {
 };
 
 ArcSurvivors.Enemy.prototype.draw = function(ctx) {
+    var CFG = ArcSurvivors.GAME_CONFIG;
+    var FR = CFG.FROST;
+    var RC = CFG.RENDERER;
+
     ctx.save();
 
     if (this.frozen) {
-        ctx.fillStyle = 'rgba(136, 255, 255, 0.3)';
+        ctx.fillStyle = FR.FROST_COLOR;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius + 5, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, this.radius + FR.FROST_RADIUS_EXTRA, 0, Math.PI * 2);
         ctx.fill();
     }
 
+    if (this.slowed) {
+        ctx.fillStyle = FR.SLOW_COLOR;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius + FR.SLOW_RADIUS_EXTRA, 0, Math.PI * 2);
+        ctx.fill();
+        if (Math.random() < FR.PARTICLE_CHANCE) {
+            ArcSurvivors.spawnParticles(this.x, this.y, 1, 'rgb(136,255,255)', 1, 1);
+        }
+    }
+
     ctx.shadowColor = this.color;
-    ctx.shadowBlur = 10;
+    ctx.shadowBlur = RC.SHADOW_BLUR;
     ctx.fillStyle = this.color;
     ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = RC.LINE_WIDTH;
 
     ctx.beginPath();
     switch (this.shape) {
@@ -207,8 +278,10 @@ ArcSurvivors.Enemy.prototype.draw = function(ctx) {
             ctx.lineTo(this.x - this.radius, this.y);
             ctx.closePath();
             break;
+        case 'square':
+            ctx.rect(this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
+            break;
         case 'boss':
-            // Boss形状：六角形 + 内圈
             for (var k = 0; k < 6; k++) {
                 var a = (k / 6) * Math.PI * 2 - Math.PI / 2;
                 var bx = this.x + Math.cos(a) * this.radius;
@@ -222,97 +295,113 @@ ArcSurvivors.Enemy.prototype.draw = function(ctx) {
     ctx.fill();
     ctx.stroke();
 
-    // Boss内圈和脉冲效果
     if (this.type === 'boss') {
+        var BC = RC.BOSS;
+
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius * 0.5, 0, Math.PI * 2);
-        ctx.fillStyle = '#000';
+        ctx.arc(this.x, this.y, this.radius * BC.INNER_RADIUS_SCALE, 0, Math.PI * 2);
+        ctx.fillStyle = BC.INNER_COLOR;
         ctx.fill();
-        ctx.strokeStyle = '#ff88ff';
+        ctx.strokeStyle = BC.INNER_BORDER;
         ctx.stroke();
 
-        // Boss眼睛
         ctx.beginPath();
-        ctx.arc(this.x - 12, this.y - 5, 6, 0, Math.PI * 2);
-        ctx.arc(this.x + 12, this.y - 5, 6, 0, Math.PI * 2);
-        ctx.fillStyle = '#ff0000';
+        ctx.arc(this.x - BC.EYE_OFFSET_X, this.y - BC.EYE_OFFSET_Y, BC.EYE_RADIUS, 0, Math.PI * 2);
+        ctx.arc(this.x + BC.EYE_OFFSET_X, this.y - BC.EYE_OFFSET_Y, BC.EYE_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = BC.EYE_COLOR;
         ctx.fill();
 
-        // Boss血条（更大更明显）
-        if (this.hp < this.maxHp) {
+        if (this.hp < this.maxHp && this.hp > 0) {
             ctx.shadowBlur = 0;
-            var barW = this.radius * 2.5;
-            var barH = 8;
+            var barW = this.radius * BC.HP_BAR_SCALE;
+            var barH = BC.HP_BAR_HEIGHT;
             var barX = this.x - barW / 2;
-            var barY = this.y - this.radius - 20;
-            ctx.fillStyle = '#333';
+            var barY = this.y - this.radius - BC.HP_BAR_OFFSET_Y;
+            ctx.fillStyle = BC.HP_BG_COLOR;
             ctx.fillRect(barX, barY, barW, barH);
-            ctx.fillStyle = '#ff0044';
+            ctx.fillStyle = BC.HP_FILL_COLOR;
             ctx.fillRect(barX, barY, (this.hp / this.maxHp) * barW, barH);
-            ctx.strokeStyle = '#fff';
+            ctx.strokeStyle = BC.HP_BORDER_COLOR;
             ctx.strokeRect(barX, barY, barW, barH);
-            // Boss名称
-            ctx.fillStyle = '#ff88ff';
-            ctx.font = 'bold 12px sans-serif';
+
+            ctx.fillStyle = BC.NAME_COLOR;
+            ctx.font = BC.NAME_FONT;
             ctx.textAlign = 'center';
-            ctx.fillText('BOSS', this.x, barY - 5);
+            ctx.fillText(BC.NAME_LABEL, this.x, barY - 5);
         }
-    } else if (this.hp < this.maxHp) {
+    } else if (this.hp < this.maxHp && this.hp > 0) {
+        var EHB = RC.ENEMY_HP_BAR;
         ctx.shadowBlur = 0;
-        ctx.fillStyle = '#333';
-        ctx.fillRect(this.x - this.radius, this.y - this.radius - 10, this.radius * 2, 5);
-        ctx.fillStyle = '#ff4444';
-        ctx.fillRect(this.x - this.radius, this.y - this.radius - 10, (this.hp / this.maxHp) * this.radius * 2, 5);
+        ctx.fillStyle = EHB.BG_COLOR;
+        ctx.fillRect(this.x - this.radius, this.y - this.radius - EHB.OFFSET_Y, this.radius * 2, EHB.HEIGHT);
+        ctx.fillStyle = EHB.FILL_COLOR;
+        ctx.fillRect(this.x - this.radius, this.y - this.radius - EHB.OFFSET_Y, (this.hp / this.maxHp) * this.radius * 2, EHB.HEIGHT);
     }
 
     ctx.restore();
 };
 
+// 尝试生成复活石
+ArcSurvivors.trySpawnReviveStone = function(x, y) {
+    var BC = ArcSurvivors.GAME_CONFIG.ENEMY_TYPES.boss;
+    if (Math.random() < BC.REVIVE_STONE_CHANCE) {
+        // 创建复活石道具
+        var reviveStone = {
+            id: 108,
+            apply: function(p) { p.hasReviveStone = true; },
+            isItem: true
+        };
+        ArcSurvivors.itemPickups.push(new ArcSurvivors.ItemPickup(x, y, reviveStone));
+    }
+};
+
 // 敌人生成
 ArcSurvivors.spawnEnemies = function(dt) {
+    var CFG = ArcSurvivors.GAME_CONFIG;
+    var SC = CFG.SPAWN;
     var time = this.gameState.time;
-    // 更快的刷怪节奏：基础1.5，每15秒加速，上限6
-    var spawnRate = 1.5 + Math.floor(time / 15) * 0.5;
-    spawnRate = Math.min(spawnRate, 6);
+
+    var spawnRate = SC.BASE_RATE + Math.floor(time / SC.RATE_INCREASE_INTERVAL) * SC.RATE_INCREASE_AMOUNT;
+    spawnRate = Math.min(spawnRate, SC.MAX_RATE);
 
     if (Math.random() < spawnRate * dt) {
         var side = Math.floor(Math.random() * 4);
         var x, y;
 
         switch (side) {
-            case 0: x = Math.random() * this.CANVAS_WIDTH; y = -30; break;
-            case 1: x = this.CANVAS_WIDTH + 30; y = Math.random() * this.CANVAS_HEIGHT; break;
-            case 2: x = Math.random() * this.CANVAS_WIDTH; y = this.CANVAS_HEIGHT + 30; break;
-            case 3: x = -30; y = Math.random() * this.CANVAS_HEIGHT; break;
+            case 0: x = Math.random() * CFG.CANVAS_WIDTH; y = -SC.SPAWN_OFFSET; break;
+            case 1: x = CFG.CANVAS_WIDTH + SC.SPAWN_OFFSET; y = Math.random() * CFG.CANVAS_HEIGHT; break;
+            case 2: x = Math.random() * CFG.CANVAS_WIDTH; y = CFG.CANVAS_HEIGHT + SC.SPAWN_OFFSET; break;
+            case 3: x = -SC.SPAWN_OFFSET; y = Math.random() * CFG.CANVAS_HEIGHT; break;
         }
 
         var type = 'normal';
-        if (time > 10 && Math.random() < 0.25) type = 'fast';
-        if (time > 20 && Math.random() < 0.2) type = 'split';
+        if (time > SC.FAST_ENEMY_TIME && Math.random() < SC.FAST_ENEMY_CHANCE) type = 'fast';
+        if (time > SC.SPLIT_ENEMY_TIME && Math.random() < SC.SPLIT_ENEMY_CHANCE) type = 'split';
+        if (time > SC.RANGED_ENEMY_TIME && Math.random() < SC.RANGED_ENEMY_CHANCE) type = 'ranged';
 
         this.enemies.push(new this.Enemy(x, y, type));
     }
 
-    // 额外批量刷怪：每8秒从随机方向涌入一波
-    if (Math.random() < dt / 8) {
+    if (Math.random() < dt / SC.BATCH_INTERVAL) {
         var batchSide = Math.floor(Math.random() * 4);
-        var count = 3 + Math.floor(time / 30);
+        var count = SC.BATCH_COUNT_BASE + Math.floor(time / SC.BATCH_COUNT_SCALE);
         for (var i = 0; i < count; i++) {
             var bx, by;
+            var offset = Math.random() * (SC.BATCH_OFFSET_MAX - SC.BATCH_OFFSET_MIN) + SC.BATCH_OFFSET_MIN;
             switch (batchSide) {
-                case 0: bx = Math.random() * this.CANVAS_WIDTH; by = -30 - Math.random() * 50; break;
-                case 1: bx = this.CANVAS_WIDTH + 30 + Math.random() * 50; by = Math.random() * this.CANVAS_HEIGHT; break;
-                case 2: bx = Math.random() * this.CANVAS_WIDTH; by = this.CANVAS_HEIGHT + 30 + Math.random() * 50; break;
-                case 3: bx = -30 - Math.random() * 50; by = Math.random() * this.CANVAS_HEIGHT; break;
+                case 0: bx = Math.random() * CFG.CANVAS_WIDTH; by = -SC.SPAWN_OFFSET - offset; break;
+                case 1: bx = CFG.CANVAS_WIDTH + SC.SPAWN_OFFSET + offset; by = Math.random() * CFG.CANVAS_HEIGHT; break;
+                case 2: bx = Math.random() * CFG.CANVAS_WIDTH; by = CFG.CANVAS_HEIGHT + SC.SPAWN_OFFSET + offset; break;
+                case 3: bx = -SC.SPAWN_OFFSET - offset; by = Math.random() * CFG.CANVAS_HEIGHT; break;
             }
             this.enemies.push(new this.Enemy(bx, by, 'normal'));
         }
     }
 
-    // Boss刷新：每45秒刷一个Boss
     if (!this.gameState.bossTimer) this.gameState.bossTimer = 0;
     this.gameState.bossTimer += dt;
-    if (this.gameState.bossTimer >= 45 && time > 30) {
+    if (this.gameState.bossTimer >= SC.BOSS_INTERVAL && time > SC.BOSS_MIN_TIME) {
         this.gameState.bossTimer = 0;
         this.spawnBoss();
     }
@@ -320,32 +409,34 @@ ArcSurvivors.spawnEnemies = function(dt) {
 
 // Boss生成（带警告）
 ArcSurvivors.spawnBoss = function() {
+    var CFG = ArcSurvivors.GAME_CONFIG;
+    var SC = CFG.SPAWN;
     var side = Math.floor(Math.random() * 4);
     var x, y;
     switch (side) {
-        case 0: x = this.CANVAS_WIDTH / 2; y = -50; break;
-        case 1: x = this.CANVAS_WIDTH + 50; y = this.CANVAS_HEIGHT / 2; break;
-        case 2: x = this.CANVAS_WIDTH / 2; y = this.CANVAS_HEIGHT + 50; break;
-        case 3: x = -50; y = this.CANVAS_HEIGHT / 2; break;
+        case 0: x = CFG.CANVAS_WIDTH / 2; y = -SC.BOSS_OFFSET; break;
+        case 1: x = CFG.CANVAS_WIDTH + SC.BOSS_OFFSET; y = CFG.CANVAS_HEIGHT / 2; break;
+        case 2: x = CFG.CANVAS_WIDTH / 2; y = CFG.CANVAS_HEIGHT + SC.BOSS_OFFSET; break;
+        case 3: x = -SC.BOSS_OFFSET; y = CFG.CANVAS_HEIGHT / 2; break;
     }
 
-    // 显示警告
     this.showBossWarning();
 
     var self = this;
     setTimeout(function() {
         self.enemies.push(new self.Enemy(x, y, 'boss'));
         self.Audio.init && self.Audio.pause();
-    }, 1500);
+    }, SC.BOSS_WARNING_DURATION);
 };
 
 ArcSurvivors.showBossWarning = function() {
+    var SC = ArcSurvivors.GAME_CONFIG.SPAWN;
     var el = document.getElementById('bossWarning');
     el.style.display = 'block';
     this.Audio.bossWarning();
     setTimeout(function() {
         el.style.display = 'none';
-    }, 1500);
+    }, SC.BOSS_WARNING_DURATION);
 };
 
 // 敌方子弹
@@ -363,14 +454,13 @@ ArcSurvivors.EnemyBullet.prototype.update = function(dt) {
     this.x += Math.cos(this.angle) * this.speed * dt * 60;
     this.y += Math.sin(this.angle) * this.speed * dt * 60;
 
-    // 出界销毁
-    if (this.x < -20 || this.x > ArcSurvivors.CANVAS_WIDTH + 20 ||
-        this.y < -20 || this.y > ArcSurvivors.CANVAS_HEIGHT + 20) {
+    var CFG = ArcSurvivors.GAME_CONFIG;
+    if (this.x < -20 || this.x > CFG.CANVAS_WIDTH + 20 ||
+        this.y < -20 || this.y > CFG.CANVAS_HEIGHT + 20) {
         this.active = false;
         return;
     }
 
-    // 命中玩家
     var player = ArcSurvivors.player;
     if (ArcSurvivors.Utils.distance(this.x, this.y, player.x, player.y) < this.radius + player.radius) {
         player.takeDamage(this.damage);
