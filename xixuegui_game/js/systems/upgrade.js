@@ -31,7 +31,7 @@ ArcSurvivors.UPGRADES = [
             p.baseBulletSpeed = p.bulletSpeed;
         },
         canAppear: function(p) {
-            return p.baseBulletSpeed / ArcSurvivors.GAME_CONFIG.PLAYER.BULLET_SPEED < ArcSurvivors.GAME_CONFIG.UPGRADES.BULLET_SPEED_LIMIT;
+            return false; // 屏蔽弹道加速掉落
         }
     },
     {
@@ -116,6 +116,16 @@ ArcSurvivors.ITEMS = [
         id: 108,
         apply: function(p) { p.hasReviveStone = true; },
         isItem: true
+    },
+    {
+        id: 109,
+        apply: function(p) { p.hasKnockback = true; },
+        isItem: true
+    },
+    {
+        id: 110,
+        apply: function(p) { p.dodgeChance += ArcSurvivors.GAME_CONFIG.WINGS.DODGE_BONUS; },
+        isItem: true
     }
 ];
 
@@ -180,6 +190,12 @@ ArcSurvivors.getItemDisplay = function(item) {
             break;
         case 105:
             desc = ArcSurvivors.formatString(desc, { percent: Math.round((CFG.UPGRADES.PICKUP_RANGE_BONUS - 1) * 100) });
+            break;
+        case 109:
+            desc = ArcSurvivors.formatString(desc, { distance: CFG.KNOCKBACK.DISTANCE });
+            break;
+        case 110:
+            desc = ArcSurvivors.formatString(desc, { percent: Math.round(CFG.WINGS.DODGE_BONUS * 100) });
             break;
     }
 
@@ -259,8 +275,8 @@ ArcSurvivors.trySpawnItem = function() {
 
     if (available.length === 0) return null;
 
-    var index = Math.floor(Math.random() * available.length);
-    return available[index];
+    // 返回统一法宝物品标记，而不是具体法宝
+    return { isUnified: true };
 };
 
 ArcSurvivors.showItemDescription = function(item) {
@@ -304,4 +320,63 @@ ArcSurvivors.showUpgradeDescription = function(upgrade) {
         document.getElementById('itemDescriptionScreen').style.display = 'none';
         self.gameState.paused = false;
     });
+};
+
+// 法宝选择界面
+ArcSurvivors.showItemChoiceScreen = function() {
+    var CFG = ArcSurvivors.GAME_CONFIG;
+    var STR = ArcSurvivors.STRINGS.UI;
+    this.gameState.paused = true;
+
+    // 获取可用法宝池（过滤掉已拥有的）
+    var player = this.player;
+    var ownedItems = player.acquiredUpgrades.filter(function(u) { return u.isItem; });
+    var ownedIds = ownedItems.map(function(u) { return u.id; });
+
+    var available = this.ITEMS.filter(function(item) {
+        return ownedIds.indexOf(item.id) === -1;
+    });
+
+    if (available.length === 0) {
+        // 法宝池耗尽，不应该发生（trySpawnItem已经检查过）
+        this.gameState.paused = false;
+        return;
+    }
+
+    // 随机选择最多3个法宝
+    var selected = [];
+    var choiceCount = Math.min(3, available.length);
+    for (var i = 0; i < choiceCount; i++) {
+        var index = Math.floor(Math.random() * available.length);
+        selected.push(available.splice(index, 1)[0]);
+    }
+
+    var container = document.getElementById('upgradeCards');
+    container.innerHTML = '';
+
+    var self = this;
+    for (var j = 0; j < selected.length; j++) {
+        var item = selected[j];
+        var display = this.getItemDisplay(item);
+        var card = document.createElement('div');
+        card.className = 'upgrade-card';
+        card.innerHTML = '<div class="icon">' + display.icon + '</div><div class="name">' + display.name + '</div><div class="desc">' + display.desc + '</div>';
+
+        card.onclick = (function(u) {
+            return function() {
+                // 应用法宝效果
+                u.apply(self.player);
+                self.player.acquiredUpgrades.push(u);
+                document.getElementById('upgradeScreen').style.display = 'none';
+                self.gameState.paused = false;
+
+                ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.ITEM_PICKUP, u);
+            };
+        })(item);
+
+        container.appendChild(card);
+    }
+
+    // 修改标题为法宝选择
+    document.getElementById('upgradeScreen').style.display = 'flex';
 };

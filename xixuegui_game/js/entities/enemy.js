@@ -7,6 +7,7 @@ ArcSurvivors.Enemy = function(x, y, type) {
     var CFG = ArcSurvivors.GAME_CONFIG;
     var EC = CFG.ENEMY_TYPES[type];
     var FR = CFG.FROST;
+    var EL = CFG.ENEMY_LEVEL;
 
     this.x = x;
     this.y = y;
@@ -17,16 +18,19 @@ ArcSurvivors.Enemy = function(x, y, type) {
     this.slowed = false;
     this.slowedTimer = 0;
     this.canSplit = EC.CAN_SPLIT || false;
+    this.superArmor = EC.SUPER_ARMOR || false; // 霸体：免疫负面效果
 
     var gs = ArcSurvivors.gameState;
     var df = gs.difficultyFactor;
+    var playerLevel = ArcSurvivors.player ? ArcSurvivors.player.level : 1;
+    this.level = playerLevel; // 怪物等级与玩家一致
 
     this.radius = EC.RADIUS;
-    this.speed = EC.SPEED;
-    this.baseSpeed = EC.SPEED;
-    this.hp = EC.HP_BASE + df * EC.HP_SCALE;
+    this.speed = EC.SPEED * (1 + (this.level - 1) * EL.SPEED_SCALE_PER_LEVEL);
+    this.baseSpeed = this.speed;
+    this.hp = (EC.HP_BASE + df * EC.HP_SCALE) * (1 + (this.level - 1) * EL.HP_SCALE_PER_LEVEL);
     this.maxHp = this.hp;
-    this.damage = EC.DAMAGE;
+    this.damage = EC.DAMAGE * (1 + (this.level - 1) * EL.DAMAGE_SCALE_PER_LEVEL);
     this.color = EC.COLOR;
     this.shape = EC.SHAPE;
 
@@ -34,6 +38,12 @@ ArcSurvivors.Enemy = function(x, y, type) {
         this.shootTimer = 0;
         this.shootInterval = EC.SHOOT_INTERVAL;
         this.bossPhase = 0;
+        
+        // Boss属性根据玩家等级调整
+        var bossLevelScale = 1 + (this.level - 1) * EL.BOSS_HP_SCALE_PER_LEVEL;
+        this.hp = EC.HP_BASE * bossLevelScale + df * EC.HP_SCALE;
+        this.maxHp = this.hp;
+        this.damage = EC.DAMAGE * (1 + (this.level - 1) * EL.BOSS_DAMAGE_SCALE_PER_LEVEL);
     }
     
     if (type === 'ranged') {
@@ -164,10 +174,12 @@ ArcSurvivors.Enemy.prototype.die = function() {
             ArcSurvivors.gems.push(new ArcSurvivors.Gem(
                 this.x + Math.cos(angle) * dist,
                 this.y + Math.sin(angle) * dist,
-                'large'
+                'large',
+                this.level
             ));
         }
-        player.gainExp(BC.EXP_REWARD);
+        var expReward = Math.floor(BC.EXP_REWARD * (1 + (this.level - 1) * 0.2));
+        player.gainExp(expReward);
 
         var item = ArcSurvivors.trySpawnItem();
         if (item) {
@@ -184,11 +196,11 @@ ArcSurvivors.Enemy.prototype.die = function() {
         ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.BOSS_DIE, this);
     } else {
         var gemType = Math.random() < BC.LARGE_GEM_CHANCE ? 'large' : 'small';
-        ArcSurvivors.gems.push(new ArcSurvivors.Gem(this.x, this.y, gemType));
+        ArcSurvivors.gems.push(new ArcSurvivors.Gem(this.x, this.y, gemType, this.level));
         if (Math.random() < BC.EXTRA_GEM_CHANCE) {
             var offsetX = (Math.random() - 0.5) * 30;
             var offsetY = (Math.random() - 0.5) * 30;
-            ArcSurvivors.gems.push(new ArcSurvivors.Gem(this.x + offsetX, this.y + offsetY, 'small'));
+            ArcSurvivors.gems.push(new ArcSurvivors.Gem(this.x + offsetX, this.y + offsetY, 'small', this.level));
         }
         ArcSurvivors.trySpawnBuffItem(this.x, this.y);
     }

@@ -57,7 +57,8 @@ ArcSurvivors.BuffPickup.prototype.activate = function() {
             var duration = BC.TYPES.ice.DURATION;
             var enemies = ArcSurvivors.enemies;
             for (var i = 0; i < enemies.length; i++) {
-                if (enemies[i].active && enemies[i].type !== 'boss') {
+                // 霸体敌人免疫冰冻
+                if (enemies[i].active && !enemies[i].superArmor) {
                     enemies[i].frozen = true;
                     enemies[i].frozenTimer = duration;
                 }
@@ -90,6 +91,25 @@ ArcSurvivors.BuffPickup.prototype.activate = function() {
                 player.rageAttackMult = config.ATTACK_MULT;
                 player.rageSpeedMult = config.SPEED_MULT;
             }
+            break;
+
+        case 'vortex':
+            var duration = BC.TYPES.vortex.DURATION;
+            var config = BC.TYPES.vortex;
+            if (player.hasVortexBuff) {
+                player.vortexBuffTimer += duration;
+            } else {
+                player.hasVortexBuff = true;
+                player.vortexBuffTimer = duration;
+                player.vortexAttractSpeed = config.ATTRACT_SPEED;
+            }
+            break;
+
+        case 'chicken':
+            var config = BC.TYPES.chicken;
+            var healAmount = player.maxHp * config.HEAL_PERCENT;
+            player.hp = Math.min(player.maxHp, player.hp + healAmount);
+            ArcSurvivors.spawnParticles(player.x, player.y, 8, 'rgb(255, 170, 0)', 4, 3);
             break;
     }
 };
@@ -157,6 +177,13 @@ ArcSurvivors.updatePlayerBuffs = function(dt) {
             player.attackCooldown *= player.rageSpeedMult;
         }
     }
+
+    if (player.hasVortexBuff) {
+        player.vortexBuffTimer -= dt;
+        if (player.vortexBuffTimer <= 0) {
+            player.hasVortexBuff = false;
+        }
+    }
 };
 
 // 绘制buff状态指示器
@@ -195,6 +222,21 @@ ArcSurvivors.drawBuffIndicators = function(ctx) {
         ctx.font = '12px sans-serif';
         ctx.fillStyle = '#fff';
         ctx.fillText(Math.ceil(player.rageBuffTimer) + 's', x, y + 20);
+        ctx.restore();
+        x += spacing;
+    }
+
+    if (player.hasVortexBuff) {
+        var STR = this.STRINGS.BUFF_ITEMS.vortex;
+        ctx.save();
+        ctx.shadowColor = '#00ffff';
+        ctx.shadowBlur = 10;
+        ctx.font = size + 'px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(STR.icon, x, y);
+        ctx.font = '12px sans-serif';
+        ctx.fillStyle = '#fff';
+        ctx.fillText(Math.ceil(player.vortexBuffTimer) + 's', x, y + 20);
         ctx.restore();
     }
 };

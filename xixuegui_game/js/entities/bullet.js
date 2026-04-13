@@ -60,16 +60,25 @@ ArcSurvivors.Bullet.prototype.update = function(dt) {
                 
                 ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.BULLET_HIT, this, enemy);
 
-                if (player.hasFrostSlow) {
-                    if (!enemy.slowed) {
-                        enemy.speed = enemy.speed * FR.SLOW_FACTOR;
+                // 负面效果：霸体敌人免疫
+                if (!enemy.superArmor) {
+                    // 冰霜减速
+                    if (player.hasFrostSlow) {
+                        if (!enemy.slowed) {
+                            enemy.speed = enemy.speed * FR.SLOW_FACTOR;
+                        }
+                        enemy.slowed = true;
+                        enemy.slowedTimer = FR.SLOW_DURATION;
+                        ArcSurvivors.spawnParticles(enemy.x, enemy.y, 5, 'rgb(136,255,255)', 4, 2);
                     }
-                    enemy.slowed = true;
-                    enemy.slowedTimer = FR.SLOW_DURATION;
-                    ArcSurvivors.spawnParticles(enemy.x, enemy.y, 5, 'rgb(136,255,255)', 4, 2);
+                    
+                    // 击退效果
+                    if (player.hasKnockback) {
+                        this.applyKnockback(enemy);
+                    }
                 }
                 
-                // 闪电连锁
+                // 神锋无影（伤害效果，不受霸体影响）
                 if (player.lightningChainCount > 0) {
                     this.triggerLightningChain(enemy);
                 }
@@ -80,6 +89,30 @@ ArcSurvivors.Bullet.prototype.update = function(dt) {
                 break;
             }
         }
+    }
+};
+
+ArcSurvivors.Bullet.prototype.applyKnockback = function(enemy) {
+    var KB = ArcSurvivors.GAME_CONFIG.KNOCKBACK;
+    var player = ArcSurvivors.player;
+    
+    // 计算击退方向（从玩家指向敌人）
+    var dx = enemy.x - player.x;
+    var dy = enemy.y - player.y;
+    var dist = Math.sqrt(dx * dx + dy * dy);
+    
+    if (dist > 0) {
+        // 应用击退位移
+        var knockbackX = (dx / dist) * KB.DISTANCE;
+        var knockbackY = (dy / dist) * KB.DISTANCE;
+        
+        // 限制在画布范围内
+        var CFG = ArcSurvivors.GAME_CONFIG;
+        enemy.x = Math.max(enemy.radius, Math.min(CFG.CANVAS_WIDTH - enemy.radius, enemy.x + knockbackX));
+        enemy.y = Math.max(enemy.radius, Math.min(CFG.CANVAS_HEIGHT - enemy.radius, enemy.y + knockbackY));
+        
+        // 击退特效
+        ArcSurvivors.spawnParticles(enemy.x, enemy.y, KB.PARTICLE_COUNT, 'rgb(255, 200, 100)', KB.PARTICLE_SIZE, KB.PARTICLE_SPEED);
     }
 };
 

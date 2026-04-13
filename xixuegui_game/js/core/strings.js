@@ -33,7 +33,7 @@ ArcSurvivors.STRINGS = {
         },
         9: {
             name: '多重射击',
-            desc: '额外投射物+1（每个投射物伤害-10%）',
+            desc: '额外投射物+1',
             icon: '🔱'
         },
         10: {
@@ -42,7 +42,7 @@ ArcSurvivors.STRINGS = {
             icon: '💥'
         },
         11: {
-            name: '闪电链',
+            name: '神锋无影',
             desc: '子弹命中后连锁攻击附近{count}个敌人',
             icon: '⚡'
         }
@@ -56,7 +56,7 @@ ArcSurvivors.STRINGS = {
             icon: '🌿'
         },
         102: {
-            name: '弹射子弹',
+            name: '高布石子弹',
             desc: '子弹墙壁弹射{count}次',
             icon: '🧱'
         },
@@ -77,13 +77,23 @@ ArcSurvivors.STRINGS = {
         },
         106: {
             name: '冰霜新星',
-            desc: '子弹带有减速效果',
+            desc: '攻击附带减速效果',
             icon: '❄️'
         },
         108: {
             name: '复活石',
             desc: '死亡时自动复活一次，恢复50%生命值',
             icon: '💎'
+        },
+        109: {
+            name: '昏昏倒地',
+            desc: '子弹具有击退效果，将敌人击退{distance}像素',
+            icon: '💫'
+        },
+        110: {
+            name: '翅膀',
+            desc: '闪避率+{percent}%',
+            icon: '🪽'
         }
     },
 
@@ -114,7 +124,9 @@ ArcSurvivors.STRINGS = {
         TIME_PREFIX: '存活: ',
         TIME_SUFFIX: 's',
         HP_RECOVERY_SUFFIX: '/s',
-        ATTACK_SPEED_SUFFIX: '/s'
+        ATTACK_SPEED_SUFFIX: '/s',
+        ITEM_CHOICE_TITLE: '选择法宝',
+        ITEM_CHOICE_DESC: '从以下法宝中选择一个'
     },
 
     // 属性面板标签
@@ -125,7 +137,8 @@ ArcSurvivors.STRINGS = {
         MOVE_SPEED: '移速',
         HP_REGEN: '生命恢复',
         PICKUP_RANGE: '拾取范围',
-        CRITICAL: '暴击率'
+        CRITICAL: '暴击率',
+        DODGE: '闪避率'
     },
 
     // Buff道具文案（临时效果）
@@ -149,6 +162,16 @@ ArcSurvivors.STRINGS = {
             name: '狂暴',
             desc: '攻速和伤害翻倍，持续{duration}秒',
             icon: '🔥'
+        },
+        vortex: {
+            name: '漩涡',
+            desc: '快速拾取全屏幕经验宝石',
+            icon: '🌀'
+        },
+        chicken: {
+            name: '鸡腿',
+            desc: '恢复最大生命值{percent}%的生命',
+            icon: '🍗'
         }
     }
 };

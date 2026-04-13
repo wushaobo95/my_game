@@ -13,20 +13,22 @@ ArcSurvivors.GAME_CONFIG = {
         RADIUS: 20,
         HP: 100,
         SPEED: 5,
-        ATTACK_POWER: 12,
+        ATTACK_POWER: 14,
         ATTACK_COOLDOWN: 0.4,
         BULLET_SPEED: 8,
         BULLET_SIZE: 8,
         BULLET_PENETRATION: 1,
         PICKUP_RANGE: 160,
-        BASE_EXP_TO_LEVEL: 80,
-        EXP_GROWTH_RATE: 1.5,
+        BASE_EXP_TO_LEVEL: 100,
+        EXP_GROWTH_RATE: 1.4,
+        MAX_EXP_PER_LEVEL: 8000,
         INVULNERABLE_DURATION: 0.5,
+        DODGE_CHANCE: 0,
         RUNE_ROTATE_SPEED: 2,
         PULSE_DECAY_SPEED: 3,
         PULSE_RADIUS_EXTRA: 30,
         PROJECTILE_SPREAD_ANGLE: 15,
-        PROJECTILE_DAMAGE_DECAY: 0.9,
+        PROJECTILE_DAMAGE_DECAY: 1.0,
         COLORS: {
             INNER: '#6633ff',
             OUTER: '#3311aa',
@@ -39,7 +41,7 @@ ArcSurvivors.GAME_CONFIG = {
     ENEMY_TYPES: {
         normal: {
             RADIUS: 15,
-            SPEED: 2.5,
+            SPEED: 2.3,
             HP_BASE: 15,
             HP_SCALE: 12,
             DAMAGE: 5,
@@ -113,22 +115,23 @@ ArcSurvivors.GAME_CONFIG = {
             SHAKE_DURATION: 0.3,
             HITSTOP_FRAMES: 5,
             LARGE_GEM_CHANCE: 0.25,
-            EXTRA_GEM_CHANCE: 0.4
+            EXTRA_GEM_CHANCE: 0.4,
+            SUPER_ARMOR: true
         }
     },
 
     // 生成系统
     SPAWN: {
-        BASE_RATE: 1.5,
+        BASE_RATE: 2.0,
         RATE_INCREASE_INTERVAL: 10,
-        RATE_INCREASE_AMOUNT: 0.7,
+        RATE_INCREASE_AMOUNT: 0.5,
         MAX_RATE: 6,
         SPAWN_OFFSET: 30,
-        FAST_ENEMY_TIME: 10,
+        FAST_ENEMY_TIME: 15,
         FAST_ENEMY_CHANCE: 0.25,
-        SPLIT_ENEMY_TIME: 20,
+        SPLIT_ENEMY_TIME: 30,
         SPLIT_ENEMY_CHANCE: 0.2,
-        RANGED_ENEMY_TIME: 25,
+        RANGED_ENEMY_TIME: 40,
         RANGED_ENEMY_CHANCE: 0.15,
         BATCH_INTERVAL: 8,
         BATCH_COUNT_BASE: 3,
@@ -177,7 +180,8 @@ ArcSurvivors.GAME_CONFIG = {
         SMALL_RADIUS: 6,
         ATTRACT_SPEED: 5,
         LINE_WIDTH: 1,
-        BORDER_COLOR: '#ffffff'
+        BORDER_COLOR: '#ffffff',
+        EXP_SCALE_PER_LEVEL: 0.1 // 每级增加10%经验
     },
 
     // 道具拾取
@@ -191,7 +195,12 @@ ArcSurvivors.GAME_CONFIG = {
         GLOW_COLOR: '#ffcc00',
         GLOW_BLUR: 20,
         ICON_FONT_SIZE: 24,
-        BORDER_WIDTH: 2
+        BORDER_WIDTH: 2,
+        UNIFIED_ITEM: {
+            ICON: '?',
+            COLOR: '#ffcc00',
+            GLOW_COLOR: '#ffaa00'
+        }
     },
 
     // 粒子系统
@@ -234,6 +243,15 @@ ArcSurvivors.GAME_CONFIG = {
         BASE: 1,
         INCREASE_INTERVAL: 45,
         INCREASE_AMOUNT: 0.2
+    },
+
+    // 怪物等级系统
+    ENEMY_LEVEL: {
+        HP_SCALE_PER_LEVEL: 0.08, // 每级增加8%生命
+        DAMAGE_SCALE_PER_LEVEL: 0.03, // 每级增加3%伤害
+        SPEED_SCALE_PER_LEVEL: 0, // 取消移速成长
+        BOSS_HP_SCALE_PER_LEVEL: 0.10, // Boss每级增加10%生命
+        BOSS_DAMAGE_SCALE_PER_LEVEL: 0.03 // Boss每级增加3%伤害
     },
 
     // 最大帧间隔
@@ -371,7 +389,7 @@ ArcSurvivors.GAME_CONFIG = {
         HEAL_AMOUNT: 1
     },
     
-    // 闪电连锁
+    // 神锋无影
     LIGHTNING_CHAIN: {
         MAX_CHAINS: 5,
         CHAIN_RANGE: 100,
@@ -395,6 +413,19 @@ ArcSurvivors.GAME_CONFIG = {
         RADIUS: 60,
         DAMAGE_SCALE: 0.5,
         PARTICLE_COUNT: 10
+    },
+
+    // 击退效果
+    KNOCKBACK: {
+        DISTANCE: 30,
+        PARTICLE_COUNT: 3,
+        PARTICLE_SIZE: 3,
+        PARTICLE_SPEED: 2
+    },
+
+    // 翅膀法宝
+    WINGS: {
+        DODGE_BONUS: 0.25
     },
 
     // Buff道具（临时效果）
@@ -425,6 +456,15 @@ ArcSurvivors.GAME_CONFIG = {
                 ATTACK_MULT: 2,
                 SPEED_MULT: 2,
                 COLOR: '#ff00ff'
+            },
+            vortex: {
+                ATTRACT_SPEED: 20,
+                DURATION: 3,
+                COLOR: '#00ffff'
+            },
+            chicken: {
+                HEAL_PERCENT: 0.2,
+                COLOR: '#ffaa00'
             }
         }
     }

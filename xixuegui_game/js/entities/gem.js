@@ -3,12 +3,14 @@
  */
 var ArcSurvivors = ArcSurvivors || {};
 
-ArcSurvivors.Gem = function(x, y, type) {
+ArcSurvivors.Gem = function(x, y, type, enemyLevel) {
     var GC = ArcSurvivors.GAME_CONFIG.GEM;
     this.x = x;
     this.y = y;
     this.type = type;
-    this.value = type === 'large' ? GC.LARGE_VALUE : GC.SMALL_VALUE;
+    var baseValue = type === 'large' ? GC.LARGE_VALUE : GC.SMALL_VALUE;
+    var level = enemyLevel || 1;
+    this.value = Math.floor(baseValue * (1 + (level - 1) * GC.EXP_SCALE_PER_LEVEL));
     this.color = type === 'large' ? GC.LARGE_COLOR : GC.SMALL_COLOR;
     this.radius = type === 'large' ? GC.LARGE_RADIUS : GC.SMALL_RADIUS;
     this.active = true;
@@ -19,7 +21,15 @@ ArcSurvivors.Gem.prototype.update = function(dt) {
     var player = ArcSurvivors.player;
     var dist = ArcSurvivors.Utils.distance(this.x, this.y, player.x, player.y);
 
-    if (dist < player.pickupRange) {
+    // 漩涡效果：全屏吸引
+    if (player.hasVortexBuff) {
+        var dx = player.x - this.x;
+        var dy = player.y - this.y;
+        if (dist > 0) {
+            this.x += (dx / dist) * player.vortexAttractSpeed * dt * 60;
+            this.y += (dy / dist) * player.vortexAttractSpeed * dt * 60;
+        }
+    } else if (dist < player.pickupRange) {
         var dx = player.x - this.x;
         var dy = player.y - this.y;
         var speed = GC.ATTRACT_SPEED * (1 - dist / player.pickupRange);
@@ -62,7 +72,7 @@ ArcSurvivors.Gem.prototype.draw = function(ctx) {
     }
 };
 
-ArcSurvivors.ItemPickup = function(x, y, item) {
+ArcSurvivors.ItemPickup = function(x, y, item, isUnifiedItem) {
     var IC = ArcSurvivors.GAME_CONFIG.ITEM_PICKUP;
     this.x = x;
     this.y = y;
@@ -71,6 +81,8 @@ ArcSurvivors.ItemPickup = function(x, y, item) {
     this.active = true;
     this.bobTimer = 0;
     this.bobHeight = IC.BOB_HEIGHT;
+    // 支持通过item.isUnified属性设置统一法宝物品
+    this.isUnifiedItem = isUnifiedItem || (item && item.isUnified) || false;
 };
 
 ArcSurvivors.ItemPickup.prototype.update = function(dt) {
@@ -83,13 +95,23 @@ ArcSurvivors.ItemPickup.prototype.update = function(dt) {
     var dist = ArcSurvivors.Utils.distance(this.x, this.y, player.x, player.y);
 
     if (dist < player.radius + this.radius) {
-        this.applyItem();
+        if (this.isUnifiedItem) {
+            // 统一法宝物品，触发选择界面
+            ArcSurvivors.showItemChoiceScreen();
+        } else {
+            // 普通法宝物品，应用效果
+            this.applyItem();
+        }
         this.active = false;
         ArcSurvivors.Audio.pickup();
     }
 };
 
 ArcSurvivors.ItemPickup.prototype.applyItem = function() {
+    if (this.isUnifiedItem) {
+        // 统一法宝物品不应该调用此方法
+        return;
+    }
     var IC = ArcSurvivors.GAME_CONFIG.ITEM_PICKUP;
     var player = ArcSurvivors.player;
     this.item.apply(player);
@@ -102,37 +124,57 @@ ArcSurvivors.ItemPickup.prototype.applyItem = function() {
 
 ArcSurvivors.ItemPickup.prototype.draw = function(ctx) {
     var IC = ArcSurvivors.GAME_CONFIG.ITEM_PICKUP;
-    var display = ArcSurvivors.getItemDisplay(this.item);
     var RL = ArcSurvivors.ResourceLoader;
 
     ctx.save();
 
-    // 检查是否有精灵图资源
-    if (RL && RL.hasSprite('item_pickup')) {
-        // 使用精灵图绘制
-        var sprite = RL.getSprite('item_pickup');
-        var drawWidth = this.radius * 2;
-        var drawHeight = this.radius * 2;
-        ctx.drawImage(sprite, 
-            this.x - this.radius, 
-            this.drawY - this.radius, 
-            drawWidth, 
-            drawHeight);
-    } else {
-        // 回退到原有Canvas绘制
-        ctx.shadowColor = IC.GLOW_COLOR;
+    if (this.isUnifiedItem) {
+        // 统一法宝物品
+        var unifiedConfig = IC.UNIFIED_ITEM;
+        ctx.shadowColor = unifiedConfig.GLOW_COLOR;
         ctx.shadowBlur = IC.GLOW_BLUR;
 
         ctx.font = IC.ICON_FONT_SIZE + 'px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(display.icon, this.x, this.drawY);
+        ctx.fillStyle = unifiedConfig.COLOR;
+        ctx.fillText(unifiedConfig.ICON, this.x, this.drawY);
 
         ctx.beginPath();
         ctx.arc(this.x, this.drawY, this.radius, 0, Math.PI * 2);
-        ctx.strokeStyle = IC.GLOW_COLOR;
+        ctx.strokeStyle = unifiedConfig.COLOR;
         ctx.lineWidth = IC.BORDER_WIDTH;
         ctx.stroke();
+    } else {
+        // 普通法宝物品
+        var display = ArcSurvivors.getItemDisplay(this.item);
+        // 检查是否有精灵图资源
+        if (RL && RL.hasSprite('item_pickup')) {
+            // 使用精灵图绘制
+            var sprite = RL.getSprite('item_pickup');
+            var drawWidth = this.radius * 2;
+            var drawHeight = this.radius * 2;
+            ctx.drawImage(sprite, 
+                this.x - this.radius, 
+                this.drawY - this.radius, 
+                drawWidth, 
+                drawHeight);
+        } else {
+            // 回退到原有Canvas绘制
+            ctx.shadowColor = IC.GLOW_COLOR;
+            ctx.shadowBlur = IC.GLOW_BLUR;
+
+            ctx.font = IC.ICON_FONT_SIZE + 'px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(display.icon, this.x, this.drawY);
+
+            ctx.beginPath();
+            ctx.arc(this.x, this.drawY, this.radius, 0, Math.PI * 2);
+            ctx.strokeStyle = IC.GLOW_COLOR;
+            ctx.lineWidth = IC.BORDER_WIDTH;
+            ctx.stroke();
+        }
     }
 
     ctx.restore();

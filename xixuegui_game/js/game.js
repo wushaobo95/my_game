@@ -60,7 +60,7 @@
             7: 5,   // 疾风步 - 最大5级
             9: CFG.UPGRADES.MAX_EXTRA_PROJECTILES,  // 多重射击
             10: Math.floor(CFG.UPGRADES.CRITICAL_MAX / CFG.UPGRADES.CRITICAL_CHANCE_BONUS),  // 暴击强化
-            11: CFG.UPGRADES.LIGHTNING_CHAIN_MAX    // 闪电链
+            11: CFG.UPGRADES.LIGHTNING_CHAIN_MAX    // 神锋无影
         };
         return UPGRADE_LIMITS[skillId] || 5;
     }
@@ -158,6 +158,7 @@
         }
 
         var criticalPercent = (p.criticalChance * 100).toFixed(0);
+        var dodgePercent = (p.dodgeChance * 100).toFixed(0);
         
         var statsHTML = '';
         var statItems = [
@@ -166,6 +167,7 @@
             [STAT_STR.BULLET_SPEED, formatStat(baseBulletSpeed, p.bulletSpeed, bulletSpeedBonus, '')],
             [STAT_STR.MOVE_SPEED, formatStat(baseSpeed, p.speed, speedBonus, '')],
             [STAT_STR.CRITICAL, criticalPercent + '%'],
+            [STAT_STR.DODGE, dodgePercent + '%'],
             [STAT_STR.HP_REGEN, formatStat(baseRegenRate, p.regenRate, regenRateBonus, '/s') + UI_STR.HP_RECOVERY_SUFFIX],
             [STAT_STR.PICKUP_RANGE, formatStat(basePickupRange, p.pickupRange, pickupRangeBonus, '')]
         ];

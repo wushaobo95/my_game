@@ -30,11 +30,16 @@ ArcSurvivors.Player = function() {
     this.regenRate = 0;
     this.regenTimer = 0;
     this.criticalChance = 0; // 暴击率
+    this.dodgeChance = PC.DODGE_CHANCE; // 闪避率
 
     this.wallBounces = 0;
     this.hasFrostSlow = false;
-    this.lightningChainCount = 0; // 闪电链连锁数
+    this.lightningChainCount = 0; // 神锋无影连锁数
     this.hasReviveStone = false;
+    this.hasKnockback = false; // 击退效果
+    this.hasVortexBuff = false; // 漩涡buff
+    this.vortexBuffTimer = 0;
+    this.vortexAttractSpeed = 0;
 
     this.runeAngle = 0;
     this.invulnerable = false;
@@ -131,6 +136,12 @@ ArcSurvivors.Player.prototype.createBullet = function(angle, damage) {
 
 ArcSurvivors.Player.prototype.takeDamage = function(damage) {
     if (this.invulnerable) return;
+    
+    // 闪避判定
+    if (Math.random() < this.dodgeChance) {
+        ArcSurvivors.spawnParticles(this.x, this.y, 3, 'rgb(255,255,255)', 3, 2);
+        return;
+    }
 
     var HE = ArcSurvivors.GAME_CONFIG.HIT_EFFECTS;
     this.hp -= damage;
@@ -190,7 +201,10 @@ ArcSurvivors.Player.prototype.gainExp = function(amount) {
     while (this.exp >= this.expToLevel) {
         this.exp -= this.expToLevel;
         this.level++;
-        this.expToLevel = Math.floor(this.expToLevel * PC.EXP_GROWTH_RATE);
+        this.expToLevel = Math.min(
+            Math.floor(this.expToLevel * PC.EXP_GROWTH_RATE),
+            PC.MAX_EXP_PER_LEVEL
+        );
         ArcSurvivors.Audio.levelUp();
         ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.PLAYER_LEVEL_UP, this.level);
         ArcSurvivors.showUpgradeScreen();
