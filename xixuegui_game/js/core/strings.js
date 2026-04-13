@@ -94,6 +94,21 @@ ArcSurvivors.STRINGS = {
             name: '翅膀',
             desc: '闪避率+{percent}%',
             icon: '🪽'
+        },
+        111: {
+            name: '破势',
+            desc: '对生命值高于{threshold}%的单位，造成额外{bonus}%伤害',
+            icon: '🗡️'
+        },
+        112: {
+            name: '心眼',
+            desc: '目标每损失{step}%生命值，伤害提升{per_step}%，最高{max}%增伤',
+            icon: '👁️'
+        },
+        113: {
+            name: '分裂弹珠',
+            desc: '额外投射物+1（当前{count}/4）',
+            icon: '🔮'
         }
     },
 

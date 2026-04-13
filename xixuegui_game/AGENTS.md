@@ -28,7 +28,7 @@ xixuegui_game/
 │   ├── systems/        # 游戏系统
 │   │   ├── audio.js    # Web Audio API 合成音效（支持外部音频文件）
 │   │   ├── renderer.js # 背景、UI 条、危险警告、受击特效
-│   │   ├── upgrade.js  # 升级和道具定义，升级界面 UI
+│   │   ├── upgrade.js  # 升级和法宝定义，升级界面 UI
 │   │   └── buff.js     # Buff道具系统（炸弹、冰冻、护盾、狂暴）
 │   └── game.js         # 主循环、输入、暂停、状态面板、初始化
 ├── assets/             # 游戏资源
@@ -63,7 +63,8 @@ npx serve .                       # Node
 
 3. **systems/** - 游戏系统
    - 音频、渲染、升级、Buff等游戏逻辑系统
-   - 负责处理游戏的各种功能
+   - `upgrade.js` 负责升级和法宝（永久道具）系统
+   - `buff.js` 负责Buff道具（临时效果）系统
 
 ### 事件系统
 使用事件系统解耦模块间通信，减少直接依赖。
@@ -113,8 +114,32 @@ ArcSurvivors.Enemy.prototype.takeDamage = function(damage) { /* ... */ };
 - `ArcSurvivors.enemyBullets` — Boss/投射物子弹
 - `ArcSurvivors.gems` — 经验宝石
 - `ArcSurvivors.particles` — 视觉粒子（上限 300）
-- `ArcSurvivors.itemPickups` — 道具拾取物
-- `ArcSurvivors.buffPickups` — Buff道具拾取物
+- `ArcSurvivors.itemPickups` — 法宝拾取物（Boss掉落）
+- `ArcSurvivors.buffPickups` — Buff道具拾取物（敌人掉落）
+
+### 游戏物品系统（重要区分）
+
+游戏有两种完全不同的物品系统，**切勿混淆**：
+
+#### 1. 法宝（Items）- 永久性道具，Boss掉落
+- **定义位置**: `systems/upgrade.js` 中的 `ArcSurvivors.ITEMS` 数组
+- **文案位置**: `core/strings.js` 中的 `STRINGS.ITEMS` 对象
+- **掉落机制**: Boss死亡时调用 `ArcSurvivors.trySpawnItem()`，掉落统一法宝物品
+- **获取方式**: 玩家拾取后进入选择界面，从3个随机法宝中选择1个
+- **效果**: 永久生效，通过 `item.apply(player)` 设置玩家属性
+- **显示**: 在状态面板"法宝"区域显示
+- **示例**: 破势、心眼、吸血鬼面具、冰霜新星等
+
+#### 2. Buff道具 - 临时效果，敌人掉落
+- **定义位置**: `core/game-config.js` 中的 `BUFF_ITEMS.TYPES` 配置
+- **文案位置**: `core/strings.js` 中的 `STRINGS.BUFF_ITEMS` 对象
+- **掉落机制**: `ArcSurvivors.trySpawnBuffItem()` 根据 `BUFF_ITEMS.DROP_CHANCE` 概率掉落
+- **获取方式**: 拾取后立即生效
+- **效果**: 临时生效，有持续时间或一次性效果
+- **显示**: 在屏幕左下角显示计时器图标
+- **示例**: 炸弹、冰块、护盾、狂暴、漩涡、鸡腿
+
+具体添加流程请参考 `.opencode/skills/game-development-guide/SKILL.md`
 
 ## 资源系统
 

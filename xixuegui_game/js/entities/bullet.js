@@ -54,7 +54,8 @@ ArcSurvivors.Bullet.prototype.update = function(dt) {
             var dist = ArcSurvivors.Utils.distance(enemy.x, enemy.y, this.x, this.y);
             if (dist < enemy.radius + this.size) {
                 this.hitEnemies.add(enemy);
-                enemy.takeDamage(this.damage);
+                var finalDamage = this.calculateDamage(enemy);
+                enemy.takeDamage(finalDamage);
                 this.penetration--;
                 ArcSurvivors.Audio.hit();
                 
@@ -114,6 +115,27 @@ ArcSurvivors.Bullet.prototype.applyKnockback = function(enemy) {
         // 击退特效
         ArcSurvivors.spawnParticles(enemy.x, enemy.y, KB.PARTICLE_COUNT, 'rgb(255, 200, 100)', KB.PARTICLE_SIZE, KB.PARTICLE_SPEED);
     }
+};
+
+ArcSurvivors.Bullet.prototype.calculateDamage = function(enemy) {
+    var damage = this.damage;
+    var DC = ArcSurvivors.GAME_CONFIG.DAMAGE_CONFIG;
+    var player = ArcSurvivors.player;
+    
+    // 破势：对生命值高于阈值的单位造成额外伤害
+    if (player.hasPoShi && enemy.hp > enemy.maxHp * DC.PO_SHI.HP_THRESHOLD) {
+        damage *= (1 + DC.PO_SHI.DAMAGE_BONUS);
+    }
+    
+    // 心眼：目标每损失一定生命值，伤害提升
+    if (player.hasXinYan) {
+        var hpLossPercent = 1 - (enemy.hp / enemy.maxHp);
+        var steps = Math.floor(hpLossPercent / DC.XIN_YAN.HP_LOSS_STEP);
+        var damageBonus = Math.min(steps * DC.XIN_YAN.DAMAGE_PER_STEP, DC.XIN_YAN.MAX_DAMAGE_BONUS);
+        damage *= (1 + damageBonus);
+    }
+    
+    return damage;
 };
 
 ArcSurvivors.Bullet.prototype.triggerLightningChain = function(hitEnemy) {

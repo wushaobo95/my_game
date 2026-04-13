@@ -40,6 +40,8 @@ ArcSurvivors.Player = function() {
     this.hasVortexBuff = false; // 漩涡buff
     this.vortexBuffTimer = 0;
     this.vortexAttractSpeed = 0;
+    this.hasPoShi = false; // 破势法宝
+    this.hasXinYan = false; // 心眼法宝
 
     this.runeAngle = 0;
     this.invulnerable = false;
@@ -108,7 +110,7 @@ ArcSurvivors.Player.prototype.shoot = function() {
         var totalProjectiles = 1 + this.extraProjectiles;
         for (var j = 0; j < totalProjectiles; j++) {
             var offset = (j - (totalProjectiles - 1) / 2) * PC.PROJECTILE_SPREAD_ANGLE * Math.PI / 180;
-            var damageMult = Math.pow(PC.PROJECTILE_DAMAGE_DECAY, this.extraProjectiles);
+            var damageMult = Math.pow(PC.PROJECTILE_DAMAGE_DECAY, j);
             this.createBullet(angle + offset, this.attackPower * damageMult);
         }
     } else {
@@ -119,9 +121,10 @@ ArcSurvivors.Player.prototype.shoot = function() {
 ArcSurvivors.Player.prototype.createBullet = function(angle, damage) {
     var finalDamage = damage || this.attackPower;
     var isCritical = Math.random() < this.criticalChance;
+    var DC = ArcSurvivors.GAME_CONFIG.DAMAGE_CONFIG;
     
     if (isCritical) {
-        finalDamage *= 2; // 暴击伤害翻倍
+        finalDamage *= DC.CRITICAL_MULTIPLIER; // 暴击伤害倍数
     }
     
     var bullet = new ArcSurvivors.Bullet(

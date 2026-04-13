@@ -58,7 +58,6 @@
             3: 5,   // 弹道加速 - 最大5级
             5: 5,   // 生命强化 - 最大5级
             7: 5,   // 疾风步 - 最大5级
-            9: CFG.UPGRADES.MAX_EXTRA_PROJECTILES,  // 多重射击
             10: Math.floor(CFG.UPGRADES.CRITICAL_MAX / CFG.UPGRADES.CRITICAL_CHANCE_BONUS),  // 暴击强化
             11: CFG.UPGRADES.LIGHTNING_CHAIN_MAX    // 神锋无影
         };
@@ -99,6 +98,7 @@
         GS.particles = [];
         GS.itemPickups = [];
         GS.buffPickups = [];
+        if (ArcSurvivors.BossRegistry) ArcSurvivors.BossRegistry.spawnCount = 0;
         document.getElementById('gameOver').style.display = 'none';
         document.getElementById('upgradeScreen').style.display = 'none';
         document.getElementById('pauseScreen').style.display = 'none';
@@ -107,6 +107,10 @@
         // 重置状态面板缓存
         lastSkillsHash = '';
         lastItemsHash = '';
+        
+        // 直接清空技能和法宝列表的DOM
+        document.getElementById('skillsList').innerHTML = '';
+        document.getElementById('itemsList').innerHTML = '';
         
         EventSystem.emit(Events.GAME_RESET);
     };
@@ -271,7 +275,6 @@
         var key = e.key.toLowerCase();
         GS.keys[key] = true;
 
-        if (key === 'r') GS.resetGame();
         if (key === 'escape') GS.togglePause();
     });
 

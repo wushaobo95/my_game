@@ -20,12 +20,55 @@ metadata:
 2. 在 `systems/upgrade.js` 的 `UPGRADES` 或 `ITEMS` 数组中添加定义
 3. 使用 `formatString()` 格式化描述中的动态数值
 
-### 2.1 添加新Buff道具
+#### 2.1 添加新法宝（永久道具，Boss掉落）
+1. 在 `core/strings.js` 的 `STRINGS.ITEMS` 中添加文案（id, name, desc, icon）
+2. 在 `core/game-config.js` 添加数值配置（如需要）
+3. 在 `systems/upgrade.js` 的 `ITEMS` 数组中添加定义（id, apply函数, isItem: true）
+4. 在 `systems/upgrade.js` 的 `getItemDisplay()` 中添加格式化逻辑（如需要）
+5. 在 `entities/player.js` 中添加相关属性（如需要）
+
+示例：
+```js
+// 1. strings.js - ITEMS 中添加
+111: {
+    name: '破势',
+    desc: '对生命值高于{threshold}%的单位，造成额外{bonus}%伤害',
+    icon: '🗡️'
+}
+
+// 2. game-config.js - 添加配置
+DAMAGE_CONFIG: {
+    PO_SHI: {
+        HP_THRESHOLD: 0.7,
+        DAMAGE_BONUS: 0.4
+    }
+}
+
+// 3. upgrade.js - ITEMS 数组中添加
+{
+    id: 111,
+    apply: function(p) { p.hasPoShi = true; },
+    isItem: true
+}
+
+// 4. upgrade.js - getItemDisplay() 中添加
+case 111:
+    desc = ArcSurvivors.formatString(desc, { 
+        threshold: Math.round(CFG.DAMAGE_CONFIG.PO_SHI.HP_THRESHOLD * 100),
+        bonus: Math.round(CFG.DAMAGE_CONFIG.PO_SHI.DAMAGE_BONUS * 100)
+    });
+    break;
+
+// 5. player.js - 构造函数中添加属性
+this.hasPoShi = false;
+```
+
+#### 2.2 添加新Buff道具（临时效果，敌人掉落）
 1. 在 `core/game-config.js` 的 `BUFF_ITEMS.TYPES` 中添加配置（DURATION、COLOR等）
 2. 在 `core/strings.js` 的 `STRINGS.BUFF_ITEMS` 中添加文案（name、desc、icon）
 3. 在 `systems/buff.js` 的 `activate()` 函数中添加对应的 case 逻辑
-4. 在 `systems/buff.js` 的 `updatePlayerBuffs()` 函数中添加计时器更新逻辑
-5. 在 `systems/buff.js` 的 `drawBuffIndicators()` 函数中添加UI显示逻辑
+4. 在 `systems/buff.js` 的 `updatePlayerBuffs()` 函数中添加计时器更新逻辑（如需要）
+5. 在 `systems/buff.js` 的 `drawBuffIndicators()` 函数中添加UI显示逻辑（如需要）
 
 ### 3. 添加新音效
 1. 在 `core/game-config.js` 的 `AUDIO` 中添加配置（如需要）

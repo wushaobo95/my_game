@@ -13,7 +13,7 @@ ArcSurvivors.GAME_CONFIG = {
         RADIUS: 20,
         HP: 100,
         SPEED: 5,
-        ATTACK_POWER: 14,
+        ATTACK_POWER: 36,
         ATTACK_COOLDOWN: 0.4,
         BULLET_SPEED: 8,
         BULLET_SIZE: 8,
@@ -37,13 +37,30 @@ ArcSurvivors.GAME_CONFIG = {
         }
     },
 
+    // 伤害计算配置
+    DAMAGE_CONFIG: {
+        // 暴击伤害倍数
+        CRITICAL_MULTIPLIER: 2.0,
+        // 破势法宝配置
+        PO_SHI: {
+            HP_THRESHOLD: 0.7,  // 生命值阈值
+            DAMAGE_BONUS: 0.4   // 额外伤害比例
+        },
+        // 心眼法宝配置
+        XIN_YAN: {
+            HP_LOSS_STEP: 0.15,     // 每损失生命值比例
+            DAMAGE_PER_STEP: 0.1,   // 每步伤害提升
+            MAX_DAMAGE_BONUS: 0.6   // 最高伤害提升
+        }
+    },
+
     // 敌人类型配置
     ENEMY_TYPES: {
         normal: {
             RADIUS: 15,
             SPEED: 2.3,
             HP_BASE: 15,
-            HP_SCALE: 12,
+            HP_SCALE: 10,
             DAMAGE: 5,
             COLOR: '#ff4444',
             SHAPE: 'circle'
@@ -93,7 +110,7 @@ ArcSurvivors.GAME_CONFIG = {
             RADIUS: 40,
             SPEED: 1.5,
             HP_BASE: 200,
-            HP_SCALE: 200,
+            HP_SCALE: 1500,
             DAMAGE: 25,
             COLOR: '#ff00ff',
             SHAPE: 'boss',
@@ -122,10 +139,10 @@ ArcSurvivors.GAME_CONFIG = {
 
     // 生成系统
     SPAWN: {
-        BASE_RATE: 2.0,
+        BASE_RATE: 1.5,
         RATE_INCREASE_INTERVAL: 10,
         RATE_INCREASE_AMOUNT: 0.5,
-        MAX_RATE: 6,
+        MAX_RATE: 5,
         SPAWN_OFFSET: 30,
         FAST_ENEMY_TIME: 15,
         FAST_ENEMY_CHANCE: 0.25,
@@ -133,9 +150,9 @@ ArcSurvivors.GAME_CONFIG = {
         SPLIT_ENEMY_CHANCE: 0.2,
         RANGED_ENEMY_TIME: 40,
         RANGED_ENEMY_CHANCE: 0.15,
-        BATCH_INTERVAL: 8,
+        BATCH_INTERVAL: 10,
         BATCH_COUNT_BASE: 3,
-        BATCH_COUNT_SCALE: 20,
+        BATCH_COUNT_SCALE: 25,
         BATCH_OFFSET_MIN: 30,
         BATCH_OFFSET_MAX: 50,
         BOSS_INTERVAL: 45,
@@ -247,11 +264,11 @@ ArcSurvivors.GAME_CONFIG = {
 
     // 怪物等级系统
     ENEMY_LEVEL: {
-        HP_SCALE_PER_LEVEL: 0.08, // 每级增加8%生命
-        DAMAGE_SCALE_PER_LEVEL: 0.03, // 每级增加3%伤害
+        HP_SCALE_PER_LEVEL: 0.10, // 每级增加10%生命
+        DAMAGE_SCALE_PER_LEVEL: 0.04, // 每级增加4%伤害
         SPEED_SCALE_PER_LEVEL: 0, // 取消移速成长
-        BOSS_HP_SCALE_PER_LEVEL: 0.10, // Boss每级增加10%生命
-        BOSS_DAMAGE_SCALE_PER_LEVEL: 0.03 // Boss每级增加3%伤害
+        BOSS_HP_SCALE_PER_LEVEL: 0.20, // Boss每级增加20%生命
+        BOSS_DAMAGE_SCALE_PER_LEVEL: 0.05 // Boss每级增加5%伤害
     },
 
     // 最大帧间隔
@@ -366,7 +383,7 @@ ArcSurvivors.GAME_CONFIG = {
 
     // 升级系统
     UPGRADES: {
-        ATTACK_POWER_BONUS: 8,
+        ATTACK_POWER_BONUS: 5,
         ATTACK_SPEED_BONUS: 0.97,
         ATTACK_SPEED_LIMIT: 0.5,
         BULLET_SPEED_BONUS: 1.05,
@@ -426,6 +443,56 @@ ArcSurvivors.GAME_CONFIG = {
     // 翅膀法宝
     WINGS: {
         DODGE_BONUS: 0.25
+    },
+
+    // Boss技能配置
+    BOSS_SKILLS: {
+        // 主动技能
+        ACTIVE: {
+            BULLET_STORM: {
+                COOLDOWN: 2,
+                COOLDOWN_PHASE2: 1.5,
+                BULLET_COUNT: 12,
+                BULLET_COUNT_PHASE2: 16,
+                UNLOCK_LEVEL: 1
+            },
+            HOMING_MISSILES: {
+                COOLDOWN: 3,
+                MISSILE_COUNT: 3,
+                MISSILE_SPEED: 3,
+                TRACK_DURATION: 2,
+                TURN_SPEED: 3,
+                UNLOCK_LEVEL: 2
+            },
+            LASER_SWEEP: {
+                COOLDOWN: 5,
+                WARNING_DURATION: 2,
+                SWEEP_ANGLE: 120,
+                SWEEP_DURATION: 1,
+                SWEEP_SPEED: 4,
+                DAMAGE_PER_TICK_SCALE: 0.3,
+                BEAM_WIDTH: 20,
+                BEAM_LENGTH: 1500,
+                UNLOCK_LEVEL: 3
+            },
+            CHARGE: {
+                COOLDOWN: 4,
+                CHARGE_SPEED: 10,
+                CHARGE_DURATION: 0.4,
+                TRAIL_DURATION: 1,
+                TRAIL_DAMAGE_SCALE: 0.4,
+                TRAIL_WIDTH: 30,
+                STUN_DURATION: 0.3,
+                UNLOCK_LEVEL: 4
+            }
+        },
+        // 被动技能
+        PASSIVE: {
+            DAMAGE_REDUCTION: {
+                MAX_HP_PERCENT: 0.1,
+                UNLOCK_LEVEL: 4
+            }
+        }
     },
 
     // Buff道具（临时效果）

@@ -55,11 +55,6 @@ ArcSurvivors.UPGRADES = [
         }
     },
     {
-        id: 9,
-        apply: function(p) { p.extraProjectiles += 1; },
-        canAppear: function(p) { return p.extraProjectiles < ArcSurvivors.GAME_CONFIG.UPGRADES.MAX_EXTRA_PROJECTILES; }
-    },
-    {
         id: 10,
         apply: function(p) {
             var CFG = ArcSurvivors.GAME_CONFIG.UPGRADES;
@@ -126,6 +121,23 @@ ArcSurvivors.ITEMS = [
         id: 110,
         apply: function(p) { p.dodgeChance += ArcSurvivors.GAME_CONFIG.WINGS.DODGE_BONUS; },
         isItem: true
+    },
+    {
+        id: 111,
+        apply: function(p) { p.hasPoShi = true; },
+        isItem: true
+    },
+    {
+        id: 112,
+        apply: function(p) { p.hasXinYan = true; },
+        isItem: true
+    },
+    {
+        id: 113,
+        apply: function(p) { p.extraProjectiles += 1; },
+        isItem: true,
+        repeatable: true,
+        maxCount: 4
     }
 ];
 
@@ -197,6 +209,27 @@ ArcSurvivors.getItemDisplay = function(item) {
         case 110:
             desc = ArcSurvivors.formatString(desc, { percent: Math.round(CFG.WINGS.DODGE_BONUS * 100) });
             break;
+        case 111:
+            desc = ArcSurvivors.formatString(desc, { 
+                threshold: Math.round(CFG.DAMAGE_CONFIG.PO_SHI.HP_THRESHOLD * 100),
+                bonus: Math.round(CFG.DAMAGE_CONFIG.PO_SHI.DAMAGE_BONUS * 100)
+            });
+            break;
+        case 112:
+            desc = ArcSurvivors.formatString(desc, { 
+                step: Math.round(CFG.DAMAGE_CONFIG.XIN_YAN.HP_LOSS_STEP * 100),
+                per_step: Math.round(CFG.DAMAGE_CONFIG.XIN_YAN.DAMAGE_PER_STEP * 100),
+                max: Math.round(CFG.DAMAGE_CONFIG.XIN_YAN.MAX_DAMAGE_BONUS * 100)
+            });
+            break;
+        case 113:
+            var count = 0;
+            var upgrades = ArcSurvivors.player ? ArcSurvivors.player.acquiredUpgrades : [];
+            for (var i = 0; i < upgrades.length; i++) {
+                if (upgrades[i].id === 113) count++;
+            }
+            desc = ArcSurvivors.formatString(desc, { count: count });
+            break;
     }
 
     return {
@@ -267,10 +300,21 @@ ArcSurvivors.showUpgradeScreen = function() {
 ArcSurvivors.trySpawnItem = function() {
     var player = this.player;
     var ownedItems = player.acquiredUpgrades.filter(function(u) { return u.isItem; });
-    var ownedIds = ownedItems.map(function(u) { return u.id; });
-
+    
     var available = this.ITEMS.filter(function(item) {
-        return ownedIds.indexOf(item.id) === -1;
+        // 可重复掉落的法宝
+        if (item.repeatable) {
+            var count = 0;
+            for (var i = 0; i < ownedItems.length; i++) {
+                if (ownedItems[i].id === item.id) count++;
+            }
+            return count < (item.maxCount || 999);
+        }
+        // 普通法宝：检查是否已拥有
+        for (var i = 0; i < ownedItems.length; i++) {
+            if (ownedItems[i].id === item.id) return false;
+        }
+        return true;
     });
 
     if (available.length === 0) return null;

@@ -1,5 +1,6 @@
 /**
- * entities/enemy.js - 敌人系统
+ * entities/enemy.js - 敌人系统（仅普通敌人）
+ * Boss逻辑已移至entities/bosses/boss-base.js
  */
 var ArcSurvivors = ArcSurvivors || {};
 
@@ -18,12 +19,12 @@ ArcSurvivors.Enemy = function(x, y, type) {
     this.slowed = false;
     this.slowedTimer = 0;
     this.canSplit = EC.CAN_SPLIT || false;
-    this.superArmor = EC.SUPER_ARMOR || false; // 霸体：免疫负面效果
+    this.superArmor = EC.SUPER_ARMOR || false;
 
     var gs = ArcSurvivors.gameState;
     var df = gs.difficultyFactor;
     var playerLevel = ArcSurvivors.player ? ArcSurvivors.player.level : 1;
-    this.level = playerLevel; // 怪物等级与玩家一致
+    this.level = playerLevel;
 
     this.radius = EC.RADIUS;
     this.speed = EC.SPEED * (1 + (this.level - 1) * EL.SPEED_SCALE_PER_LEVEL);
@@ -34,23 +35,11 @@ ArcSurvivors.Enemy = function(x, y, type) {
     this.color = EC.COLOR;
     this.shape = EC.SHAPE;
 
-    if (type === 'boss') {
-        this.shootTimer = 0;
-        this.shootInterval = EC.SHOOT_INTERVAL;
-        this.bossPhase = 0;
-        
-        // Boss属性根据玩家等级调整
-        var bossLevelScale = 1 + (this.level - 1) * EL.BOSS_HP_SCALE_PER_LEVEL;
-        this.hp = EC.HP_BASE * bossLevelScale + df * EC.HP_SCALE;
-        this.maxHp = this.hp;
-        this.damage = EC.DAMAGE * (1 + (this.level - 1) * EL.BOSS_DAMAGE_SCALE_PER_LEVEL);
-    }
-    
     if (type === 'ranged') {
         this.shootTimer = 0;
         this.shootInterval = EC.SHOOT_INTERVAL;
     }
-    
+
     ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.ENEMY_SPAWN, this);
 };
 
@@ -86,30 +75,17 @@ ArcSurvivors.Enemy.prototype.update = function(dt) {
         player.takeDamage(this.damage);
     }
 
-    // Boss射击行为
-    if (this.type === 'boss') {
-        var BC = CFG.ENEMY_TYPES.boss;
-        this.shootTimer += dt;
-        var interval = this.hp < this.maxHp * BC.LOW_HP_THRESHOLD
-            ? this.shootInterval * BC.LOW_HP_SPEEDUP
-            : this.shootInterval;
-        if (this.shootTimer >= interval) {
-            this.shootTimer = 0;
-            this.bossShoot();
-        }
-    }
-    
     // 远程敌人射击行为
     if (this.type === 'ranged') {
         var RC = CFG.ENEMY_TYPES.ranged;
         var dist = ArcSurvivors.Utils.distance(this.x, this.y, player.x, player.y);
-        
+
         // 如果太近，后退
         if (dist < RC.SHOOT_RANGE * 0.5) {
             this.x -= (dx / dist) * this.speed * dt * 60;
             this.y -= (dy / dist) * this.speed * dt * 60;
         }
-        
+
         // 射击逻辑
         if (dist < RC.SHOOT_RANGE) {
             this.shootTimer += dt;
@@ -121,26 +97,11 @@ ArcSurvivors.Enemy.prototype.update = function(dt) {
     }
 };
 
-ArcSurvivors.Enemy.prototype.bossShoot = function() {
-    var BC = ArcSurvivors.GAME_CONFIG.ENEMY_TYPES.boss;
-    var bulletCount = 12;
-    
-    for (var i = 0; i < bulletCount; i++) {
-        var angle = (i / bulletCount) * Math.PI * 2;
-        ArcSurvivors.enemyBullets.push(new ArcSurvivors.EnemyBullet(
-            this.x, this.y,
-            angle,
-            BC.SHOOT_SPEED,
-            this.damage * BC.SHOOT_DAMAGE_SCALE
-        ));
-    }
-};
-
 ArcSurvivors.Enemy.prototype.rangedShoot = function() {
     var RC = ArcSurvivors.GAME_CONFIG.ENEMY_TYPES.ranged;
     var player = ArcSurvivors.player;
     var angle = Math.atan2(player.y - this.y, player.x - this.x);
-    
+
     ArcSurvivors.enemyBullets.push(new ArcSurvivors.EnemyBullet(
         this.x, this.y,
         angle,
@@ -164,52 +125,26 @@ ArcSurvivors.Enemy.prototype.die = function() {
     ArcSurvivors.gameState.kills++;
     var player = ArcSurvivors.player;
     ArcSurvivors.Audio.enemyDeath();
-    
+
     ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.ENEMY_DIE, this);
 
-    if (this.type === 'boss') {
-        for (var i = 0; i < BC.GEM_COUNT; i++) {
-            var angle = Math.random() * Math.PI * 2;
-            var dist = Math.random() * (BC.GEM_DIST_MAX - BC.GEM_DIST_MIN) + BC.GEM_DIST_MIN;
-            ArcSurvivors.gems.push(new ArcSurvivors.Gem(
-                this.x + Math.cos(angle) * dist,
-                this.y + Math.sin(angle) * dist,
-                'large',
-                this.level
-            ));
-        }
-        var expReward = Math.floor(BC.EXP_REWARD * (1 + (this.level - 1) * 0.2));
-        player.gainExp(expReward);
-
-        var item = ArcSurvivors.trySpawnItem();
-        if (item) {
-            ArcSurvivors.itemPickups.push(new ArcSurvivors.ItemPickup(this.x, this.y, item));
-        }
-        
-        ArcSurvivors.spawnParticles(this.x, this.y, BC.DEATH_PARTICLES, 'rgb(255,0,255)', BC.DEATH_PARTICLE_SIZE, BC.DEATH_PARTICLE_SPEED);
-        ArcSurvivors.screenShake.intensity = BC.SHAKE_INTENSITY;
-        ArcSurvivors.screenShake.duration = BC.SHAKE_DURATION;
-        ArcSurvivors.hitStop.active = true;
-        ArcSurvivors.hitStop.frames = BC.HITSTOP_FRAMES;
-        ArcSurvivors.Audio.bossDeath();
-        
-        ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.BOSS_DIE, this);
-    } else {
-        var gemType = Math.random() < BC.LARGE_GEM_CHANCE ? 'large' : 'small';
-        ArcSurvivors.gems.push(new ArcSurvivors.Gem(this.x, this.y, gemType, this.level));
-        if (Math.random() < BC.EXTRA_GEM_CHANCE) {
-            var offsetX = (Math.random() - 0.5) * 30;
-            var offsetY = (Math.random() - 0.5) * 30;
-            ArcSurvivors.gems.push(new ArcSurvivors.Gem(this.x + offsetX, this.y + offsetY, 'small', this.level));
-        }
-        ArcSurvivors.trySpawnBuffItem(this.x, this.y);
+    // 普通敌人掉落
+    var gemType = Math.random() < BC.LARGE_GEM_CHANCE ? 'large' : 'small';
+    ArcSurvivors.gems.push(new ArcSurvivors.Gem(this.x, this.y, gemType, this.level));
+    if (Math.random() < BC.EXTRA_GEM_CHANCE) {
+        var offsetX = (Math.random() - 0.5) * 30;
+        var offsetY = (Math.random() - 0.5) * 30;
+        ArcSurvivors.gems.push(new ArcSurvivors.Gem(this.x + offsetX, this.y + offsetY, 'small', this.level));
     }
+    ArcSurvivors.trySpawnBuffItem(this.x, this.y);
 
+    // 吸血鬼面具
     if (player.hasVampireMask) {
         player.hp = Math.min(player.maxHp, player.hp + CFG.VAMPIRE_MASK.HEAL_AMOUNT);
         ArcSurvivors.spawnParticles(player.x, player.y, 3, 'rgb(255,0,0)', 3, 2);
     }
 
+    // 爆炸火花
     if (player.hasKillExplosion) {
         var KE = CFG.KILL_EXPLOSION;
         var enemies = ArcSurvivors.enemies;
@@ -261,7 +196,7 @@ ArcSurvivors.Enemy.prototype.draw = function(ctx) {
         var sprite = RL.getSprite(spriteName);
         var drawWidth = this.radius * 2;
         var drawHeight = this.radius * 2;
-        
+
         // 绘制冰冻/减速效果
         if (this.frozen) {
             ctx.fillStyle = FR.FROST_COLOR;
@@ -269,7 +204,7 @@ ArcSurvivors.Enemy.prototype.draw = function(ctx) {
             ctx.arc(this.x, this.y, this.radius + FR.FROST_RADIUS_EXTRA, 0, Math.PI * 2);
             ctx.fill();
         }
-        
+
         if (this.slowed) {
             ctx.fillStyle = FR.SLOW_COLOR;
             ctx.beginPath();
@@ -279,34 +214,16 @@ ArcSurvivors.Enemy.prototype.draw = function(ctx) {
                 ArcSurvivors.spawnParticles(this.x, this.y, 1, 'rgb(136,255,255)', 1, 1);
             }
         }
-        
-        // 绘制精灵图
-        ctx.drawImage(sprite, 
-            this.x - this.radius, 
-            this.y - this.radius, 
-            drawWidth, 
-            drawHeight);
-        
-        // Boss血条和名称
-        if (this.type === 'boss' && this.hp < this.maxHp && this.hp > 0) {
-            var BC = RC.BOSS;
-            ctx.shadowBlur = 0;
-            var barW = this.radius * BC.HP_BAR_SCALE;
-            var barH = BC.HP_BAR_HEIGHT;
-            var barX = this.x - barW / 2;
-            var barY = this.y - this.radius - BC.HP_BAR_OFFSET_Y;
-            ctx.fillStyle = BC.HP_BG_COLOR;
-            ctx.fillRect(barX, barY, barW, barH);
-            ctx.fillStyle = BC.HP_FILL_COLOR;
-            ctx.fillRect(barX, barY, (this.hp / this.maxHp) * barW, barH);
-            ctx.strokeStyle = BC.HP_BORDER_COLOR;
-            ctx.strokeRect(barX, barY, barW, barH);
 
-            ctx.fillStyle = BC.NAME_COLOR;
-            ctx.font = BC.NAME_FONT;
-            ctx.textAlign = 'center';
-            ctx.fillText(BC.NAME_LABEL, this.x, barY - 5);
-        } else if (this.hp < this.maxHp && this.hp > 0) {
+        // 绘制精灵图
+        ctx.drawImage(sprite,
+            this.x - this.radius,
+            this.y - this.radius,
+            drawWidth,
+            drawHeight);
+
+        // 普通敌人血条
+        if (this.hp < this.maxHp && this.hp > 0) {
             var EHB = RC.ENEMY_HP_BAR;
             ctx.shadowBlur = 0;
             ctx.fillStyle = EHB.BG_COLOR;
@@ -360,55 +277,12 @@ ArcSurvivors.Enemy.prototype.draw = function(ctx) {
             case 'square':
                 ctx.rect(this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
                 break;
-            case 'boss':
-                for (var k = 0; k < 6; k++) {
-                    var a = (k / 6) * Math.PI * 2 - Math.PI / 2;
-                    var bx = this.x + Math.cos(a) * this.radius;
-                    var by = this.y + Math.sin(a) * this.radius;
-                    if (k === 0) ctx.moveTo(bx, by);
-                    else ctx.lineTo(bx, by);
-                }
-                ctx.closePath();
-                break;
         }
         ctx.fill();
         ctx.stroke();
 
-        if (this.type === 'boss') {
-            var BC = RC.BOSS;
-
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius * BC.INNER_RADIUS_SCALE, 0, Math.PI * 2);
-            ctx.fillStyle = BC.INNER_COLOR;
-            ctx.fill();
-            ctx.strokeStyle = BC.INNER_BORDER;
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.arc(this.x - BC.EYE_OFFSET_X, this.y - BC.EYE_OFFSET_Y, BC.EYE_RADIUS, 0, Math.PI * 2);
-            ctx.arc(this.x + BC.EYE_OFFSET_X, this.y - BC.EYE_OFFSET_Y, BC.EYE_RADIUS, 0, Math.PI * 2);
-            ctx.fillStyle = BC.EYE_COLOR;
-            ctx.fill();
-
-            if (this.hp < this.maxHp && this.hp > 0) {
-                ctx.shadowBlur = 0;
-                var barW = this.radius * BC.HP_BAR_SCALE;
-                var barH = BC.HP_BAR_HEIGHT;
-                var barX = this.x - barW / 2;
-                var barY = this.y - this.radius - BC.HP_BAR_OFFSET_Y;
-                ctx.fillStyle = BC.HP_BG_COLOR;
-                ctx.fillRect(barX, barY, barW, barH);
-                ctx.fillStyle = BC.HP_FILL_COLOR;
-                ctx.fillRect(barX, barY, (this.hp / this.maxHp) * barW, barH);
-                ctx.strokeStyle = BC.HP_BORDER_COLOR;
-                ctx.strokeRect(barX, barY, barW, barH);
-
-                ctx.fillStyle = BC.NAME_COLOR;
-                ctx.font = BC.NAME_FONT;
-                ctx.textAlign = 'center';
-                ctx.fillText(BC.NAME_LABEL, this.x, barY - 5);
-            }
-        } else if (this.hp < this.maxHp && this.hp > 0) {
+        // 普通敌人血条
+        if (this.hp < this.maxHp && this.hp > 0) {
             var EHB = RC.ENEMY_HP_BAR;
             ctx.shadowBlur = 0;
             ctx.fillStyle = EHB.BG_COLOR;
@@ -473,8 +347,8 @@ ArcSurvivors.spawnEnemies = function(dt) {
     }
 };
 
-// Boss生成（带警告）
-ArcSurvivors.spawnBoss = function() {
+// Boss生成（通过BossRegistry创建）
+ArcSurvivors.spawnBoss = function(bossType) {
     var CFG = ArcSurvivors.GAME_CONFIG;
     var SC = CFG.SPAWN;
     var side = Math.floor(Math.random() * 4);
@@ -489,8 +363,9 @@ ArcSurvivors.spawnBoss = function() {
     this.showBossWarning();
 
     var self = this;
+    var type = bossType || 'default';
     setTimeout(function() {
-        var boss = new self.Enemy(x, y, 'boss');
+        var boss = ArcSurvivors.BossRegistry.create(type, x, y);
         self.enemies.push(boss);
         self.Audio.init && self.Audio.pause();
         ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.BOSS_SPAWN, boss);
@@ -508,7 +383,7 @@ ArcSurvivors.showBossWarning = function() {
 };
 
 // 敌方子弹
-ArcSurvivors.EnemyBullet = function(x, y, angle, speed, damage) {
+ArcSurvivors.EnemyBullet = function(x, y, angle, speed, damage, homingDuration, turnSpeed) {
     this.x = x;
     this.y = y;
     this.angle = angle;
@@ -516,9 +391,28 @@ ArcSurvivors.EnemyBullet = function(x, y, angle, speed, damage) {
     this.damage = damage;
     this.radius = 6;
     this.active = true;
+    this.homingDuration = homingDuration || 0;
+    this.homingTimer = homingDuration || 0;
+    this.turnSpeed = turnSpeed || 3;
 };
 
 ArcSurvivors.EnemyBullet.prototype.update = function(dt) {
+    // 追踪行为
+    if (this.homingTimer > 0) {
+        this.homingTimer -= dt;
+        var player = ArcSurvivors.player;
+        var targetAngle = Math.atan2(player.y - this.y, player.x - this.x);
+        var diff = targetAngle - this.angle;
+        while (diff > Math.PI) diff -= Math.PI * 2;
+        while (diff < -Math.PI) diff += Math.PI * 2;
+        var maxTurn = this.turnSpeed * dt;
+        if (Math.abs(diff) < maxTurn) {
+            this.angle = targetAngle;
+        } else {
+            this.angle += (diff > 0 ? 1 : -1) * maxTurn;
+        }
+    }
+
     this.x += Math.cos(this.angle) * this.speed * dt * 60;
     this.y += Math.sin(this.angle) * this.speed * dt * 60;
 
@@ -538,20 +432,17 @@ ArcSurvivors.EnemyBullet.prototype.update = function(dt) {
 
 ArcSurvivors.EnemyBullet.prototype.draw = function(ctx) {
     var RL = ArcSurvivors.ResourceLoader;
-    
-    // 检查是否有精灵图资源
+
     if (RL && RL.hasSprite('enemy_bullet')) {
-        // 使用精灵图绘制
         var sprite = RL.getSprite('enemy_bullet');
         var drawWidth = this.radius * 2;
         var drawHeight = this.radius * 2;
-        ctx.drawImage(sprite, 
-            this.x - this.radius, 
-            this.y - this.radius, 
-            drawWidth, 
+        ctx.drawImage(sprite,
+            this.x - this.radius,
+            this.y - this.radius,
+            drawWidth,
             drawHeight);
     } else {
-        // 回退到原有Canvas绘制
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         var grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
