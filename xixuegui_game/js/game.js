@@ -467,6 +467,16 @@
 
             // 毒液陷阱逻辑
             if (GS.player.venomTrapLevel > 0) {
+                var hasVenomTrap = false;
+                for (var vi = 0; vi < GS.traps.length; vi++) {
+                    if (GS.traps[vi] instanceof ArcSurvivors.VenomTrap) {
+                        hasVenomTrap = true;
+                        break;
+                    }
+                }
+                if (!hasVenomTrap) {
+                    GS.spawnVenomTrap();
+                }
                 GS.gameState.venomTrapTimer += dt;
                 if (GS.gameState.venomTrapTimer >= CFG.VENOM_TRAP.INTERVAL) {
                     GS.gameState.venomTrapTimer = 0;

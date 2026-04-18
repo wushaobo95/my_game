@@ -252,34 +252,33 @@ ArcSurvivors.Enemy.prototype.draw = function(ctx) {
 
         ctx.shadowColor = this.color;
         ctx.shadowBlur = RC.SHADOW_BLUR;
-        ctx.fillStyle = this.color;
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = RC.LINE_WIDTH;
 
-        ctx.beginPath();
-        switch (this.shape) {
-            case 'circle':
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        var r = this.radius;
+        var x = this.x;
+        var y = this.y;
+
+        switch (this.type) {
+            case 'normal':
+                this.drawSpider(ctx, x, y, r);
                 break;
-            case 'triangle':
-                ctx.moveTo(this.x, this.y - this.radius);
-                ctx.lineTo(this.x - this.radius, this.y + this.radius);
-                ctx.lineTo(this.x + this.radius, this.y + this.radius);
-                ctx.closePath();
+            case 'fast':
+                this.drawBat(ctx, x, y, r);
                 break;
-            case 'diamond':
-                ctx.moveTo(this.x, this.y - this.radius);
-                ctx.lineTo(this.x + this.radius, this.y);
-                ctx.lineTo(this.x, this.y + this.radius);
-                ctx.lineTo(this.x - this.radius, this.y);
-                ctx.closePath();
+            case 'split':
+                this.drawCaterpillar(ctx, x, y, r);
                 break;
-            case 'square':
-                ctx.rect(this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
+            case 'mini':
+                this.drawLarva(ctx, x, y, r);
                 break;
+            case 'ranged':
+                this.drawBee(ctx, x, y, r);
+                break;
+            default:
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
         }
-        ctx.fill();
-        ctx.stroke();
 
         // 普通敌人血条
         if (this.hp < this.maxHp && this.hp > 0) {
@@ -291,6 +290,452 @@ ArcSurvivors.Enemy.prototype.draw = function(ctx) {
             ctx.fillRect(this.x - this.radius, this.y - this.radius - EHB.OFFSET_Y, (this.hp / this.maxHp) * this.radius * 2, EHB.HEIGHT);
         }
     }
+
+    ctx.restore();
+};
+
+// 林间毒蜘蛛 - 两节身体+8条关节腿+多眼+毒牙
+ArcSurvivors.Enemy.prototype.drawSpider = function(ctx, x, y, r) {
+    var t = Date.now() / 300;
+    var legCount = 8;
+
+    ctx.save();
+    ctx.translate(x, y);
+
+    // 8条关节腿（4对）
+    for (var i = 0; i < legCount; i++) {
+        var side = i < 4 ? -1 : 1;
+        var pair = i % 4;
+        var baseAngle = side < 0 ? (-0.4 - pair * 0.25) : (Math.PI + 0.4 + pair * 0.25);
+        var wobble = Math.sin(t + pair * 0.8) * 0.12;
+
+        // 大腿（第一段）
+        var hipX = side * r * 0.5;
+        var hipY = -r * 0.1 + pair * r * 0.2;
+        var kneeX = hipX + side * r * 0.7;
+        var kneeY = hipY - r * 0.3 + Math.sin(t + pair) * r * 0.15;
+        // 小腿（第二段）
+        var footX = kneeX + side * r * 0.6;
+        var footY = kneeY + r * 0.4 + wobble * r;
+
+        // 大腿
+        ctx.strokeStyle = '#aa2222';
+        ctx.lineWidth = 3 - pair * 0.3;
+        ctx.beginPath();
+        ctx.moveTo(hipX, hipY);
+        ctx.lineTo(kneeX, kneeY);
+        ctx.stroke();
+
+        // 小腿
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 2 - pair * 0.2;
+        ctx.beginPath();
+        ctx.moveTo(kneeX, kneeY);
+        ctx.lineTo(footX, footY);
+        ctx.stroke();
+
+        // 脚尖
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(footX, footY, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // 腹部（椭圆，较大）
+    ctx.beginPath();
+    ctx.ellipse(0, r * 0.35, r * 0.65, r * 0.55, 0, 0, Math.PI * 2);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // 腹部花纹（沙漏形）
+    ctx.fillStyle = 'rgba(180,0,0,0.6)';
+    ctx.beginPath();
+    ctx.moveTo(0, r * 0.1);
+    ctx.lineTo(-r * 0.15, r * 0.35);
+    ctx.lineTo(0, r * 0.6);
+    ctx.lineTo(r * 0.15, r * 0.35);
+    ctx.closePath();
+    ctx.fill();
+
+    // 胸部（圆形，较小）
+    ctx.beginPath();
+    ctx.arc(0, -r * 0.25, r * 0.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#cc3333';
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // 头部（半圆形，接在胸部前方）
+    ctx.beginPath();
+    ctx.arc(0, -r * 0.55, r * 0.35, Math.PI, 0);
+    ctx.fillStyle = '#dd4444';
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // 8只眼睛（两排）
+    var eyeRows = [
+        { y: -r * 0.6, spread: r * 0.25, size: r * 0.07 },
+        { y: -r * 0.72, spread: r * 0.18, size: r * 0.055 }
+    ];
+    for (var row = 0; row < eyeRows.length; row++) {
+        var ey = eyeRows[row];
+        var eyeCount = row === 0 ? 4 : 4;
+        for (var ei = 0; ei < eyeCount; ei++) {
+            var ex = (ei - (eyeCount - 1) / 2) * ey.spread;
+            ctx.fillStyle = '#ffee00';
+            ctx.beginPath();
+            ctx.arc(ex, ey.y, ey.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#111';
+            ctx.beginPath();
+            ctx.arc(ex, ey.y, ey.size * 0.5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    // 毒牙（两颗弯曲尖牙）
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.1, -r * 0.5);
+    ctx.quadraticCurveTo(-r * 0.2, -r * 0.2, -r * 0.15, -r * 0.05);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(r * 0.1, -r * 0.5);
+    ctx.quadraticCurveTo(r * 0.2, -r * 0.2, r * 0.15, -r * 0.05);
+    ctx.stroke();
+
+    // 毒牙尖端
+    ctx.fillStyle = '#aaff00';
+    ctx.beginPath();
+    ctx.arc(-r * 0.15, -r * 0.05, 2, 0, Math.PI * 2);
+    ctx.arc(r * 0.15, -r * 0.05, 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+};
+
+// 树洞小蝙蝠 - V形翅膀+椭圆身体
+ArcSurvivors.Enemy.prototype.drawBat = function(ctx, x, y, r) {
+    var t = Date.now() / 200;
+    var wingFlap = Math.sin(t) * 0.4;
+
+    ctx.save();
+    ctx.translate(x, y);
+
+    // 翅膀
+    ctx.fillStyle = this.color;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+
+    // 左翅膀
+    ctx.beginPath();
+    ctx.moveTo(0, -r * 0.2);
+    ctx.quadraticCurveTo(-r * 1.8, -r * 1.2 + wingFlap * r, -r * 1.5, r * 0.3);
+    ctx.quadraticCurveTo(-r * 1.0, r * 0.1, -r * 0.4, r * 0.2);
+    ctx.lineTo(0, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // 右翅膀
+    ctx.beginPath();
+    ctx.moveTo(0, -r * 0.2);
+    ctx.quadraticCurveTo(r * 1.8, -r * 1.2 + wingFlap * r, r * 1.5, r * 0.3);
+    ctx.quadraticCurveTo(r * 1.0, r * 0.1, r * 0.4, r * 0.2);
+    ctx.lineTo(0, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // 身体
+    ctx.beginPath();
+    ctx.ellipse(0, 0, r * 0.5, r * 0.8, 0, 0, Math.PI * 2);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.stroke();
+
+    // 耳朵
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.35, -r * 0.5);
+    ctx.lineTo(-r * 0.5, -r * 1.0);
+    ctx.lineTo(-r * 0.15, -r * 0.6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(r * 0.35, -r * 0.5);
+    ctx.lineTo(r * 0.5, -r * 1.0);
+    ctx.lineTo(r * 0.15, -r * 0.6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // 眼睛
+    ctx.fillStyle = '#ff0';
+    ctx.beginPath();
+    ctx.arc(-r * 0.2, -r * 0.2, r * 0.12, 0, Math.PI * 2);
+    ctx.arc(r * 0.2, -r * 0.2, r * 0.12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#222';
+    ctx.beginPath();
+    ctx.arc(-r * 0.2, -r * 0.2, r * 0.06, 0, Math.PI * 2);
+    ctx.arc(r * 0.2, -r * 0.2, r * 0.06, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+};
+
+// 大蚱蜢母体 - 长条身体+弹跳腿+翅膀
+ArcSurvivors.Enemy.prototype.drawCaterpillar = function(ctx, x, y, r) {
+    var t = Date.now() / 300;
+    var hop = Math.abs(Math.sin(t)) * r * 0.3;
+
+    ctx.save();
+    ctx.translate(x, y - hop);
+
+    // 后腿（粗壮弹跳腿）
+    ctx.strokeStyle = '#2d7a2d';
+    ctx.lineWidth = 2.5;
+    // 左后腿
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.3, r * 0.5);
+    ctx.lineTo(-r * 1.0, r * 0.2);
+    ctx.lineTo(-r * 1.3, r * 0.8);
+    ctx.stroke();
+    // 右后腿
+    ctx.beginPath();
+    ctx.moveTo(r * 0.3, r * 0.5);
+    ctx.lineTo(r * 1.0, r * 0.2);
+    ctx.lineTo(r * 1.3, r * 0.8);
+    ctx.stroke();
+
+    // 前腿
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.2, r * 0.1);
+    ctx.lineTo(-r * 0.6, r * 0.5);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(r * 0.2, r * 0.1);
+    ctx.lineTo(r * 0.6, r * 0.5);
+    ctx.stroke();
+
+    // 腹部（长条形）
+    ctx.beginPath();
+    ctx.ellipse(0, r * 0.3, r * 0.35, r * 0.7, 0, 0, Math.PI * 2);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // 腹部条纹
+    ctx.fillStyle = 'rgba(0,80,0,0.4)';
+    for (var si = 0; si < 3; si++) {
+        ctx.beginPath();
+        ctx.ellipse(0, r * 0.05 + si * r * 0.22, r * 0.33, r * 0.08, 0, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // 胸部
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.3, r * 0.4, r * 0.3, 0, 0, Math.PI * 2);
+    ctx.fillStyle = '#3da03d';
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.stroke();
+
+    // 头部
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.7, r * 0.3, r * 0.25, 0, 0, Math.PI * 2);
+    ctx.fillStyle = '#4db84d';
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.stroke();
+
+    // 触须
+    ctx.strokeStyle = '#2d7a2d';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.1, -r * 0.9);
+    ctx.quadraticCurveTo(-r * 0.4, -r * 1.3, -r * 0.7, -r * 1.1);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(r * 0.1, -r * 0.9);
+    ctx.quadraticCurveTo(r * 0.4, -r * 1.3, r * 0.7, -r * 1.1);
+    ctx.stroke();
+
+    // 复眼
+    ctx.fillStyle = '#ff4444';
+    ctx.beginPath();
+    ctx.arc(-r * 0.2, -r * 0.7, r * 0.12, 0, Math.PI * 2);
+    ctx.arc(r * 0.2, -r * 0.7, r * 0.12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#222';
+    ctx.beginPath();
+    ctx.arc(-r * 0.18, -r * 0.7, r * 0.05, 0, Math.PI * 2);
+    ctx.arc(r * 0.22, -r * 0.7, r * 0.05, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+};
+
+// 小蚱蜢 - 简化版蚱蜢，体型更小
+ArcSurvivors.Enemy.prototype.drawLarva = function(ctx, x, y, r) {
+    var t = Date.now() / 250;
+    var hop = Math.abs(Math.sin(t)) * r * 0.4;
+
+    ctx.save();
+    ctx.translate(x, y - hop);
+
+    // 后腿
+    ctx.strokeStyle = '#2d7a2d';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.3, r * 0.3);
+    ctx.lineTo(-r * 0.9, r * 0.6);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(r * 0.3, r * 0.3);
+    ctx.lineTo(r * 0.9, r * 0.6);
+    ctx.stroke();
+
+    // 身体
+    ctx.beginPath();
+    ctx.ellipse(0, r * 0.1, r * 0.35, r * 0.6, 0, 0, Math.PI * 2);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // 头部
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.4, r * 0.25, r * 0.2, 0, 0, Math.PI * 2);
+    ctx.fillStyle = '#4db84d';
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.stroke();
+
+    // 触须
+    ctx.strokeStyle = '#2d7a2d';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.08, -r * 0.55);
+    ctx.lineTo(-r * 0.4, -r * 0.9);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(r * 0.08, -r * 0.55);
+    ctx.lineTo(r * 0.4, -r * 0.9);
+    ctx.stroke();
+
+    // 眼睛
+    ctx.fillStyle = '#ff4444';
+    ctx.beginPath();
+    ctx.arc(-r * 0.15, -r * 0.4, r * 0.08, 0, Math.PI * 2);
+    ctx.arc(r * 0.15, -r * 0.4, r * 0.08, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+};
+
+// 花丛大黄蜂 - 圆胖身体+透明翅膀+条纹
+ArcSurvivors.Enemy.prototype.drawBee = function(ctx, x, y, r) {
+    var t = Date.now() / 150;
+    var wingFlap = Math.sin(t) * 0.3;
+
+    ctx.save();
+    ctx.translate(x, y);
+
+    // 翅膀（半透明）
+    ctx.fillStyle = 'rgba(200,200,255,0.35)';
+    ctx.strokeStyle = 'rgba(150,150,200,0.5)';
+    ctx.lineWidth = 1;
+
+    // 上翅膀
+    ctx.beginPath();
+    ctx.ellipse(-r * 0.5, -r * 0.6 + wingFlap * r, r * 0.7, r * 0.4, -0.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(r * 0.5, -r * 0.6 + wingFlap * r, r * 0.7, r * 0.4, 0.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // 身体 - 黄色底
+    ctx.beginPath();
+    ctx.ellipse(0, 0, r * 0.6, r * 0.8, 0, 0, Math.PI * 2);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // 黑色条纹
+    ctx.fillStyle = '#222';
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.15, r * 0.58, r * 0.15, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(0, r * 0.25, r * 0.52, r * 0.12, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 头部
+    ctx.beginPath();
+    ctx.arc(0, -r * 0.7, r * 0.4, 0, Math.PI * 2);
+    ctx.fillStyle = '#222';
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.stroke();
+
+    // 眼睛
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(-r * 0.15, -r * 0.75, r * 0.12, 0, Math.PI * 2);
+    ctx.arc(r * 0.15, -r * 0.75, r * 0.12, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 触须
+    ctx.strokeStyle = '#222';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.1, -r * 1.0);
+    ctx.quadraticCurveTo(-r * 0.3, -r * 1.4, -r * 0.15, -r * 1.5);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(r * 0.1, -r * 1.0);
+    ctx.quadraticCurveTo(r * 0.3, -r * 1.4, r * 0.15, -r * 1.5);
+    ctx.stroke();
+
+    // 触须末端
+    ctx.fillStyle = '#222';
+    ctx.beginPath();
+    ctx.arc(-r * 0.15, -r * 1.5, r * 0.06, 0, Math.PI * 2);
+    ctx.arc(r * 0.15, -r * 1.5, r * 0.06, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 尾部毒针
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(0, r * 0.75);
+    ctx.lineTo(0, r * 1.2);
+    ctx.stroke();
+    ctx.fillStyle = '#ff4444';
+    ctx.beginPath();
+    ctx.moveTo(0, r * 1.2);
+    ctx.lineTo(-r * 0.08, r * 1.05);
+    ctx.lineTo(r * 0.08, r * 1.05);
+    ctx.closePath();
+    ctx.fill();
 
     ctx.restore();
 };
