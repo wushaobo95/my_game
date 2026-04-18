@@ -10,7 +10,7 @@ ArcSurvivors.GAME_CONFIG = {
 
     // 玩家基础属性
     PLAYER: {
-        RADIUS: 20,
+        RADIUS: 35,
         HP: 100,
         SPEED: 5,
         ATTACK_POWER: 36,
@@ -313,9 +313,10 @@ ArcSurvivors.GAME_CONFIG = {
             TIME_Y: 24
         },
         BACKGROUND: {
-            COLOR: '#0a0a15',
-            GRID_COLOR: 'rgba(50, 50, 100, 0.3)',
-            GRID_SIZE: 50
+            COLOR: '#2d5a1e',
+            GRID_COLOR: 'rgba(30, 80, 20, 0.25)',
+            GRID_SIZE: 50,
+            GRASS_COUNT: 200
         },
         UI_OVERLAY: {
             COLOR: 'rgba(0, 0, 0, 0.5)'

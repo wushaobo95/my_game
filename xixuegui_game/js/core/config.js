@@ -17,8 +17,8 @@ ArcSurvivors.formatString = function(template, data) {
 // ============================================================
 // 全局状态与实体数组
 // ============================================================
-ArcSurvivors.CANVAS_WIDTH = 1280;
-ArcSurvivors.CANVAS_HEIGHT = 720;
+ArcSurvivors.CANVAS_WIDTH = window.innerWidth || 1280;
+ArcSurvivors.CANVAS_HEIGHT = window.innerHeight || 720;
 
 ArcSurvivors.gameState = {
     running: true,

@@ -245,7 +245,7 @@ ArcSurvivors.Player.prototype.draw = function(ctx) {
             drawWidth, 
             drawHeight);
     } else {
-        // 回退到原有Canvas绘制
+        // 回退到Canvas绘制 - 拿枪的卡皮巴拉
         if (this.pulseEffect > 0) {
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius + PC.PULSE_RADIUS_EXTRA * this.pulseEffect, 0, Math.PI * 2);
@@ -264,22 +264,143 @@ ArcSurvivors.Player.prototype.draw = function(ctx) {
             ctx.fill();
         }
 
+        var r = this.radius;
+        var px = this.x;
+        var py = this.y;
+
+        ctx.save();
+        ctx.translate(px, py);
+
+        // 右腿（短粗）
+        ctx.fillStyle = '#8b6914';
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        var gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
-        gradient.addColorStop(0, PC.COLORS.INNER);
-        gradient.addColorStop(1, PC.COLORS.OUTER);
-        ctx.fillStyle = gradient;
+        ctx.ellipse(r * 0.15, r * 0.55, r * 0.15, r * 0.1, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // 左腿
+        ctx.beginPath();
+        ctx.ellipse(-r * 0.15, r * 0.55, r * 0.15, r * 0.1, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.strokeStyle = PC.COLORS.RUNE;
-        ctx.lineWidth = PC.COLORS.RUNE_WIDTH;
-        for (var i = 0; i < 3; i++) {
-            var angle = this.runeAngle + (i * Math.PI * 2 / 3);
-            ctx.beginPath();
-            ctx.arc(this.x + Math.cos(angle) * (this.radius + 10), this.y + Math.sin(angle) * (this.radius + 10), 5, 0, Math.PI * 2);
-            ctx.stroke();
-        }
+        // 身体（圆润）
+        ctx.fillStyle = '#a67c52';
+        ctx.beginPath();
+        ctx.ellipse(0, r * 0.15, r * 0.55, r * 0.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // 肚皮（浅色）
+        ctx.fillStyle = '#c9a86c';
+        ctx.beginPath();
+        ctx.ellipse(0, r * 0.2, r * 0.35, r * 0.3, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 右臂（持枪）
+        ctx.fillStyle = '#8b6914';
+        ctx.strokeStyle = '#8b6914';
+        ctx.lineWidth = r * 0.15;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(r * 0.3, r * 0.1);
+        ctx.lineTo(r * 0.55, -r * 0.1);
+        ctx.stroke();
+
+        // 枪（横向）
+        ctx.fillStyle = '#333';
+        ctx.strokeStyle = '#444';
+        ctx.lineWidth = r * 0.1;
+        ctx.beginPath();
+        ctx.moveTo(r * 0.5, -r * 0.1);
+        ctx.lineTo(r * 1.0, -r * 0.1);
+        ctx.stroke();
+        // 枪口
+        ctx.fillStyle = '#222';
+        ctx.beginPath();
+        ctx.arc(r * 1.05, -r * 0.1, r * 0.06, 0, Math.PI * 2);
+        ctx.fill();
+        // 握把
+        ctx.fillStyle = '#4a3728';
+        ctx.beginPath();
+        ctx.ellipse(r * 0.55, -r * 0.05, r * 0.08, r * 0.12, 0.3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 左臂
+        ctx.strokeStyle = '#8b6914';
+        ctx.lineWidth = r * 0.15;
+        ctx.beginPath();
+        ctx.moveTo(-r * 0.35, r * 0.1);
+        ctx.lineTo(-r * 0.5, r * 0.25);
+        ctx.stroke();
+
+        // 头部（圆形）
+        ctx.fillStyle = '#a67c52';
+        ctx.beginPath();
+        ctx.arc(0, -r * 0.35, r * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 左耳（小圆耳）
+        ctx.fillStyle = '#8b6914';
+        ctx.beginPath();
+        ctx.arc(-r * 0.35, -r * 0.7, r * 0.12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#d4b896';
+        ctx.beginPath();
+        ctx.arc(-r * 0.35, -r * 0.7, r * 0.07, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 右耳
+        ctx.beginPath();
+        ctx.arc(r * 0.35, -r * 0.7, r * 0.12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#d4b896';
+        ctx.beginPath();
+        ctx.arc(r * 0.35, -r * 0.7, r * 0.07, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 面部（浅色区域）
+        ctx.fillStyle = '#d4b896';
+        ctx.beginPath();
+        ctx.ellipse(0, -r * 0.25, r * 0.35, r * 0.28, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 眼睛（小而呆）
+        ctx.fillStyle = '#222';
+        ctx.beginPath();
+        ctx.ellipse(-r * 0.18, -r * 0.35, r * 0.08, r * 0.1, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(r * 0.18, -r * 0.35, r * 0.08, r * 0.1, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 眼睛高光
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(-r * 0.2, -r * 0.38, r * 0.03, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(r * 0.16, -r * 0.38, r * 0.03, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 鼻子（大而宽）
+        ctx.fillStyle = '#5c4a32';
+        ctx.beginPath();
+        ctx.ellipse(0, -r * 0.15, r * 0.15, r * 0.08, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 嘴巴（微笑）
+        ctx.strokeStyle = '#5c4a32';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, -r * 0.05, r * 0.1, 0.2, Math.PI - 0.2);
+        ctx.stroke();
+
+        // 腮红
+        ctx.fillStyle = 'rgba(255, 150, 150, 0.4)';
+        ctx.beginPath();
+        ctx.ellipse(-r * 0.32, -r * 0.2, r * 0.1, r * 0.06, -0.3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(r * 0.32, -r * 0.2, r * 0.1, r * 0.06, 0.3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
     }
 
     ctx.restore();

@@ -10,36 +10,73 @@ ArcSurvivors.Renderer = {
         var CFG = ArcSurvivors.GAME_CONFIG;
         var RL = ArcSurvivors.ResourceLoader;
 
-        // 检查是否有背景精灵图
         if (RL && RL.hasSprite('background')) {
-            // 使用背景精灵图
             var bgSprite = RL.getSprite('background');
             ctx.drawImage(bgSprite, 0, 0, CFG.CANVAS_WIDTH, CFG.CANVAS_HEIGHT);
-            
-            // 如果有网格覆盖层，绘制它
             if (RL.hasSprite('background_grid')) {
                 var gridSprite = RL.getSprite('background_grid');
                 ctx.drawImage(gridSprite, 0, 0, CFG.CANVAS_WIDTH, CFG.CANVAS_HEIGHT);
             }
         } else {
-            // 回退到原有Canvas绘制
+            // 草原底色
             ctx.fillStyle = BG.COLOR;
             ctx.fillRect(0, 0, CFG.CANVAS_WIDTH, CFG.CANVAS_HEIGHT);
 
-            ctx.strokeStyle = BG.GRID_COLOR;
-            ctx.lineWidth = 1;
+            // 草地深浅色块
+            var seed = 42;
+            function seededRandom() {
+                seed = (seed * 16807 + 0) % 2147483647;
+                return (seed - 1) / 2147483646;
+            }
 
-            for (var x = 0; x < CFG.CANVAS_WIDTH; x += BG.GRID_SIZE) {
+            // 深色草丛斑块
+            ctx.fillStyle = 'rgba(20, 70, 12, 0.3)';
+            for (var b = 0; b < 60; b++) {
+                var bx = seededRandom() * CFG.CANVAS_WIDTH;
+                var by = seededRandom() * CFG.CANVAS_HEIGHT;
+                var br = 30 + seededRandom() * 50;
                 ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, CFG.CANVAS_HEIGHT);
+                ctx.ellipse(bx, by, br, br * 0.6, seededRandom() * Math.PI, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // 浅色草丛斑块
+            ctx.fillStyle = 'rgba(60, 130, 30, 0.2)';
+            for (var c = 0; c < 40; c++) {
+                var cx2 = seededRandom() * CFG.CANVAS_WIDTH;
+                var cy2 = seededRandom() * CFG.CANVAS_HEIGHT;
+                var cr = 20 + seededRandom() * 40;
+                ctx.beginPath();
+                ctx.ellipse(cx2, cy2, cr, cr * 0.5, seededRandom() * Math.PI, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // 草叶
+            seed = 42;
+            ctx.strokeStyle = 'rgba(50, 120, 25, 0.5)';
+            ctx.lineWidth = 1.5;
+            for (var g = 0; g < BG.GRASS_COUNT; g++) {
+                var gx = seededRandom() * CFG.CANVAS_WIDTH;
+                var gy = seededRandom() * CFG.CANVAS_HEIGHT;
+                var gh = 8 + seededRandom() * 15;
+                var ga = -0.3 + seededRandom() * 0.6;
+
+                ctx.beginPath();
+                ctx.moveTo(gx, gy);
+                ctx.quadraticCurveTo(gx + Math.sin(ga) * gh * 0.5, gy - gh * 0.6, gx + Math.sin(ga) * gh, gy - gh);
                 ctx.stroke();
             }
-            for (var y = 0; y < CFG.CANVAS_HEIGHT; y += BG.GRID_SIZE) {
+
+            // 小花点缀
+            seed = 99;
+            for (var f = 0; f < 15; f++) {
+                var fx = seededRandom() * CFG.CANVAS_WIDTH;
+                var fy = seededRandom() * CFG.CANVAS_HEIGHT;
+                var fc = ['#ffee88', '#ffaa88', '#ffffff', '#ffddaa'][Math.floor(seededRandom() * 4)];
+                ctx.fillStyle = fc;
                 ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(CFG.CANVAS_WIDTH, y);
-                ctx.stroke();
+                ctx.arc(fx, fy, 2 + seededRandom() * 2, 0, Math.PI * 2);
+                ctx.fill();
             }
         }
     },
