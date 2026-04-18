@@ -264,11 +264,16 @@ ArcSurvivors.GAME_CONFIG = {
 
     // 怪物等级系统
     ENEMY_LEVEL: {
-        HP_SCALE_PER_LEVEL: 0.10, // 每级增加10%生命
+        HP_SCALE_PER_LEVEL: 0.05, // 每级增加5%生命
         DAMAGE_SCALE_PER_LEVEL: 0.04, // 每级增加4%伤害
         SPEED_SCALE_PER_LEVEL: 0, // 取消移速成长
         BOSS_HP_SCALE_PER_LEVEL: 0.20, // Boss每级增加20%生命
-        BOSS_DAMAGE_SCALE_PER_LEVEL: 0.05 // Boss每级增加5%伤害
+        BOSS_DAMAGE_SCALE_PER_LEVEL: 0.05, // Boss每级增加5%伤害
+        BOSS_SCALING: {
+            THRESHOLD: 3, // 第3个boss后开始大幅成长
+            HP_MULTIPLIER: 2.5, // 血量倍率
+            DAMAGE_MULTIPLIER: 1.5 // 伤害倍率
+        }
     },
 
     // 最大帧间隔
@@ -383,7 +388,7 @@ ArcSurvivors.GAME_CONFIG = {
 
     // 升级系统
     UPGRADES: {
-        ATTACK_POWER_BONUS: 5,
+        ATTACK_POWER_BONUS: 10,
         ATTACK_SPEED_BONUS: 0.97,
         ATTACK_SPEED_LIMIT: 0.5,
         BULLET_SPEED_BONUS: 1.05,
@@ -411,9 +416,34 @@ ArcSurvivors.GAME_CONFIG = {
         MAX_CHAINS: 5,
         CHAIN_RANGE: 100,
         DAMAGE_SCALE: 0.5,
-        PARTICLE_COUNT: 3,
-        PARTICLE_SIZE: 3,
-        PARTICLE_SPEED: 2
+        PARTICLE_COUNT: 8,
+        PARTICLE_SIZE: 4,
+        PARTICLE_SPEED: 3
+    },
+    
+    // 闪电风暴
+    LIGHTNING_STORM: {
+        INTERVAL: 2,
+        DAMAGE_SCALE: 1.0,
+        HIT_RADIUS: 30,
+        PARTICLE_COUNT: 10,
+        PARTICLE_SIZE: 5,
+        PARTICLE_SPEED: 4
+    },
+    
+    // 毒液陷阱（八眼蜘蛛的毒液）
+    VENOM_TRAP: {
+        INTERVAL: 4,
+        DURATION: 5,
+        DAMAGE_SCALE: 1.0,
+        DAMAGE_INTERVAL: 0.5,
+        BASE_RADIUS: 50,
+        RADIUS_PER_LEVEL: 15,
+        COLOR: 'rgba(0, 100, 0, 0.25)',
+        BORDER_COLOR: 'rgba(0, 140, 0, 0.5)',
+        PARTICLE_COUNT: 8,
+        PARTICLE_SIZE: 4,
+        PARTICLE_SPEED: 3
     },
     
     // 复活石
@@ -443,6 +473,11 @@ ArcSurvivors.GAME_CONFIG = {
     // 翅膀法宝
     WINGS: {
         DODGE_BONUS: 0.25
+    },
+
+    // 极速之靴法宝
+    SPEED_BOOTS: {
+        SPEED_BONUS: 1.25
     },
 
     // Boss技能配置
@@ -484,6 +519,26 @@ ArcSurvivors.GAME_CONFIG = {
                 TRAIL_WIDTH: 30,
                 STUN_DURATION: 0.3,
                 UNLOCK_LEVEL: 4
+            },
+            POISON_FOG: {
+                COOLDOWN: 8,
+                RADIUS: 150,
+                DURATION: 4,
+                DAMAGE_PER_SECOND_SCALE: 0.2,
+                SLOW_FACTOR: 0.5,
+                UNLOCK_LEVEL: 5
+            },
+            SUMMON_MINIONS: {
+                COOLDOWN: 15,
+                COUNT: 4,
+                SPAWN_RADIUS: 100,
+                UNLOCK_LEVEL: 6
+            },
+            TELEPORT: {
+                COOLDOWN: 6,
+                MIN_DISTANCE: 150,
+                MAX_DISTANCE: 300,
+                UNLOCK_LEVEL: 7
             }
         },
         // 被动技能

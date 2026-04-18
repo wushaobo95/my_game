@@ -166,7 +166,16 @@ ArcSurvivors.Bullet.prototype.triggerLightningChain = function(hitEnemy) {
             chained.push(closest);
             closest.takeDamage(this.damage * LC.DAMAGE_SCALE);
             
-            // 连锁特效
+            // 闪电链接特效
+            ArcSurvivors.lightningEffects.push({
+                x1: current.x,
+                y1: current.y,
+                x2: closest.x,
+                y2: closest.y,
+                timer: 0.2,
+                color: 'rgb(255, 255, 0)'
+            });
+            
             ArcSurvivors.spawnParticles(closest.x, closest.y, LC.PARTICLE_COUNT, 'rgb(255, 255, 0)', LC.PARTICLE_SIZE, LC.PARTICLE_SPEED);
             
             current = closest;

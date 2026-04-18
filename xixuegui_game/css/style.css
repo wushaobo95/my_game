@@ -24,6 +24,51 @@ body {
     box-shadow: 0 0 30px rgba(100, 50, 255, 0.3);
 }
 
+#startScreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    z-index: 100;
+}
+
+#startScreen h1 {
+    font-size: 48px;
+    color: #8866ff;
+    margin-bottom: 10px;
+    text-shadow: 0 0 20px #6633ff;
+}
+
+#startScreen p {
+    font-size: 24px;
+    color: #aaa;
+    margin-bottom: 30px;
+}
+
+#startBtn {
+    padding: 15px 40px;
+    font-size: 20px;
+    background: linear-gradient(135deg, #6633ff, #9966ff);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 0 20px rgba(100, 50, 255, 0.5);
+}
+
+#startBtn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 30px rgba(100, 50, 255, 0.8);
+}
+
 #gameOver {
     position: absolute;
     top: 0;
@@ -150,48 +195,51 @@ body {
 
 #pauseScreen {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.75);
+    top: 10px;
+    right: 230px;
+    width: 180px;
+    background: rgba(0, 0, 0, 0.85);
+    border: 2px solid #8866ff;
+    border-radius: 10px;
+    padding: 15px;
     display: none;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     color: white;
     z-index: 90;
+    box-shadow: 0 0 20px rgba(100, 50, 255, 0.5);
 }
 
 #pauseScreen h1 {
-    font-size: 48px;
+    font-size: 20px;
     color: #8866ff;
-    margin-bottom: 15px;
-    text-shadow: 0 0 20px #6633ff;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px #6633ff;
 }
 
 #pauseScreen p {
-    font-size: 18px;
+    font-size: 12px;
     color: #aaa;
-    margin-bottom: 30px;
+    margin-bottom: 15px;
 }
 
 #pauseScreen button {
-    padding: 12px 35px;
-    font-size: 16px;
+    padding: 8px 20px;
+    font-size: 12px;
     background: linear-gradient(135deg, #6633ff, #9966ff);
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     color: white;
     cursor: pointer;
     transition: all 0.3s;
-    box-shadow: 0 0 15px rgba(100, 50, 255, 0.4);
-    margin: 8px;
+    box-shadow: 0 0 10px rgba(100, 50, 255, 0.4);
+    margin: 5px;
+    width: 100%;
 }
 
 #pauseScreen button:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 25px rgba(100, 50, 255, 0.7);
+    box-shadow: 0 0 15px rgba(100, 50, 255, 0.7);
 }
 
 #muteBtn {

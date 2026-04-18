@@ -32,6 +32,15 @@ ArcSurvivors.BossDefault = function(x, y) {
     if (bossIndex >= AC.CHARGE.UNLOCK_LEVEL) {
         this.addSkill(ArcSurvivors.Skills.Active.charge());
     }
+    if (bossIndex >= AC.POISON_FOG.UNLOCK_LEVEL) {
+        this.addSkill(ArcSurvivors.Skills.Active.poisonFog());
+    }
+    if (bossIndex >= AC.SUMMON_MINIONS.UNLOCK_LEVEL) {
+        this.addSkill(ArcSurvivors.Skills.Active.summonMinions());
+    }
+    if (bossIndex >= AC.TELEPORT.UNLOCK_LEVEL) {
+        this.addSkill(ArcSurvivors.Skills.Active.teleport());
+    }
 
     // 被动技能：根据boss序号解锁
     if (bossIndex >= PC.DAMAGE_REDUCTION.UNLOCK_LEVEL) {

@@ -45,6 +45,16 @@ ArcSurvivors.STRINGS = {
             name: '神锋无影',
             desc: '子弹命中后连锁攻击附近{count}个敌人',
             icon: '⚡'
+        },
+        12: {
+            name: '闪电风暴',
+            desc: '每{interval}秒落下{count}道闪电攻击敌人',
+            icon: '⛈️'
+        },
+        13: {
+            name: '八眼蜘蛛的毒液',
+            desc: '生成环绕自身的毒液领域，持续伤害周围敌人',
+            icon: '🕷️'
         }
     },
 
@@ -105,10 +115,15 @@ ArcSurvivors.STRINGS = {
             desc: '目标每损失{step}%生命值，伤害提升{per_step}%，最高{max}%增伤',
             icon: '👁️'
         },
-        113: {
-            name: '分裂弹珠',
-            desc: '额外投射物+1（当前{count}/4）',
-            icon: '🔮'
+        114: {
+            name: '极速之靴',
+            desc: '移动速度+{percent}%',
+            icon: '👢'
+        },
+        115: {
+            name: '暴击斗篷',
+            desc: '暴击率提升至50%（暴击时伤害翻倍）',
+            icon: '🧥'
         }
     },
 

@@ -191,10 +191,10 @@ ArcSurvivors.drawBuffIndicators = function(ctx) {
     var player = this.player;
     if (!player) return;
 
-    var x = 20;
-    var y = 700;
-    var size = 30;
-    var spacing = 40;
+    var x = 700;
+    var y = 24;
+    var size = 24;
+    var spacing = 35;
 
     if (player.hasShieldBuff) {
         var STR = this.STRINGS.BUFF_ITEMS.shield;

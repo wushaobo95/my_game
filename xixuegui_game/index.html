@@ -10,6 +10,12 @@
     <div id="gameContainer">
         <canvas id="gameCanvas" width="1280" height="720"></canvas>
 
+        <div id="startScreen">
+            <h1>弧光幸存者</h1>
+            <p>无限模式</p>
+            <button id="startBtn">开始游戏</button>
+        </div>
+
         <div id="gameOver">
             <h1 id="gameOverTitle">游戏结束</h1>
             <div class="stats">
@@ -92,12 +98,16 @@
     <script src="js/entities/particle.js"></script>
     <script src="js/entities/gem.js"></script>
     <script src="js/entities/bullet.js"></script>
+    <script src="js/entities/trap.js"></script>
     <script src="js/entities/enemy.js"></script>
     <script src="js/entities/bosses/boss-base.js"></script>
     <script src="js/entities/bosses/skills/active/bullet-storm.js"></script>
     <script src="js/entities/bosses/skills/active/homing-missiles.js"></script>
     <script src="js/entities/bosses/skills/active/laser-sweep.js"></script>
     <script src="js/entities/bosses/skills/active/charge.js"></script>
+    <script src="js/entities/bosses/skills/active/poison-fog.js"></script>
+    <script src="js/entities/bosses/skills/active/summon-minions.js"></script>
+    <script src="js/entities/bosses/skills/active/teleport.js"></script>
     <script src="js/entities/bosses/skills/passive/damage-reduction.js"></script>
     <script src="js/entities/bosses/boss-default.js"></script>
     <script src="js/entities/player.js"></script>

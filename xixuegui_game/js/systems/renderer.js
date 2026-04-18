@@ -68,6 +68,12 @@ ArcSurvivors.Renderer = {
         ctx.strokeStyle = HP.BORDER_COLOR;
         ctx.strokeRect(HP.X, HP.Y, HP.WIDTH, HP.HEIGHT);
 
+        ctx.fillStyle = '#fff';
+        ctx.font = '13px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(Math.floor(player.hp) + '/' + player.maxHp, HP.X + HP.WIDTH / 2, HP.Y + HP.HEIGHT / 2 + 5);
+        ctx.textAlign = 'left';
+
         // 经验条
         ctx.fillStyle = EXP.BG_COLOR;
         ctx.fillRect(EXP.X, EXP.Y, EXP.WIDTH, EXP.HEIGHT);
@@ -122,5 +128,31 @@ ArcSurvivors.Renderer = {
             ctx.fillStyle = HE.COLOR.replace('{alpha}', alpha);
             ctx.fillRect(0, 0, ArcSurvivors.GAME_CONFIG.CANVAS_WIDTH, ArcSurvivors.GAME_CONFIG.CANVAS_HEIGHT);
         }
+    },
+
+    drawLightning: function(ctx, x1, y1, x2, y2, color, width) {
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.lineCap = 'round';
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 10;
+        
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        
+        var segments = 5;
+        var dx = (x2 - x1) / segments;
+        var dy = (y2 - y1) / segments;
+        
+        for (var i = 1; i < segments; i++) {
+            var x = x1 + dx * i + (Math.random() - 0.5) * 30;
+            var y = y1 + dy * i + (Math.random() - 0.5) * 30;
+            ctx.lineTo(x, y);
+        }
+        
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        ctx.restore();
     }
 };

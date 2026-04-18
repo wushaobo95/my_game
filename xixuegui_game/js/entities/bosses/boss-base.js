@@ -43,10 +43,18 @@ ArcSurvivors.BossBase = function(x, y, bossConfig) {
     this.radius = BC.RADIUS;
     this.color = BC.COLOR;
 
+    // Boss序号（从0开始）
+    var bossIndex = ArcSurvivors.BossRegistry ? ArcSurvivors.BossRegistry.spawnCount : 0;
+    var scaling = EL.BOSS_SCALING;
+    
+    // 计算血量和伤害倍率（第3个boss后大幅提高）
+    var hpMultiplier = bossIndex >= scaling.THRESHOLD ? scaling.HP_MULTIPLIER : 1;
+    var damageMultiplier = bossIndex >= scaling.THRESHOLD ? scaling.DAMAGE_MULTIPLIER : 1;
+
     var bossLevelScale = 1 + (playerLevel - 1) * EL.BOSS_HP_SCALE_PER_LEVEL;
-    this.hp = BC.HP_BASE * bossLevelScale + df * BC.HP_SCALE;
+    this.hp = (BC.HP_BASE * bossLevelScale + df * BC.HP_SCALE) * hpMultiplier;
     this.maxHp = this.hp;
-    this.damage = BC.DAMAGE * (1 + (playerLevel - 1) * EL.BOSS_DAMAGE_SCALE_PER_LEVEL);
+    this.damage = BC.DAMAGE * (1 + (playerLevel - 1) * EL.BOSS_DAMAGE_SCALE_PER_LEVEL) * damageMultiplier;
     this.speed = BC.SPEED;
 
     // Boss阶段和技能
@@ -199,13 +207,14 @@ ArcSurvivors.BossBase.prototype.update = function(dt) {
         this.y += (dy / dist) * this.speed * dt * 60;
     }
 
-    if (ArcSurvivors.Utils.distance(this.x, this.y, player.x, player.y) < this.radius + player.radius) {
-        player.takeDamage(this.damage);
-    }
-
     this._updatePhase();
     this.updateSkills(dt);
     this.updateChargeTrail(dt);
+    
+    // 更新毒雾
+    if (ArcSurvivors.updatePoisonFog) {
+        ArcSurvivors.updatePoisonFog(this, dt);
+    }
 };
 
 // ============================================================
@@ -399,6 +408,11 @@ ArcSurvivors.BossBase.prototype.draw = function(ctx) {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius + 8, 0, Math.PI * 2);
         ctx.stroke();
+    }
+
+    // 绘制毒雾
+    if (ArcSurvivors.drawPoisonFog) {
+        ArcSurvivors.drawPoisonFog(ctx, this);
     }
 
     ctx.restore();

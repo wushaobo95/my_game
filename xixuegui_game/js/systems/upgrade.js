@@ -51,7 +51,16 @@ ArcSurvivors.UPGRADES = [
             p.baseSpeed = p.speed;
         },
         canAppear: function(p) {
-            return p.baseSpeed / ArcSurvivors.GAME_CONFIG.PLAYER.SPEED < ArcSurvivors.GAME_CONFIG.UPGRADES.MOVE_SPEED_LIMIT;
+            return false; // 移除疾风步，改为法宝极速之靴
+        }
+    },
+    {
+        id: 9,
+        apply: function(p) {
+            p.extraProjectiles += 1;
+        },
+        canAppear: function(p) {
+            return p.extraProjectiles < ArcSurvivors.GAME_CONFIG.UPGRADES.MAX_EXTRA_PROJECTILES;
         }
     },
     {
@@ -61,7 +70,7 @@ ArcSurvivors.UPGRADES = [
             p.criticalChance = Math.min(p.criticalChance + CFG.CRITICAL_CHANCE_BONUS, CFG.CRITICAL_MAX);
         },
         canAppear: function(p) {
-            return p.criticalChance < ArcSurvivors.GAME_CONFIG.UPGRADES.CRITICAL_MAX;
+            return false; // 移除暴击强化技能，改为法宝暴击斗篷
         }
     },
     {
@@ -72,6 +81,24 @@ ArcSurvivors.UPGRADES = [
         },
         canAppear: function(p) {
             return p.lightningChainCount < ArcSurvivors.GAME_CONFIG.UPGRADES.LIGHTNING_CHAIN_MAX;
+        }
+    },
+    {
+        id: 12,
+        apply: function(p) {
+            p.lightningStormCount = Math.min((p.lightningStormCount || 0) + 1, 5);
+        },
+        canAppear: function(p) {
+            return (p.lightningStormCount || 0) < 5;
+        }
+    },
+    {
+        id: 13,
+        apply: function(p) {
+            p.venomTrapLevel = Math.min((p.venomTrapLevel || 0) + 1, 5);
+        },
+        canAppear: function(p) {
+            return (p.venomTrapLevel || 0) < 5;
         }
     }
 ];
@@ -133,11 +160,19 @@ ArcSurvivors.ITEMS = [
         isItem: true
     },
     {
-        id: 113,
-        apply: function(p) { p.extraProjectiles += 1; },
-        isItem: true,
-        repeatable: true,
-        maxCount: 4
+        id: 114,
+        apply: function(p) {
+            p.speed *= ArcSurvivors.GAME_CONFIG.SPEED_BOOTS.SPEED_BONUS;
+            p.baseSpeed = p.speed;
+        },
+        isItem: true
+    },
+    {
+        id: 115,
+        apply: function(p) {
+            p.criticalChance = 0.5;
+        },
+        isItem: true
     }
 ];
 
@@ -170,6 +205,12 @@ ArcSurvivors.getUpgradeDisplay = function(upgrade) {
             break;
         case 11:
             desc = ArcSurvivors.formatString(desc, { count: CFG.UPGRADES.LIGHTNING_CHAIN_BONUS });
+            break;
+        case 12:
+            desc = ArcSurvivors.formatString(desc, { interval: CFG.LIGHTNING_STORM.INTERVAL, count: 1 });
+            break;
+        case 13:
+            desc = STR.desc;
             break;
     }
 
@@ -222,13 +263,11 @@ ArcSurvivors.getItemDisplay = function(item) {
                 max: Math.round(CFG.DAMAGE_CONFIG.XIN_YAN.MAX_DAMAGE_BONUS * 100)
             });
             break;
-        case 113:
-            var count = 0;
-            var upgrades = ArcSurvivors.player ? ArcSurvivors.player.acquiredUpgrades : [];
-            for (var i = 0; i < upgrades.length; i++) {
-                if (upgrades[i].id === 113) count++;
-            }
-            desc = ArcSurvivors.formatString(desc, { count: count });
+        case 114:
+            desc = ArcSurvivors.formatString(desc, { percent: Math.round((CFG.SPEED_BOOTS.SPEED_BONUS - 1) * 100) });
+            break;
+        case 115:
+            desc = STR.desc;
             break;
     }
 
