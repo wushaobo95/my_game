@@ -19,8 +19,8 @@ ArcSurvivors.BossDuck = function(x, y, foxMaxHp) {
     this.color = '#8B4513'; // 酱板鸭颜色
     this.bossType = 'duck';
     
-    // 血量是狐狸的一半（传入的foxMaxHp）
-    this.maxHp = foxMaxHp * 0.5;
+    // 血量是狐狸的70%（传入的foxMaxHp）
+    this.maxHp = foxMaxHp * 0.7;
     this.hp = this.maxHp;
     
     // 无伤害

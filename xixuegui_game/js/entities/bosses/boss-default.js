@@ -15,7 +15,7 @@ ArcSurvivors.BOSS_SKILL_CONFIGS = [
     // Boss 2: 雪山灵狐 - 敏捷
     { skills: ['spiralBarrage', 'homingScatter', 'teleport'] },
     // Boss 3: 沐光仙鹿 - 辅助
-    { skills: ['bulletStorm', 'auraBuff'] },
+    { skills: ['summonMinions', 'auraBuff', 'shield'] },
     // Boss 4: 云翼苍鹰 - 速度
     { skills: ['focusFire', 'scatterShot', 'chainLightning'] },
     // Boss 5: 翠鳞幽蛇 - 持续伤害
