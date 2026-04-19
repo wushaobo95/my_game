@@ -135,7 +135,6 @@ ArcSurvivors.GAME_CONFIG = {
             EXTRA_GEM_CHANCE: 0.4,
             SUPER_ARMOR: true
         },
-        // === 新增敌人 ===
         butterfly: {
             RADIUS: 15,
             SPEED: 2.0,
@@ -340,11 +339,86 @@ ArcSurvivors.GAME_CONFIG = {
 
     // 生成系统
     SPAWN: {
+        // 基础刷怪率
         BASE_RATE: 1.5,
         RATE_INCREASE_INTERVAL: 10,
         RATE_INCREASE_AMOUNT: 0.5,
         MAX_RATE: 5,
         SPAWN_OFFSET: 30,
+        
+        // 分阶段设计
+        PHASES: {
+            EARLY: { start: 0, end: 60, name: '萌芽期' },
+            MID: { start: 60, end: 180, name: '成长期' },
+            LATE: { start: 180, end: Infinity, name: '巅峰期' }
+        },
+        
+        // 各阶段解锁的敌人类型
+        PHASE_ENEMIES: {
+            EARLY: ['fast', 'split', 'ranged'],  // 0-60秒基础敌人
+            MID: ['butterfly', 'ant', 'ladybug', 'rat', 'cockroach', 'mantis'],  // 60-180秒
+            LATE: ['fly', 'dragonfly', 'mosquito', 'hedgehog', 'gecko']  // 180秒后
+        },
+        
+        // 阶段特殊机制
+        PHASE_MECHANICS: {
+            EARLY: { batchEnabled: false, swarmEnabled: false },
+            MID: { batchEnabled: true, swarmEnabled: true, eliteChance: 0.05 },
+            LATE: { batchEnabled: true, swarmEnabled: true, eliteChance: 0.15, superEliteChance: 0.03 }
+        },
+        
+        // 难度软上限 - 超过后转为属性提升
+        SOFT_CAP_TIME: 120,
+        SOFT_CAP_RATE: 4,
+        ATTRIBUTE_SCALE_PER_MINUTE: 0.1,  // 每分钟血量和速度提升10%
+        
+        // 动态平衡
+        DPS_ADJUSTMENT: {
+            ENABLED: true,
+            CHECK_INTERVAL: 10,  // 每10秒计算一次DPS
+            MIN_SPAWN_RATE: 0.8,
+            MAX_SPAWN_RATE: 6,
+            HIGH_DPS_THRESHOLD: 150,  // DPS超过此值增加刷怪
+            LOW_DPS_THRESHOLD: 50,    // DPS低于此值减少刷怪
+            ADJUSTMENT_FACTOR: 0.2    // 调整幅度
+        },
+        
+        // 精英系统
+        ELITE: {
+            CHANCE_BASE: 0.05,
+            CHANCE_SCALE_PER_MINUTE: 0.02,
+            MAX_CHANCE: 0.25,
+            HP_MULTIPLIER: 2.5,
+            DAMAGE_MULTIPLIER: 1.5,
+            SPEED_MULTIPLIER: 1.2,
+            EXP_MULTIPLIER: 3,
+            COLOR: '#FFD700',  // 金色
+            SIZE_MULTIPLIER: 1.3
+        },
+        
+        SUPER_ELITE: {
+            CHANCE_BASE: 0.02,
+            CHANCE_SCALE_PER_MINUTE: 0.01,
+            MAX_CHANCE: 0.1,
+            HP_MULTIPLIER: 5,
+            DAMAGE_MULTIPLIER: 2.5,
+            SPEED_MULTIPLIER: 1.5,
+            EXP_MULTIPLIER: 8,
+            COLOR: '#FF4500',  // 橙红色
+            SIZE_MULTIPLIER: 1.6,
+            SPECIAL_TRAITS: ['lifeSteal', 'explosive', 'teleport']
+        },
+        
+        // 休息窗口
+        REST_WINDOW: {
+            ENABLED: true,
+            DURATION: 8,  // Boss战后8秒
+            SPAWN_RATE_MULTIPLIER: 0.3,
+            NO_BATCH_SPAWN: true,
+            NO_ELITE: true
+        },
+        
+        // 旧配置保留兼容
         FAST_ENEMY_TIME: 15,
         FAST_ENEMY_CHANCE: 0.25,
         SPLIT_ENEMY_TIME: 30,
@@ -554,7 +628,7 @@ ArcSurvivors.GAME_CONFIG = {
             NAME_FONT: 'bold 12px sans-serif',
             // Boss名称根据击杀序号显示
             getName: function(bossIndex) {
-                var names = ["绒角羚兽", "幻彩灵狐", "沐光仙鹿", "云翼苍鹰", "翠鳞幽蛇", "荒林顽豚",
+                var names = ["绒角羚兽", "雪山灵狐", "沐光仙鹿", "云翼苍鹰", "翠鳞幽蛇", "荒林顽豚",
                     "风原狂狼", "驰风骏驹", "岩脊蛮牛", "暗夜疾豹", "渊水巨鳄", "深林绒熊",
                     "金鬃狮灵", "烈风玄虎", "磐岩犀兽", "古森巨象"];
                 return names[bossIndex % 16] || '兽王';

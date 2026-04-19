@@ -93,6 +93,43 @@ ArcSurvivors.Enemy.prototype.draw = function(ctx) {
         var x = this.x;
         var y = this.y;
 
+        // 精英光环效果
+        if (this.isElite || this.isSuperElite) {
+            var t = Date.now() / 500;
+            var pulse = Math.sin(t) * 0.15 + 0.85;
+            var auraColor = this.isSuperElite ? '#FF4500' : '#FFD700';
+            var auraRadius = r * 2.2 * pulse;
+            
+            // 外层光环
+            ctx.save();
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = auraColor;
+            ctx.strokeStyle = auraColor;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(x, y, auraRadius, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // 内层光晕
+            ctx.fillStyle = auraColor + '33';  // 20% 透明度
+            ctx.beginPath();
+            ctx.arc(x, y, auraRadius * 0.7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+            
+            // 超级精英额外效果
+            if (this.isSuperElite) {
+                ctx.save();
+                ctx.strokeStyle = '#FF6347';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.arc(x, y, auraRadius * 1.3, t, t + Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+
         switch (this.type) {
             case 'normal':
                 this.drawSpider(ctx, x, y, r);

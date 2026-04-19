@@ -51,6 +51,18 @@
         console.log('Boss defeated');
     });
 
+    EventSystem.on(Events.ENEMY_DIE, function(enemy) {
+        // 吸血花蜜效果：击杀敌人恢复生命
+        if (ArcSurvivors.player && ArcSurvivors.player.hasVampireHeal) {
+            var healAmount = ArcSurvivors.player.vampireHealAmount || 1;
+            ArcSurvivors.player.hp = Math.min(ArcSurvivors.player.maxHp, ArcSurvivors.player.hp + healAmount);
+            // 可选：显示回血粒子效果
+            if (ArcSurvivors.spawnParticles) {
+                ArcSurvivors.spawnParticles(enemy.x, enemy.y, 3, 'rgb(255,50,50)', 2, 1);
+            }
+        }
+    });
+
     EventSystem.on(Events.UPGRADE_SELECT, function(upgrade) {
         console.log('Upgrade selected:', upgrade.id);
     });

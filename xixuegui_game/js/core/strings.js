@@ -140,6 +140,8 @@ ArcSurvivors.STRINGS = {
         STATS_TITLE: '我的能力',
         SKILLS_TITLE: '技能',
         ITEMS_TITLE: '宝物',
+        SKILL_CHOICE_TITLE: '选择技能',
+        ITEM_CHOICE_TITLE: '选择法宝',
         INSTRUCTIONS: 'WASD 移动 | ESC 暂停',
         BOSS_WARNING: 'BOSS 来袭',
         BOSS_NAMES: [

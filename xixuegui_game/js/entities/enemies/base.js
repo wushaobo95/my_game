@@ -50,6 +50,12 @@ ArcSurvivors.Enemy = function(x, y, type) {
     this.escaping = false;
     this.escapeTimer = 0;
     this.reflected = false;
+    
+    // 精英系统属性
+    this.isElite = false;
+    this.isSuperElite = false;
+    this.expValue = 10;
+    this.specialTrait = null;
 
     ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.ENEMY_SPAWN, this);
 };
@@ -134,6 +140,11 @@ ArcSurvivors.Enemy.prototype.update = function(dt) {
         this.dashing = false;
     }
 
+    // 超级精英特殊特性处理
+    if (this.isSuperElite && this.specialTrait) {
+        this.handleSuperEliteTrait(dt, player);
+    }
+
     var collisionDist = ArcSurvivors.Utils.distance(this.x, this.y, player.x, player.y);
     if (collisionDist < this.radius + player.radius) {
         var actualDamage = this.damage;
@@ -141,6 +152,9 @@ ArcSurvivors.Enemy.prototype.update = function(dt) {
             actualDamage *= 1.5;
         }
         player.takeDamage(actualDamage);
+        
+        // 触发生命偷取
+        this.onDealDamage(actualDamage);
 
         if (this.type === 'hedgehog' && !this.reflected) {
             this.reflected = true;
@@ -255,7 +269,17 @@ ArcSurvivors.Enemy.prototype.die = function() {
         gemType = Math.random() < BC.LARGE_GEM_CHANCE ? 'large' : 'small';
     }
 
-    ArcSurvivors.gems.push(new ArcSurvivors.Gem(this.x, this.y, gemType, this.level));
+    // 精英敌人额外经验奖励
+    var expMultiplier = 1;
+    if (this.isSuperElite) {
+        expMultiplier = ArcSurvivors.GAME_CONFIG.SPAWN.SUPER_ELITE.EXP_MULTIPLIER;
+        gemType = 'large';  // 超级精英必掉大宝石
+    } else if (this.isElite) {
+        expMultiplier = ArcSurvivors.GAME_CONFIG.SPAWN.ELITE.EXP_MULTIPLIER;
+        if (Math.random() < 0.5) gemType = 'large';  // 精英50%掉大宝石
+    }
+
+    ArcSurvivors.gems.push(new ArcSurvivors.Gem(this.x, this.y, gemType, this.level * expMultiplier));
     for (var eg = 0; eg < extraGems; eg++) {
         var offsetX = (Math.random() - 0.5) * 30;
         var offsetY = (Math.random() - 0.5) * 30;
@@ -284,6 +308,23 @@ ArcSurvivors.Enemy.prototype.die = function() {
 
     ArcSurvivors.spawnParticles(this.x, this.y, 8, 'rgb(' + this.hexToRgb(this.color) + ')', 5, 3);
 
+    // 超级精英爆炸特性
+    if (this.isSuperElite && this.specialTrait === 'explosive') {
+        var EXPLOSION_RADIUS = 120;
+        var EXPLOSION_DAMAGE = 25;
+        
+        // 对玩家造成伤害
+        var distToPlayer = ArcSurvivors.Utils.distance(this.x, this.y, player.x, player.y);
+        if (distToPlayer < EXPLOSION_RADIUS) {
+            player.takeDamage(EXPLOSION_DAMAGE);
+        }
+        
+        // 视觉特效
+        ArcSurvivors.spawnParticles(this.x, this.y, 15, '#FF4500', 8, 6);
+        ArcSurvivors.screenShake.intensity = 4;
+        ArcSurvivors.screenShake.duration = 0.4;
+    }
+
     if (this.type === 'split' && this.canSplit) {
         for (var j = 0; j < 2; j++) {
             var angle = Math.random() * Math.PI * 2;
@@ -302,4 +343,45 @@ ArcSurvivors.Enemy.prototype.die = function() {
 ArcSurvivors.Enemy.prototype.hexToRgb = function(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? parseInt(result[1], 16) + ',' + parseInt(result[2], 16) + ',' + parseInt(result[3], 16) : '255,0,0';
+};
+
+// 超级精英特殊特性处理
+ArcSurvivors.Enemy.prototype.handleSuperEliteTrait = function(dt, player) {
+    if (!this.traitTimer) this.traitTimer = 0;
+    this.traitTimer += dt;
+    
+    switch (this.specialTrait) {
+        case 'lifeSteal':
+            // 生命偷取：造成伤害时恢复生命
+            if (!this.lifeStealCooldown) this.lifeStealCooldown = 0;
+            this.lifeStealCooldown -= dt;
+            break;
+            
+        case 'explosive':
+            // 爆炸：死亡时对周围造成伤害（在die函数中处理）
+            break;
+            
+        case 'teleport':
+            // 瞬移：定期随机瞬移
+            if (this.traitTimer >= 3) {
+                this.traitTimer = 0;
+                var angle = Math.random() * Math.PI * 2;
+                var dist = 80 + Math.random() * 70;
+                this.x += Math.cos(angle) * dist;
+                this.y += Math.sin(angle) * dist;
+                ArcSurvivors.spawnParticles(this.x, this.y, 5, '#FF4500', 4, 2);
+            }
+            break;
+    }
+};
+
+// 超级精英生命偷取（在造成伤害时调用）
+ArcSurvivors.Enemy.prototype.onDealDamage = function(damage) {
+    if (this.isSuperElite && this.specialTrait === 'lifeSteal') {
+        if (this.lifeStealCooldown <= 0) {
+            var heal = damage * 0.3;  // 偷取30%伤害作为生命
+            this.hp = Math.min(this.maxHp, this.hp + heal);
+            this.lifeStealCooldown = 2;  // 2秒冷却
+        }
+    }
 };

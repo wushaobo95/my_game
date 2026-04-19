@@ -121,6 +121,11 @@ ArcSurvivors.ITEMS = [
     },
     {
         id: 104,
+        apply: function(p) {
+            var CFG = ArcSurvivors.GAME_CONFIG;
+            p.vampireHealAmount = (p.vampireHealAmount || 0) + CFG.VAMPIRE_MASK.HEAL_AMOUNT;
+            p.hasVampireHeal = true;
+        },
         isItem: true
     },
     {
@@ -297,6 +302,12 @@ ArcSurvivors.showUpgradeScreen = function() {
     var container = document.getElementById('upgradeCards');
     container.innerHTML = '';
 
+    // 设置标题和样式类（技能选择）
+    var screen = document.getElementById('upgradeScreen');
+    document.getElementById('upgradeTitle').textContent = STR.SKILL_CHOICE_TITLE || '选择技能';
+    screen.classList.add('skill-selection');
+    screen.classList.remove('item-selection');
+
     var self = this;
     for (var j = 0; j < selected.length; j++) {
         var upgrade = selected[j];
@@ -437,6 +448,12 @@ ArcSurvivors.showItemChoiceScreen = function() {
     var container = document.getElementById('upgradeCards');
     container.innerHTML = '';
 
+    // 设置标题和样式类（法宝选择）
+    var screen = document.getElementById('upgradeScreen');
+    document.getElementById('upgradeTitle').textContent = STR.ITEM_CHOICE_TITLE || '选择法宝';
+    screen.classList.add('item-selection');
+    screen.classList.remove('skill-selection');
+
     var self = this;
     for (var j = 0; j < selected.length; j++) {
         var item = selected[j];
@@ -460,6 +477,5 @@ ArcSurvivors.showItemChoiceScreen = function() {
         container.appendChild(card);
     }
 
-    // 修改标题为法宝选择
     document.getElementById('upgradeScreen').style.display = 'flex';
 };
