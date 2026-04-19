@@ -11,7 +11,7 @@ ArcSurvivors.GAME_CONFIG = {
     // 玩家基础属性
     PLAYER: {
         RADIUS: 35,
-        HP: 100,
+        HP: 10000,
         SPEED: 5,
         ATTACK_POWER: 36,
         ATTACK_COOLDOWN: 0.4,
@@ -753,6 +753,152 @@ ArcSurvivors.GAME_CONFIG = {
                 MIN_DISTANCE: 150,
                 MAX_DISTANCE: 300,
                 UNLOCK_LEVEL: 7
+            },
+            // === 新增Boss技能 ===
+            SPIRAL_BARRAGE: {
+                COOLDOWN: 3,
+                BULLET_COUNT: 8,
+                BULLET_COUNT_PHASE2: 12,
+                SPIRAL_SPEED: 0.5,
+                BULLET_SPEED: 4,
+                DURATION: 2,
+                DAMAGE_SCALE: 0.3,
+                UNLOCK_LEVEL: 8
+            },
+            FOCUS_FIRE: {
+                COOLDOWN: 2,
+                BULLET_COUNT: 5,
+                BULLET_COUNT_PHASE2: 7,
+                FIRE_INTERVAL: 0.15,
+                FIRE_INTERVAL_PHASE2: 0.12,
+                BULLET_SPEED: 8,
+                DAMAGE_SCALE: 0.4,
+                UNLOCK_LEVEL: 9
+            },
+            SCATTER_SHOT: {
+                COOLDOWN: 4,
+                WAVE_COUNT: 3,
+                WAVE_COUNT_PHASE2: 4,
+                WAVE_INTERVAL: 0.5,
+                BULLETS_PER_WAVE: 8,
+                SPREAD_ANGLE: 120,
+                SPEED: 3.5,
+                DAMAGE_SCALE: 0.25,
+                UNLOCK_LEVEL: 10
+            },
+            CONCENTRIC_RINGS: {
+                COOLDOWN: 5,
+                RING_COUNT: 3,
+                RING_COUNT_PHASE2: 4,
+                RING_INTERVAL: 0.3,
+                BULLETS_PER_RING: 16,
+                SPEED: 2.5,
+                DAMAGE_SCALE: 0.2,
+                UNLOCK_LEVEL: 11
+            },
+            HOMING_SCATTER: {
+                COOLDOWN: 4,
+                BULLET_COUNT: 6,
+                BULLET_COUNT_PHASE2: 8,
+                HOMING_DURATION: 1.5,
+                SPEED: 3,
+                TURN_SPEED: 2,
+                DAMAGE_SCALE: 0.35,
+                UNLOCK_LEVEL: 12
+            },
+            SUMMON_ELITES: {
+                COOLDOWN: 20,
+                COUNT: 2,
+                COUNT_PHASE2: 3,
+                SPAWN_RADIUS: 120,
+                ELITE_HP_SCALE: 2,
+                ELITE_DAMAGE_SCALE: 1.5,
+                UNLOCK_LEVEL: 13
+            },
+            BERSERK: {
+                COOLDOWN: 15,
+                DURATION: 5,
+                DURATION_PHASE2: 7,
+                SPEED_MULT: 1.5,
+                DAMAGE_MULT: 1.8,
+                ATTACK_COOLDOWN_SCALE: 0.7,
+                UNLOCK_LEVEL: 14
+            },
+            AURA_BUFF: {
+                COOLDOWN: 10,
+                RADIUS: 200,
+                RADIUS_PHASE2: 250,
+                DURATION: 8,
+                ENEMY_SPEED_BONUS: 1.3,
+                ENEMY_DAMAGE_BONUS: 1.2,
+                EFFECT_COLOR: 'rgba(255, 200, 0, 0.2)',
+                UNLOCK_LEVEL: 8
+            },
+            SHIELD: {
+                COOLDOWN: 12,
+                DURATION: 3,
+                DURATION_PHASE2: 4,
+                HP_ABSORB: 0.3,
+                UNLOCK_LEVEL: 6
+            },
+            REFLECT: {
+                COOLDOWN: 15,
+                DURATION: 4,
+                REFLECT_PERCENT: 0.4,
+                REFLECT_PERCENT_PHASE2: 0.5,
+                DAMAGE_CAP: 50,
+                UNLOCK_LEVEL: 10
+            },
+            ROCK_ARMOR: {
+                COOLDOWN: 20,
+                DURATION: 6,
+                DAMAGE_REDUCTION: 0.6,
+                DAMAGE_REDUCTION_PHASE2: 0.7,
+                SLOW_ATTACKERS: true,
+                SLOW_FACTOR: 0.5,
+                SLOW_DURATION: 1,
+                UNLOCK_LEVEL: 12
+            },
+            KNOCKBACK: {
+                COOLDOWN: 6,
+                FORCE: 300,
+                DAMAGE_SCALE: 0.3,
+                STUN_DURATION: 0.3,
+                EFFECT_RADIUS: 100,
+                UNLOCK_LEVEL: 5
+            },
+            ICE_BREATH: {
+                COOLDOWN: 8,
+                WARNING_DURATION: 1.5,
+                BEAM_DURATION: 1,
+                BEAM_WIDTH: 60,
+                BEAM_WIDTH_PHASE2: 80,
+                BEAM_LENGTH: 400,
+                DAMAGE_SCALE: 0.5,
+                SLOW_FACTOR: 0.3,
+                SLOW_DURATION: 2,
+                UNLOCK_LEVEL: 8
+            },
+            STUN_ROAR: {
+                COOLDOWN: 15,
+                RADIUS: 250,
+                RADIUS_PHASE2: 300,
+                DURATION: 1.5,
+                DAMAGE_SCALE: 0.4,
+                WARNING_TIME: 0.5,
+                UNLOCK_LEVEL: 11
+            },
+            LASER_MATRIX: {
+                COOLDOWN: 30,
+                LASER_COUNT: 5,
+                LASER_COUNT_PHASE2: 7,
+                WARNING_DURATION: 2,
+                SWEEP_DURATION: 2,
+                BEAM_WIDTH: 15,
+                BEAM_LENGTH: 1500,
+                ROTATION_SPEED: 0.3,
+                DAMAGE_PER_TICK_SCALE: 0.15,
+                UNLOCK_LEVEL: 13
             }
         },
         // 被动技能

@@ -7,6 +7,44 @@
 var ArcSurvivors = ArcSurvivors || {};
 
 // ============================================================
+// Boss技能配置表 - 每个Boss的独特技能组合
+// ============================================================
+ArcSurvivors.BOSS_SKILL_CONFIGS = [
+    // Boss 1: 绒角羚兽 - 基础
+    { skills: ['bulletStorm', 'homingMissiles'] },
+    // Boss 2: 幻彩灵狐 - 敏捷
+    { skills: ['spiralBarrage', 'homingScatter', 'teleport'] },
+    // Boss 3: 沐光仙鹿 - 辅助
+    { skills: ['bulletStorm', 'auraBuff'] },
+    // Boss 4: 云翼苍鹰 - 速度
+    { skills: ['focusFire', 'scatterShot'] },
+    // Boss 5: 翠鳞幽蛇 - 持续伤害
+    { skills: ['poisonFog', 'iceBreath'] },
+    // Boss 6: 荒林顽豚 - 坦克
+    { skills: ['shield', 'reflect', 'rockArmor'] },
+    // Boss 7: 风原狂狼 - 领袖
+    { skills: ['summonMinions', 'summonElites', 'auraBuff'] },
+    // Boss 8: 驰风骏驹 - 速度
+    { skills: ['spiralBarrage', 'charge'] },
+    // Boss 9: 岩脊蛮牛 - 力量
+    { skills: ['charge', 'knockback', 'rockArmor'] },
+    // Boss 10: 暗夜疾豹 - 爆发
+    { skills: ['focusFire', 'homingScatter', 'teleport'] },
+    // Boss 11: 渊水巨鳄 - 控制
+    { skills: ['iceBreath', 'knockback', 'scatterShot'] },
+    // Boss 12: 深林绒熊 - 坦克
+    { skills: ['stunRoar', 'reflect', 'berserk'] },
+    // Boss 13: 金鬃狮灵 - 领袖
+    { skills: ['summonElites', 'laserMatrix', 'auraBuff'] },
+    // Boss 14: 烈风玄虎 - 爆发
+    { skills: ['stunRoar', 'berserk', 'charge'] },
+    // Boss 15: 磐岩犀兽 - 坦克
+    { skills: ['shield', 'reflect', 'rockArmor'] },
+    // Boss 16: 古森巨象 - 终极
+    { skills: ['laserMatrix', 'concentricRings', 'iceBreath'] }
+];
+
+// ============================================================
 // 默认Boss构造函数
 // ============================================================
 ArcSurvivors.BossDefault = function(x, y) {
@@ -19,30 +57,20 @@ ArcSurvivors.BossDefault = function(x, y) {
     var AC = ArcSurvivors.GAME_CONFIG.BOSS_SKILLS.ACTIVE;
     var PC = ArcSurvivors.GAME_CONFIG.BOSS_SKILLS.PASSIVE;
 
-    // 主动技能：根据boss序号解锁
-    if (bossIndex >= AC.BULLET_STORM.UNLOCK_LEVEL) {
-        this.addSkill(ArcSurvivors.Skills.Active.bulletStorm());
-    }
-    if (bossIndex >= AC.HOMING_MISSILES.UNLOCK_LEVEL) {
-        this.addSkill(ArcSurvivors.Skills.Active.homingMissiles());
-    }
-    if (bossIndex >= AC.LASER_SWEEP.UNLOCK_LEVEL) {
-        this.addSkill(ArcSurvivors.Skills.Active.laserSweep());
-    }
-    if (bossIndex >= AC.CHARGE.UNLOCK_LEVEL) {
-        this.addSkill(ArcSurvivors.Skills.Active.charge());
-    }
-    if (bossIndex >= AC.POISON_FOG.UNLOCK_LEVEL) {
-        this.addSkill(ArcSurvivors.Skills.Active.poisonFog());
-    }
-    if (bossIndex >= AC.SUMMON_MINIONS.UNLOCK_LEVEL) {
-        this.addSkill(ArcSurvivors.Skills.Active.summonMinions());
-    }
-    if (bossIndex >= AC.TELEPORT.UNLOCK_LEVEL) {
-        this.addSkill(ArcSurvivors.Skills.Active.teleport());
+    // 获取该Boss的专属技能配置
+    var skillConfig = ArcSurvivors.BOSS_SKILL_CONFIGS[(bossIndex - 1) % 16];
+
+    if (skillConfig && skillConfig.skills) {
+        // 装配专属技能
+        for (var i = 0; i < skillConfig.skills.length; i++) {
+            var skillName = skillConfig.skills[i];
+            if (ArcSurvivors.Skills.Active[skillName]) {
+                this.addSkill(ArcSurvivors.Skills.Active[skillName]());
+            }
+        }
     }
 
-    // 被动技能：根据boss序号解锁
+    // 被动技能：根据boss序号解锁（所有Boss通用）
     if (bossIndex >= PC.DAMAGE_REDUCTION.UNLOCK_LEVEL) {
         ArcSurvivors.Skills.Passive.damageReduction(this);
     }

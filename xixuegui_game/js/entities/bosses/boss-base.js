@@ -151,14 +151,50 @@ ArcSurvivors.BossBase.prototype.updateSkills = function(dt) {
 };
 
 // ============================================================
-// takeDamage 覆写（支持伤害减免被动）
+// takeDamage 覆写（支持护盾、反伤、岩石装甲、伤害减免被动）
 // ============================================================
 
-ArcSurvivors.BossBase.prototype.takeDamage = function(damage) {
+ArcSurvivors.BossBase.prototype.takeDamage = function(damage, attacker) {
+    // 护盾：优先吸收伤害
+    if (this.shieldActive && this.shieldHp > 0) {
+        var shieldAbsorb = Math.min(damage, this.shieldHp);
+        this.shieldHp -= shieldAbsorb;
+        damage -= shieldAbsorb;
+
+        // 护盾破裂特效
+        if (this.shieldHp <= 0) {
+            ArcSurvivors.spawnParticles(this.x, this.y, 15, 'rgb(100, 150, 255)', 6, 3);
+        }
+
+        if (damage <= 0) return;
+    }
+
+    // 岩石装甲：减少伤害
+    if (this.rockArmored && this.rockArmorReduction > 0) {
+        damage *= (1 - this.rockArmorReduction);
+
+        // 减速攻击者
+        if (attacker && SC.SLOW_ATTACKERS) {
+            attacker.slowed = true;
+            attacker.slowedTimer = Math.max(attacker.slowedTimer || 0, SC.SLOW_DURATION);
+            attacker.speed = attacker.baseSpeed * SC.SLOW_FACTOR;
+        }
+    }
+
+    // 伤害减免被动
     if (this.damageReduction) {
         var maxDamage = this.maxHp * ArcSurvivors.GAME_CONFIG.BOSS_SKILLS.PASSIVE.DAMAGE_REDUCTION.MAX_HP_PERCENT;
         damage = Math.min(damage, maxDamage);
     }
+
+    // 反伤：反弹伤害给攻击者
+    if (this.reflecting && attacker && this.reflectPercent > 0) {
+        var reflectDamage = Math.min(damage * this.reflectPercent, this.reflectDamageCap);
+        if (attacker.takeDamage) {
+            attacker.takeDamage(reflectDamage);
+        }
+    }
+
     this.hp -= damage;
     ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.ENEMY_HURT, this, damage);
     if (this.hp <= 0) this.die();
@@ -448,6 +484,72 @@ ArcSurvivors.BossBase.prototype.draw = function(ctx) {
         this._drawHpBar(ctx, BC);
     }
 
+    // 护盾：绘制蓝色护盾
+    if (this.shieldActive && this.shieldHp > 0) {
+        var shieldAlpha = 0.3 + (this.shieldHp / (this.maxHp * 0.3)) * 0.3;
+        ctx.fillStyle = 'rgba(100, 150, 255, ' + shieldAlpha + ')';
+        ctx.strokeStyle = 'rgba(100, 150, 255, 0.8)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius * 1.3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+    }
+
+    // 反伤：绘制红色尖刺
+    if (this.reflecting) {
+        ctx.strokeStyle = 'rgba(255, 50, 50, 0.8)';
+        ctx.lineWidth = 2;
+        for (var i = 0; i < 8; i++) {
+            var angle = (i / 8) * Math.PI * 2 + Date.now() / 500;
+            var innerR = this.radius + 5;
+            var outerR = this.radius + 15;
+            ctx.beginPath();
+            ctx.moveTo(this.x + Math.cos(angle) * innerR, this.y + Math.sin(angle) * innerR);
+            ctx.lineTo(this.x + Math.cos(angle) * outerR, this.y + Math.sin(angle) * outerR);
+            ctx.stroke();
+        }
+    }
+
+    // 岩石装甲：绘制棕色碎片
+    if (this.rockArmored) {
+        ctx.fillStyle = 'rgba(139, 90, 43, 0.6)';
+        for (var j = 0; j < 6; j++) {
+            var rAngle = (j / 6) * Math.PI * 2;
+            var rx = this.x + Math.cos(rAngle) * (this.radius + 8);
+            var ry = this.y + Math.sin(rAngle) * (this.radius + 8);
+            ctx.beginPath();
+            ctx.arc(rx, ry, 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    // 狂暴：绘制红色光晕
+    if (this.berserked) {
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius * 1.5, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // 鼓舞领域：绘制金色光环
+    if (this.auraActive) {
+        var SC = ArcSurvivors.GAME_CONFIG.BOSS_SKILLS.ACTIVE.AURA_BUFF;
+        var radius = this.bossPhase >= 2 ? SC.RADIUS_PHASE2 : SC.RADIUS;
+        ctx.fillStyle = SC.EFFECT_COLOR;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255, 200, 0, 0.4)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+
+    // 激光矩阵：绘制激光
+    if (this.laserMatrixActive && this.laserMatrixAngles) {
+        this._drawLaserMatrix(ctx);
+    }
+
     // 伤害减免被动：绘制护盾标记
     if (this.damageReduction) {
         ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
@@ -587,4 +689,61 @@ ArcSurvivors.BossBase.prototype._drawHpBar = function(ctx, BC) {
     var bossIndex = ArcSurvivors.BossRegistry ? ArcSurvivors.BossRegistry.spawnCount - 1 : 0;
     var bossName = BC.getName ? BC.getName(bossIndex) : '兽王';
     ctx.fillText(bossName, this.x, barY - 5);
+};
+
+// ============================================================
+// 激光矩阵绘制
+// ============================================================
+
+ArcSurvivors.BossBase.prototype._drawLaserMatrix = function(ctx) {
+    var SC = ArcSurvivors.GAME_CONFIG.BOSS_SKILLS.ACTIVE.LASER_MATRIX;
+    var angles = this.laserMatrixAngles;
+    var phase = this.laserMatrixPhase;
+
+    if (!angles || angles.length === 0) return;
+
+    ctx.save();
+
+    for (var i = 0; i < angles.length; i++) {
+        var angle = angles[i];
+
+        if (phase === 'warning') {
+            // 预警阶段：虚线
+            ctx.strokeStyle = 'rgba(255, 0, 0, 0.4)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([10, 10]);
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(
+                this.x + Math.cos(angle) * SC.BEAM_LENGTH,
+                this.y + Math.sin(angle) * SC.BEAM_LENGTH
+            );
+            ctx.stroke();
+            ctx.setLineDash([]);
+        } else if (phase === 'sweeping') {
+            // 扫射阶段：实体激光
+            ctx.translate(this.x, this.y);
+            ctx.rotate(angle);
+
+            // 外层光晕
+            var grad = ctx.createLinearGradient(0, 0, SC.BEAM_LENGTH, 0);
+            grad.addColorStop(0, 'rgba(255, 50, 50, 0.9)');
+            grad.addColorStop(0.3, 'rgba(255, 100, 50, 0.6)');
+            grad.addColorStop(1, 'rgba(255, 50, 50, 0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, -SC.BEAM_WIDTH / 2, SC.BEAM_LENGTH, SC.BEAM_WIDTH);
+
+            // 内层亮芯
+            var innerGrad = ctx.createLinearGradient(0, 0, SC.BEAM_LENGTH, 0);
+            innerGrad.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+            innerGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = innerGrad;
+            ctx.fillRect(0, -2, SC.BEAM_LENGTH, 4);
+
+            ctx.rotate(-angle);
+            ctx.translate(-this.x, -this.y);
+        }
+    }
+
+    ctx.restore();
 };
