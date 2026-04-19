@@ -17,31 +17,31 @@ ArcSurvivors.BOSS_SKILL_CONFIGS = [
     // Boss 3: 沐光仙鹿 - 辅助
     { skills: ['bulletStorm', 'auraBuff'] },
     // Boss 4: 云翼苍鹰 - 速度
-    { skills: ['focusFire', 'scatterShot'] },
+    { skills: ['focusFire', 'scatterShot', 'chainLightning'] },
     // Boss 5: 翠鳞幽蛇 - 持续伤害
     { skills: ['poisonFog', 'iceBreath'] },
-    // Boss 6: 荒林顽豚 - 坦克
-    { skills: ['shield', 'reflect', 'rockArmor'] },
-    // Boss 7: 风原狂狼 - 领袖
-    { skills: ['summonMinions', 'summonElites', 'auraBuff'] },
+    // Boss 6: 荒林顽豚 - 坦克+dot
+    { skills: ['shield', 'rockArmor', 'poisonFog'] },
+    // Boss 7: 风原狂狼 - 领袖（分裂型）
+    { skills: ['splitBoss', 'auraBuff', 'berserk'] },
     // Boss 8: 驰风骏驹 - 速度
     { skills: ['spiralBarrage', 'charge'] },
     // Boss 9: 岩脊蛮牛 - 力量
     { skills: ['charge', 'knockback', 'rockArmor'] },
     // Boss 10: 暗夜疾豹 - 爆发
-    { skills: ['focusFire', 'homingScatter', 'teleport'] },
+    { skills: ['focusFire', 'homingScatter', 'teleport', 'darknessField'] },
     // Boss 11: 渊水巨鳄 - 控制
-    { skills: ['iceBreath', 'knockback', 'scatterShot'] },
+    { skills: ['iceBreath', 'knockback', 'scatterShot', 'timeSlow'] },
     // Boss 12: 深林绒熊 - 坦克
     { skills: ['stunRoar', 'reflect', 'berserk'] },
     // Boss 13: 金鬃狮灵 - 领袖
     { skills: ['summonElites', 'laserMatrix', 'auraBuff'] },
     // Boss 14: 烈风玄虎 - 爆发
-    { skills: ['stunRoar', 'berserk', 'charge'] },
-    // Boss 15: 磐岩犀兽 - 坦克
-    { skills: ['shield', 'reflect', 'rockArmor'] },
+    { skills: ['stunRoar', 'berserk', 'charge', 'lifeSteal'] },
+    // Boss 15: 磐岩犀兽 - 坦克+爆发
+    { skills: ['shield', 'reflect', 'berserk'] },
     // Boss 16: 古森巨象 - 终极
-    { skills: ['laserMatrix', 'concentricRings', 'iceBreath'] }
+    { skills: ['laserMatrix', 'concentricRings', 'iceBreath', 'splitShot', 'timeSlow'] }
 ];
 
 // ============================================================

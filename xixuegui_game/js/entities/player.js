@@ -105,6 +105,9 @@ ArcSurvivors.Player.prototype.update = function(dt) {
         }
     }
 
+    // 黑暗领域：命中率下降（由Boss技能控制，这里不需要额外处理）
+    // 时间缓速：移速下降（由Boss技能控制，这里不需要额外处理）
+
     this.runeAngle += dt * PC.RUNE_ROTATE_SPEED;
     if (this.pulseEffect > 0) this.pulseEffect -= dt * PC.PULSE_DECAY_SPEED;
 };
@@ -136,6 +139,14 @@ ArcSurvivors.Player.prototype.createBullet = function(angle, damage) {
     var finalDamage = damage || this.attackPower;
     var isCritical = Math.random() < this.criticalChance;
     var DC = ArcSurvivors.GAME_CONFIG.DAMAGE_CONFIG;
+    
+    // 黑暗领域：命中率下降
+    if (this.inDarknessField && this.darknessFieldHitChance) {
+        if (Math.random() > this.darknessFieldHitChance) {
+            // 未命中，添加随机偏移
+            angle += (Math.random() - 0.5) * 1.0; // 最大约57度偏移
+        }
+    }
     
     if (isCritical) {
         finalDamage *= DC.CRITICAL_MULTIPLIER; // 暴击伤害倍数

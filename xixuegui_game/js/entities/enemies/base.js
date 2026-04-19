@@ -268,11 +268,6 @@ ArcSurvivors.Enemy.prototype.die = function() {
     }
     ArcSurvivors.trySpawnBuffItem(this.x, this.y);
 
-    if (player.hasVampireMask) {
-        player.hp = Math.min(player.maxHp, player.hp + CFG.VAMPIRE_MASK.HEAL_AMOUNT);
-        ArcSurvivors.spawnParticles(player.x, player.y, 3, 'rgb(255,0,0)', 3, 2);
-    }
-
     if (player.hasKillExplosion) {
         var KE = CFG.KILL_EXPLOSION;
         var enemies = ArcSurvivors.enemies;

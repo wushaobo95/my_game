@@ -41,7 +41,18 @@ ArcSurvivors.EnemyBullet.prototype.update = function(dt) {
 
     var player = ArcSurvivors.player;
     if (ArcSurvivors.Utils.distance(this.x, this.y, player.x, player.y) < this.radius + player.radius) {
+        // 处理分裂射击
+        if (this.canSplit && !this.hasSplit && ArcSurvivors.splitBulletOnHit) {
+            ArcSurvivors.splitBulletOnHit(this, player);
+        }
+        
         player.takeDamage(this.damage);
+        
+        // 处理吸血攻击
+        if (this.parentBoss && this.parentBoss.lifeStealActive && ArcSurvivors.processLifeSteal) {
+            ArcSurvivors.processLifeSteal(this.parentBoss, this.damage);
+        }
+        
         this.active = false;
     }
 };

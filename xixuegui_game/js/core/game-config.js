@@ -11,7 +11,7 @@ ArcSurvivors.GAME_CONFIG = {
     // 玩家基础属性
     PLAYER: {
         RADIUS: 35,
-        HP: 10000,
+        HP: 100,
         SPEED: 5,
         ATTACK_POWER: 36,
         ATTACK_COOLDOWN: 0.4,
@@ -743,8 +743,8 @@ ArcSurvivors.GAME_CONFIG = {
                 UNLOCK_LEVEL: 5
             },
             SUMMON_MINIONS: {
-                COOLDOWN: 15,
-                COUNT: 4,
+                COOLDOWN: 12,
+                COUNT: 3,
                 SPAWN_RADIUS: 100,
                 UNLOCK_LEVEL: 6
             },
@@ -825,7 +825,7 @@ ArcSurvivors.GAME_CONFIG = {
                 UNLOCK_LEVEL: 14
             },
             AURA_BUFF: {
-                COOLDOWN: 10,
+                COOLDOWN: 15,
                 RADIUS: 200,
                 RADIUS_PHASE2: 250,
                 DURATION: 8,
@@ -889,7 +889,7 @@ ArcSurvivors.GAME_CONFIG = {
                 UNLOCK_LEVEL: 11
             },
             LASER_MATRIX: {
-                COOLDOWN: 30,
+                COOLDOWN: 20,
                 LASER_COUNT: 5,
                 LASER_COUNT_PHASE2: 7,
                 WARNING_DURATION: 2,
@@ -899,6 +899,60 @@ ArcSurvivors.GAME_CONFIG = {
                 ROTATION_SPEED: 0.3,
                 DAMAGE_PER_TICK_SCALE: 0.15,
                 UNLOCK_LEVEL: 13
+            },
+            // === 新增Boss技能配置 ===
+            SPLIT_SHOT: {
+                COOLDOWN: 4,
+                BULLET_COUNT: 5,
+                BULLET_COUNT_PHASE2: 7,
+                SPLIT_COUNT: 3,
+                SPLIT_ANGLE: 30,
+                SPEED: 4,
+                DAMAGE_SCALE: 0.35,
+                UNLOCK_LEVEL: 10
+            },
+            DARKNESS_FIELD: {
+                COOLDOWN: 18,
+                DURATION: 6,
+                DURATION_PHASE2: 8,
+                RADIUS: 180,
+                RADIUS_PHASE2: 220,
+                PLAYER_HIT_CHANCE: 0.5,
+                UNLOCK_LEVEL: 12
+            },
+            LIFE_STEAL: {
+                COOLDOWN: 8,
+                DURATION: 4,
+                DURATION_PHASE2: 5,
+                HEAL_PERCENT: 0.3,
+                HEAL_PERCENT_PHASE2: 0.4,
+                ATTACK_SPEED_BONUS: 1.3,
+                UNLOCK_LEVEL: 11
+            },
+            TIME_SLOW: {
+                COOLDOWN: 16,
+                DURATION: 5,
+                DURATION_PHASE2: 6,
+                RADIUS: 200,
+                RADIUS_PHASE2: 250,
+                SLOW_FACTOR: 0.4,
+                UNLOCK_LEVEL: 14
+            },
+            CHAIN_LIGHTNING: {
+                COOLDOWN: 6,
+                CHAIN_COUNT: 4,
+                CHAIN_COUNT_PHASE2: 6,
+                CHAIN_RANGE: 150,
+                DAMAGE_SCALE: 0.4,
+                DAMAGE_DECAY: 0.2,
+                UNLOCK_LEVEL: 9
+            },
+            SPLIT_BOSS: {
+                HP_PERCENT: 0.7,        // 继承70%血量
+                DAMAGE_PERCENT: 0.7,    // 继承70%伤害
+                SIZE_PERCENT: 0.8,      // 继承80%体型
+                SPLIT_THRESHOLD: 0.5,   // 50%血量时分裂
+                UNLOCK_LEVEL: 1
             }
         },
         // 被动技能

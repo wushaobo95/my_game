@@ -47,14 +47,16 @@ ArcSurvivors.BossBase = function(x, y, bossConfig) {
     var bossIndex = ArcSurvivors.BossRegistry ? ArcSurvivors.BossRegistry.spawnCount - 1 : 0;
     var scaling = EL.BOSS_SCALING;
     
-    // 计算血量和伤害倍率
-    // 前2个Boss削弱50%，第3个开始正常，第4个后大幅提高
-    var hpMultiplier = 0.5;  // 默认削弱50%
-    if (bossIndex >= 2) hpMultiplier = 1;  // 第3个正常
-    if (bossIndex >= 3) hpMultiplier = scaling.HP_MULTIPLIER;  // 第4个后大幅提高
+    // 计算血量和伤害倍率 - 平滑成长曲线
+    var hpMultiplier = 1;  // 基础倍率
+    if (bossIndex === 0) hpMultiplier = 0.7;      // 第1个稍弱（新手友好）
+    if (bossIndex === 1) hpMultiplier = 0.85;     // 第2个正常偏易
+    if (bossIndex >= 3) hpMultiplier = scaling.HP_MULTIPLIER;  // 第4个后提高
+    if (bossIndex >= 4) hpMultiplier += (bossIndex - 3) * 0.3; // 逐步增加
     
     var damageMultiplier = 1;
     if (bossIndex >= 3) damageMultiplier = scaling.DAMAGE_MULTIPLIER;
+    if (bossIndex >= 5) damageMultiplier += (bossIndex - 4) * 0.1;
 
     var bossLevelScale = 1 + (playerLevel - 1) * EL.BOSS_HP_SCALE_PER_LEVEL;
     this.hp = (BC.HP_BASE * bossLevelScale + df * BC.HP_SCALE) * hpMultiplier;
@@ -95,13 +97,44 @@ ArcSurvivors.BossBase.prototype.constructor = ArcSurvivors.BossBase;
 
 ArcSurvivors.BossBase.prototype._updatePhase = function() {
     var hpPercent = this.hp / this.maxHp;
-    if (hpPercent > 0.6) {
-        this.bossPhase = 0;
-    } else if (hpPercent > 0.3) {
-        this.bossPhase = 1;
+    if (hpPercent > 0.9) {
+        this.bossPhase = 0;  // 100%-90%
+    } else if (hpPercent > 0.7) {
+        this.bossPhase = 1;  // 90%-70%
+    } else if (hpPercent > 0.5) {
+        this.bossPhase = 2;  // 70%-50%
     } else {
-        this.bossPhase = 2;
+        this.bossPhase = 3;  // 50%-0%
+        // Phase 4 濒死狂暴 - 触发一次
+        if (!this.berserkTriggered) {
+            this.berserkTriggered = true;
+            this._triggerDesperationBerserk();
+        }
     }
+};
+
+// Phase 3 濒死狂暴
+ArcSurvivors.BossBase.prototype._triggerDesperationBerserk = function() {
+    var self = this;
+    var originalSpeed = this.speed;
+    var originalAttackCooldown = this.attackCooldown || 2.5;
+    
+    // 狂暴效果：攻速+50%，移速+30%
+    this.speed *= 1.3;
+    this.attackCooldown = originalAttackCooldown * 0.5;
+    this.berserked = true;
+    
+    // 红色光晕特效
+    ArcSurvivors.spawnParticles(this.x, this.y, 30, 'rgb(255, 0, 0)', 10, 6);
+    
+    // 5秒后恢复
+    setTimeout(function() {
+        if (self.active) {
+            self.speed = originalSpeed;
+            self.attackCooldown = originalAttackCooldown;
+            self.berserked = false;
+        }
+    }, 5000);
 };
 
 // ============================================================
@@ -277,7 +310,13 @@ ArcSurvivors.BossBase.prototype.updateCharge = function(dt) {
     // 碰撞伤害
     var player = ArcSurvivors.player;
     if (ArcSurvivors.Utils.distance(this.x, this.y, player.x, player.y) < this.radius + player.radius) {
-        player.takeDamage(this.damage * 1.5);
+        var damage = this.damage * 1.5;
+        player.takeDamage(damage);
+        
+        // 处理吸血攻击
+        if (this.lifeStealActive && ArcSurvivors.processLifeSteal) {
+            ArcSurvivors.processLifeSteal(this, damage);
+        }
     }
 
     // 冲刺结束
@@ -334,11 +373,6 @@ ArcSurvivors.BossBase.prototype.die = function() {
     ArcSurvivors.Audio.bossDeath();
 
     ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.BOSS_DIE, this);
-
-    if (player.hasVampireMask) {
-        player.hp = Math.min(player.maxHp, player.hp + CFG.VAMPIRE_MASK.HEAL_AMOUNT);
-        ArcSurvivors.spawnParticles(player.x, player.y, 3, 'rgb(255,0,0)', 3, 2);
-    }
 
     if (player.hasKillExplosion) {
         var KE = CFG.KILL_EXPLOSION;
@@ -562,6 +596,16 @@ ArcSurvivors.BossBase.prototype.draw = function(ctx) {
     // 绘制毒雾
     if (ArcSurvivors.drawPoisonFog) {
         ArcSurvivors.drawPoisonFog(ctx, this);
+    }
+
+    // 绘制黑暗领域
+    if (ArcSurvivors.drawDarknessField) {
+        ArcSurvivors.drawDarknessField(ctx, this);
+    }
+
+    // 绘制时间缓速领域
+    if (ArcSurvivors.drawTimeSlowField) {
+        ArcSurvivors.drawTimeSlowField(ctx, this);
     }
 
     ctx.restore();
