@@ -294,29 +294,26 @@ ArcSurvivors.Enemy.prototype.draw = function(ctx) {
     ctx.restore();
 };
 
-// 林间毒蜘蛛 - 两节身体+8条关节腿+多眼+毒牙
+// 林间毒蜘蛛 - 两节身体+8条腿（静态）
 ArcSurvivors.Enemy.prototype.drawSpider = function(ctx, x, y, r) {
-    var t = Date.now() / 300;
     var legCount = 8;
 
     ctx.save();
     ctx.translate(x, y);
 
-    // 8条关节腿（4对）
+    // 8条腿（4对）
     for (var i = 0; i < legCount; i++) {
         var side = i < 4 ? -1 : 1;
         var pair = i % 4;
-        var baseAngle = side < 0 ? (-0.4 - pair * 0.25) : (Math.PI + 0.4 + pair * 0.25);
-        var wobble = Math.sin(t + pair * 0.8) * 0.12;
 
         // 大腿（第一段）
         var hipX = side * r * 0.5;
         var hipY = -r * 0.1 + pair * r * 0.2;
         var kneeX = hipX + side * r * 0.7;
-        var kneeY = hipY - r * 0.3 + Math.sin(t + pair) * r * 0.15;
+        var kneeY = hipY - r * 0.3;
         // 小腿（第二段）
         var footX = kneeX + side * r * 0.6;
-        var footY = kneeY + r * 0.4 + wobble * r;
+        var footY = kneeY + r * 0.4;
 
         // 大腿
         ctx.strokeStyle = '#aa2222';

@@ -1,4 +1,4 @@
-# AGENTS.md - 弧光幸存者 (Arc Survivors)
+# AGENTS.md - 卡皮巴拉冒险 (Capybara Adventure)
 
 ## 项目概述
 

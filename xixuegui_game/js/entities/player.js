@@ -18,6 +18,7 @@ ArcSurvivors.Player = function() {
     this.attackCooldown = PC.ATTACK_COOLDOWN;
     this.baseAttackCooldown = PC.ATTACK_COOLDOWN;
     this.attackTimer = 0;
+    this.moving = false;
     this.bulletSpeed = PC.BULLET_SPEED;
     this.baseBulletSpeed = PC.BULLET_SPEED;
     this.bulletSize = PC.BULLET_SIZE;
@@ -68,6 +69,9 @@ ArcSurvivors.Player.prototype.update = function(dt) {
         dx /= len; dy /= len;
         this.x += dx * this.speed * dt * 60;
         this.y += dy * this.speed * dt * 60;
+        this.moving = true;
+    } else {
+        this.moving = false;
     }
 
     this.x = Math.max(this.radius, Math.min(CFG.CANVAS_WIDTH - this.radius, this.x));
@@ -271,14 +275,15 @@ ArcSurvivors.Player.prototype.draw = function(ctx) {
         ctx.save();
         ctx.translate(px, py);
 
-        // 右腿（短粗）
+        // 右腿（摆动）
+        var legWobble = this.moving ? Math.sin(Date.now() / 100) * 0.08 : 0;
         ctx.fillStyle = '#8b6914';
         ctx.beginPath();
-        ctx.ellipse(r * 0.15, r * 0.55, r * 0.15, r * 0.1, 0, 0, Math.PI * 2);
+        ctx.ellipse(r * 0.15 + legWobble * r, r * 0.55, r * 0.15, r * 0.1, legWobble, 0, Math.PI * 2);
         ctx.fill();
         // 左腿
         ctx.beginPath();
-        ctx.ellipse(-r * 0.15, r * 0.55, r * 0.15, r * 0.1, 0, 0, Math.PI * 2);
+        ctx.ellipse(-r * 0.15 - legWobble * r, r * 0.55, r * 0.15, r * 0.1, -legWobble, 0, Math.PI * 2);
         ctx.fill();
 
         // 身体（圆润）
@@ -292,41 +297,24 @@ ArcSurvivors.Player.prototype.draw = function(ctx) {
         ctx.ellipse(0, r * 0.2, r * 0.35, r * 0.3, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // 右臂（持枪）
+        // 右臂（摆动）
+        var armWobble = this.moving ? Math.sin(Date.now() / 100) * 0.15 : 0;
         ctx.fillStyle = '#8b6914';
         ctx.strokeStyle = '#8b6914';
         ctx.lineWidth = r * 0.15;
         ctx.lineCap = 'round';
         ctx.beginPath();
         ctx.moveTo(r * 0.3, r * 0.1);
-        ctx.lineTo(r * 0.55, -r * 0.1);
+        ctx.lineTo(r * 0.55, r * 0.25 + armWobble * r);
         ctx.stroke();
 
-        // 枪（横向）
-        ctx.fillStyle = '#333';
-        ctx.strokeStyle = '#444';
-        ctx.lineWidth = r * 0.1;
-        ctx.beginPath();
-        ctx.moveTo(r * 0.5, -r * 0.1);
-        ctx.lineTo(r * 1.0, -r * 0.1);
-        ctx.stroke();
-        // 枪口
-        ctx.fillStyle = '#222';
-        ctx.beginPath();
-        ctx.arc(r * 1.05, -r * 0.1, r * 0.06, 0, Math.PI * 2);
-        ctx.fill();
-        // 握把
-        ctx.fillStyle = '#4a3728';
-        ctx.beginPath();
-        ctx.ellipse(r * 0.55, -r * 0.05, r * 0.08, r * 0.12, 0.3, 0, Math.PI * 2);
-        ctx.fill();
-
-        // 左臂
+        // 左臂（摆动）
+        var armWobbleL = this.moving ? Math.sin(Date.now() / 100 + Math.PI) * 0.15 : 0;
         ctx.strokeStyle = '#8b6914';
         ctx.lineWidth = r * 0.15;
         ctx.beginPath();
         ctx.moveTo(-r * 0.35, r * 0.1);
-        ctx.lineTo(-r * 0.5, r * 0.25);
+        ctx.lineTo(-r * 0.5, r * 0.25 + armWobbleL * r);
         ctx.stroke();
 
         // 头部（圆形）

@@ -21,13 +21,31 @@ ArcSurvivors.ResourceLoader = (function() {
         'player_invulnerable': 'assets/sprites/player/player_invulnerable.png',
         'player_shield': 'assets/sprites/player/player_shield.png',
         
-        // 敌人精灵图
-        'enemy_normal': 'assets/sprites/enemies/enemy_normal.png',
-        'enemy_fast': 'assets/sprites/enemies/enemy_fast.png',
-        'enemy_split': 'assets/sprites/enemies/enemy_split.png',
-        'enemy_mini': 'assets/sprites/enemies/enemy_mini.png',
-        'enemy_ranged': 'assets/sprites/enemies/enemy_ranged.png',
+        // 敌人精灵图 - 5种小怪
+        'enemy_normal': 'assets/sprites/enemies/enemy_spider.png',      // 毒蜘蛛
+        'enemy_fast': 'assets/sprites/enemies/enemy_bat.png',           // 小蝙蝠
+        'enemy_split': 'assets/sprites/enemies/enemy_grasshopper.png',  // 蚱蜢
+        'enemy_mini': 'assets/sprites/enemies/enemy_bee.png',             // 蜜蜂
+        'enemy_ranged': 'assets/sprites/enemies/enemy_butterfly.png',   // 蝴蝶
         'enemy_boss': 'assets/sprites/enemies/enemy_boss.png',
+        
+        // 其他怪物精灵图（用于后续扩展）
+        'enemy_spider': 'assets/sprites/enemies/enemy_spider.png',
+        'enemy_bat': 'assets/sprites/enemies/enemy_bat.png',
+        'enemy_grasshopper': 'assets/sprites/enemies/enemy_grasshopper.png',
+        'enemy_cricket': 'assets/sprites/enemies/enemy_cricket.png',
+        'enemy_bee': 'assets/sprites/enemies/enemy_bee.png',
+        'enemy_butterfly': 'assets/sprites/enemies/enemy_butterfly.png',
+        'enemy_ant': 'assets/sprites/enemies/enemy_ant.png',
+        'enemy_mouse': 'assets/sprites/enemies/enemy_mouse.png',
+        'enemy_ladybug': 'assets/sprites/enemies/enemy_ladybug.png',
+        'enemy_beetle': 'assets/sprites/enemies/enemy_beetle.png',
+        'enemy_mantis': 'assets/sprites/enemies/enemy_mantis.png',
+        'enemy_fly': 'assets/sprites/enemies/enemy_fly.png',
+        'enemy_dragonfly': 'assets/sprites/enemies/enemy_dragonfly.png',
+        'enemy_mosquito': 'assets/sprites/enemies/enemy_mosquito.png',
+        'enemy_hedgehog': 'assets/sprites/enemies/enemy_hedgehog.png',
+        'enemy_lizard': 'assets/sprites/enemies/enemy_lizard.png',
         
         // 子弹特效
         'bullet_normal': 'assets/sprites/bullets/bullet_normal.png',

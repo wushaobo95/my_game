@@ -4,22 +4,22 @@
 var ArcSurvivors = ArcSurvivors || {};
 
 ArcSurvivors.STRINGS = {
-    // 升级名称和描述
+    // 升级名称和描述（卡皮巴拉自然风）
     UPGRADES: {
         1: {
-            name: '攻击强化',
+            name: '强大力量',
             desc: '攻击力+{value}',
-            icon: '⚔️'
+            icon: '💪'
         },
         2: {
-            name: '急速射击',
+            name: '快速啃咬',
             desc: '攻击速度+{percent}%',
-            icon: '⚡'
+            icon: '🌿'
         },
         3: {
-            name: '弹道加速',
+            name: '喷射种子',
             desc: '子弹速度+{percent}%',
-            icon: '💨'
+            icon: '🌱'
         },
         5: {
             name: '生命强化',
@@ -27,17 +27,17 @@ ArcSurvivors.STRINGS = {
             icon: '❤️'
         },
         7: {
-            name: '疾风步',
+            name: '灵活滚动',
             desc: '移动速度+{percent}%',
-            icon: '👟'
+            icon: '🐾'
         },
         9: {
-            name: '多重射击',
+            name: '多重喷射',
             desc: '额外投射物+1',
             icon: '🔱'
         },
         10: {
-            name: '暴击强化',
+            name: '暴击啃咬',
             desc: '暴击率+{percent}%（暴击时伤害翻倍）',
             icon: '💥'
         },
@@ -58,52 +58,52 @@ ArcSurvivors.STRINGS = {
         }
     },
 
-    // 法宝名称和描述（永久道具）
+    // 法宝名称和描述（永久道具）- 卡皮巴拉自然风
     ITEMS: {
         101: {
-            name: '神秘草药',
+            name: '神奇草药',
             desc: '每秒回复{value}点生命',
             icon: '🌿'
         },
         102: {
-            name: '高布石子弹',
+            name: '弹跳种子',
             desc: '子弹墙壁弹射{count}次',
-            icon: '🧱'
+            icon: '🌰'
         },
         103: {
-            name: '爆炸火花',
+            name: '爆裂果实',
             desc: '击杀敌人产生爆炸({percent}%攻击力)',
             icon: '💥'
         },
         104: {
-            name: '吸血鬼面具',
+            name: '吸血花蜜',
             desc: '击杀敌人恢复{value}点生命',
-            icon: '🧛'
+            icon: '🍯'
         },
         105: {
-            name: '经验磁力',
+            name: '磁力蘑菇',
             desc: '经验拾取范围+{percent}%',
             icon: '🧲'
         },
         106: {
-            name: '冰霜新星',
+            name: '冰冻露珠',
             desc: '攻击附带减速效果',
-            icon: '❄️'
+            icon: '💧'
         },
         108: {
-            name: '复活石',
+            name: '复活种子',
             desc: '死亡时自动复活一次，恢复50%生命值',
-            icon: '💎'
+            icon: '🌱'
         },
         109: {
             name: '昏昏倒地',
             desc: '子弹具有击退效果，将敌人击退{distance}像素',
-            icon: '💫'
+            icon: '💨'
         },
         110: {
-            name: '翅膀',
+            name: '轻盈羽毛',
             desc: '闪避率+{percent}%',
-            icon: '🪽'
+            icon: '🪶'
         },
         111: {
             name: '破势',
@@ -116,62 +116,62 @@ ArcSurvivors.STRINGS = {
             icon: '👁️'
         },
         114: {
-            name: '极速之靴',
+            name: '迅捷爪子',
             desc: '移动速度+{percent}%',
-            icon: '👢'
+            icon: '🐾'
         },
         115: {
-            name: '暴击斗篷',
+            name: '幸运四叶草',
             desc: '暴击率提升至50%（暴击时伤害翻倍）',
-            icon: '🧥'
+            icon: '🍀'
         }
     },
 
-    // UI 文案
+    // UI 文案 - 卡皮巴拉自然风
     UI: {
-        GAME_TITLE: '弧光幸存者 - 无限模式',
-        GAME_OVER_TITLE: '游戏结束',
-        FINAL_TIME: '存活时间: {time}s',
-        FINAL_KILLS: '击杀数: {kills}',
-        FINAL_LEVEL: '等级: {level}',
+        GAME_TITLE: '卡皮巴拉冒险',
+        GAME_OVER_TITLE: '游戏结束啦',
+        FINAL_TIME: '坚守时间: {time}秒',
+        FINAL_KILLS: '打败虫子: {kills}只',
+        FINAL_LEVEL: '成长等级: {level}级',
         RESTART_BTN: '再来一局 (R)',
-        PAUSE_TITLE: '暂停',
+        PAUSE_TITLE: '休息一下',
         RESUME_BTN: '继续游戏 (ESC)',
-        STATS_TITLE: '属性',
+        STATS_TITLE: '我的能力',
         SKILLS_TITLE: '技能',
-        ITEMS_TITLE: '法宝',
-        INSTRUCTIONS: 'WASD 移动 | 自动攻击 | ESC 暂停 | R 重置',
+        ITEMS_TITLE: '宝物',
+        INSTRUCTIONS: 'WASD 移动 | 自动喷水 | ESC 暂停 | R 重置',
         BOSS_WARNING: 'BOSS 来袭',
-        NO_SKILLS: '暂未获得',
-        NO_ITEMS: '暂无法宝',
+        NO_SKILLS: '还没学会',
+        NO_ITEMS: '还没有宝物',
         MAXED_LABEL: '[已满级]',
-        ITEM_LABEL: '法宝',
+        ITEM_LABEL: '宝物',
         SKILL_LABEL: '技能',
         MUTE_OFF: '🔇 音乐: 关',
         MUTE_ON: '🔊 音乐: 开',
         LEVEL_PREFIX: 'LV.',
-        KILLS_PREFIX: '击杀: ',
-        TIME_PREFIX: '存活: ',
-        TIME_SUFFIX: 's',
-        HP_RECOVERY_SUFFIX: '/s',
-        ATTACK_SPEED_SUFFIX: '/s',
-        ITEM_CHOICE_TITLE: '选择法宝',
-        ITEM_CHOICE_DESC: '从以下法宝中选择一个'
+        KILLS_PREFIX: '杀虫: ',
+        TIME_PREFIX: '时间: ',
+        TIME_SUFFIX: '秒',
+        HP_RECOVERY_SUFFIX: '/秒',
+        ATTACK_SPEED_SUFFIX: '/秒',
+        ITEM_CHOICE_TITLE: '选择一个宝物',
+        ITEM_CHOICE_DESC: '这些宝物可以帮助你更好地保护花园'
     },
 
-    // 属性面板标签
+    // 属性面板标签 - 卡皮巴拉风格
     STATS: {
         ATTACK_POWER: '攻击力',
         ATTACK_SPEED: '攻速',
         BULLET_SPEED: '子弹速度',
-        MOVE_SPEED: '移速',
+        MOVE_SPEED: '奔跑速度',
         HP_REGEN: '生命恢复',
         PICKUP_RANGE: '拾取范围',
         CRITICAL: '暴击率',
         DODGE: '闪避率'
     },
 
-    // Buff道具文案（临时效果）
+    // Buff道具文案（临时效果）- 卡皮巴拉自然风
     BUFF_ITEMS: {
         bomb: {
             name: '炸弹',
@@ -179,9 +179,9 @@ ArcSurvivors.STRINGS = {
             icon: '💣'
         },
         ice: {
-            name: '冰块',
+            name: '冰晶',
             desc: '冻结全屏敌人{duration}秒',
-            icon: '🧊'
+            icon: '❄️'
         },
         shield: {
             name: '护盾',
@@ -194,14 +194,14 @@ ArcSurvivors.STRINGS = {
             icon: '🔥'
         },
         vortex: {
-            name: '漩涡',
+            name: '吸铁石',
             desc: '快速拾取全屏幕经验宝石',
-            icon: '🌀'
+            icon: '🧲'
         },
         chicken: {
-            name: '鸡腿',
+            name: '胡萝卜',
             desc: '恢复最大生命值{percent}%的生命',
-            icon: '🍗'
+            icon: '🥕'
         }
     }
 };

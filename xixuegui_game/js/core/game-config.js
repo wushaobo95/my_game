@@ -30,9 +30,9 @@ ArcSurvivors.GAME_CONFIG = {
         PROJECTILE_SPREAD_ANGLE: 15,
         PROJECTILE_DAMAGE_DECAY: 1.0,
         COLORS: {
-            INNER: '#6633ff',
-            OUTER: '#3311aa',
-            RUNE: '#9966ff',
+            INNER: '#5d8c3a',
+            OUTER: '#3d5c2a',
+            RUNE: '#8bc34a',
             RUNE_WIDTH: 3
         }
     },
@@ -54,7 +54,7 @@ ArcSurvivors.GAME_CONFIG = {
         }
     },
 
-    // 敌人类型配置
+    // 敌人类型配置 - 虫子主题颜色
     ENEMY_TYPES: {
         normal: {
             RADIUS: 15,
@@ -62,7 +62,7 @@ ArcSurvivors.GAME_CONFIG = {
             HP_BASE: 15,
             HP_SCALE: 10,
             DAMAGE: 5,
-            COLOR: '#ff4444',
+            COLOR: '#8B4513',
             SHAPE: 'circle'
         },
         fast: {
@@ -71,7 +71,7 @@ ArcSurvivors.GAME_CONFIG = {
             HP_BASE: 8,
             HP_SCALE: 6,
             DAMAGE: 8,
-            COLOR: '#ffff44',
+            COLOR: '#556B2F',
             SHAPE: 'triangle'
         },
         split: {
@@ -80,7 +80,7 @@ ArcSurvivors.GAME_CONFIG = {
             HP_BASE: 25,
             HP_SCALE: 18,
             DAMAGE: 12,
-            COLOR: '#44ff44',
+            COLOR: '#228B22',
             SHAPE: 'diamond',
             CAN_SPLIT: true
         },
@@ -90,7 +90,7 @@ ArcSurvivors.GAME_CONFIG = {
             HP_BASE: 8,
             HP_SCALE: 0,
             DAMAGE: 4,
-            COLOR: '#44ff44',
+            COLOR: '#32CD32',
             SHAPE: 'diamond'
         },
         ranged: {
@@ -99,7 +99,7 @@ ArcSurvivors.GAME_CONFIG = {
             HP_BASE: 12,
             HP_SCALE: 8,
             DAMAGE: 6,
-            COLOR: '#ff8800',
+            COLOR: '#FFD700',
             SHAPE: 'square',
             SHOOT_INTERVAL: 2.5,
             SHOOT_SPEED: 4,
@@ -111,8 +111,8 @@ ArcSurvivors.GAME_CONFIG = {
             SPEED: 1.5,
             HP_BASE: 200,
             HP_SCALE: 1500,
-            DAMAGE: 25,
-            COLOR: '#ff00ff',
+            DAMAGE: 18,
+            COLOR: '#4B0082',
             SHAPE: 'boss',
             SHOOT_INTERVAL: 2,
             LOW_HP_THRESHOLD: 0.3,
@@ -168,9 +168,9 @@ ArcSurvivors.GAME_CONFIG = {
         TRAIL_ALPHA_SCALE: 0.5,
         COLORS: {
             CORE: '#ffffff',
-            MID: '#9966ff',
-            OUTER: '#6633ff',
-            TRAIL: 'rgba(100, 50, 255, {alpha})'
+            MID: '#7cb342',
+            OUTER: '#558b2f',
+            TRAIL: 'rgba(92, 141, 47, {alpha})'
         }
     },
 
@@ -180,19 +180,19 @@ ArcSurvivors.GAME_CONFIG = {
         LIFETIME: 0.2,
         HITSTOP_FRAMES: 3,
         COLORS: {
-            OUTER: '#ff00ff',
+            OUTER: '#7cb342',
             OUTER_WIDTH: 5,
             CORE: '#ffffff',
             CORE_WIDTH: 2
         }
     },
 
-    // 经验宝石
+    // 经验宝石 - 自然风颜色
     GEM: {
         LARGE_VALUE: 50,
         SMALL_VALUE: 15,
-        LARGE_COLOR: '#aa44ff',
-        SMALL_COLOR: '#4488ff',
+        LARGE_COLOR: '#ffca28',
+        SMALL_COLOR: '#81c784',
         LARGE_RADIUS: 10,
         SMALL_RADIUS: 6,
         ATTRACT_SPEED: 5,
@@ -201,7 +201,7 @@ ArcSurvivors.GAME_CONFIG = {
         EXP_SCALE_PER_LEVEL: 0.1 // 每级增加10%经验
     },
 
-    // 道具拾取
+    // 道具拾取 - 自然风颜色
     ITEM_PICKUP: {
         RADIUS: 15,
         BOB_HEIGHT: 5,
@@ -209,7 +209,7 @@ ArcSurvivors.GAME_CONFIG = {
         PARTICLE_COUNT: 15,
         PARTICLE_SIZE: 5,
         PARTICLE_SPEED: 4,
-        GLOW_COLOR: '#ffcc00',
+        GLOW_COLOR: '#8bc34a',
         GLOW_BLUR: 20,
         ICON_FONT_SIZE: 24,
         BORDER_WIDTH: 2,
@@ -268,7 +268,7 @@ ArcSurvivors.GAME_CONFIG = {
         DAMAGE_SCALE_PER_LEVEL: 0.04, // 每级增加4%伤害
         SPEED_SCALE_PER_LEVEL: 0, // 取消移速成长
         BOSS_HP_SCALE_PER_LEVEL: 0.20, // Boss每级增加20%生命
-        BOSS_DAMAGE_SCALE_PER_LEVEL: 0.05, // Boss每级增加5%伤害
+        BOSS_DAMAGE_SCALE_PER_LEVEL: 0.03, // Boss每级增加3%伤害
         BOSS_SCALING: {
             THRESHOLD: 3, // 第3个boss后开始大幅成长
             HP_MULTIPLIER: 2.5, // 血量倍率
@@ -289,8 +289,8 @@ ArcSurvivors.GAME_CONFIG = {
             HEIGHT: 20,
             BG_COLOR: '#333',
             BORDER_COLOR: '#666',
-            GRADIENT_START: '#ff4444',
-            GRADIENT_END: '#ff8888'
+            GRADIENT_START: '#66bb6a',
+            GRADIENT_END: '#a5d6a7'
         },
         EXP_BAR: {
             X: 220,
@@ -299,8 +299,8 @@ ArcSurvivors.GAME_CONFIG = {
             HEIGHT: 20,
             BG_COLOR: '#333',
             BORDER_COLOR: '#666',
-            GRADIENT_START: '#4444ff',
-            GRADIENT_END: '#aa44ff'
+            GRADIENT_START: '#ffca28',
+            GRADIENT_END: '#ffe082'
         },
         TEXT: {
             FONT: '14px sans-serif',
@@ -338,7 +338,7 @@ ArcSurvivors.GAME_CONFIG = {
         BOSS: {
             INNER_RADIUS_SCALE: 0.5,
             INNER_COLOR: '#000',
-            INNER_BORDER: '#ff88ff',
+            INNER_BORDER: '#7cb342',
             EYE_OFFSET_X: 12,
             EYE_OFFSET_Y: 5,
             EYE_RADIUS: 6,
@@ -347,17 +347,17 @@ ArcSurvivors.GAME_CONFIG = {
             HP_BAR_HEIGHT: 8,
             HP_BAR_OFFSET_Y: 20,
             HP_BG_COLOR: '#333',
-            HP_FILL_COLOR: '#ff0044',
+            HP_FILL_COLOR: '#66bb6a',
             HP_BORDER_COLOR: '#fff',
-            NAME_COLOR: '#ff88ff',
+            NAME_COLOR: '#8bc34a',
             NAME_FONT: 'bold 12px sans-serif',
-            NAME_LABEL: 'BOSS'
+            NAME_LABEL: '虫王'
         },
         ENEMY_HP_BAR: {
             OFFSET_Y: 10,
             HEIGHT: 5,
             BG_COLOR: '#333',
-            FILL_COLOR: '#ff4444'
+            FILL_COLOR: '#8B4513'
         },
         SHADOW_BLUR: 10,
         LINE_WIDTH: 2
@@ -556,7 +556,7 @@ ArcSurvivors.GAME_CONFIG = {
         DROP_CHANCE: 0.05,
         PICKUP_RADIUS: 25,
         ICON_SIZE: 20,
-        GLOW_COLOR: '#ffcc00',
+        GLOW_COLOR: '#8bc34a',
         GLOW_BLUR: 15,
         PARTICLE_COUNT: 10,
         PARTICLE_SIZE: 4,
@@ -564,30 +564,30 @@ ArcSurvivors.GAME_CONFIG = {
         TYPES: {
             bomb: {
                 DAMAGE: 500,
-                COLOR: '#ff4400'
+                COLOR: '#4fc3f7'
             },
             ice: {
                 DURATION: 5,
-                COLOR: '#88ffff'
+                COLOR: '#81d4fa'
             },
             shield: {
                 DURATION: 4,
-                COLOR: '#00ff88'
+                COLOR: '#66bb6a'
             },
             rage: {
                 DURATION: 4,
                 ATTACK_MULT: 2,
                 SPEED_MULT: 2,
-                COLOR: '#ff00ff'
+                COLOR: '#ffca28'
             },
             vortex: {
                 ATTRACT_SPEED: 20,
                 DURATION: 3,
-                COLOR: '#00ffff'
+                COLOR: '#42a5f5'
             },
             chicken: {
                 HEAL_PERCENT: 0.2,
-                COLOR: '#ffaa00'
+                COLOR: '#ffa726'
             }
         }
     }

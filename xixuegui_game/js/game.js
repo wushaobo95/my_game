@@ -13,17 +13,14 @@
     var ctx = canvas.getContext('2d');
     var muted = false;
 
-    // 全屏适配
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        CFG.CANVAS_WIDTH = canvas.width;
-        CFG.CANVAS_HEIGHT = canvas.height;
-        GS.CANVAS_WIDTH = canvas.width;
-        GS.CANVAS_HEIGHT = canvas.height;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    var CANVAS_W = 1400;
+    var CANVAS_H = 800;
+    canvas.width = CANVAS_W;
+    canvas.height = CANVAS_H;
+    CFG.CANVAS_WIDTH = CANVAS_W;
+    CFG.CANVAS_HEIGHT = CANVAS_H;
+    GS.CANVAS_WIDTH = CANVAS_W;
+    GS.CANVAS_HEIGHT = CANVAS_H;
 
     // 初始化资源加载器
     if (GS.ResourceLoader) {

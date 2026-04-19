@@ -5,7 +5,7 @@
 }
 
 body {
-    background: #0a0a0f;
+    background: #0a1408;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -17,15 +17,18 @@ body {
 #gameContainer {
     position: relative;
     display: flex;
+    justify-content: center;
+    align-items: center;
     width: 100vw;
     height: 100vh;
+    overflow: hidden;
 }
 
 #gameCanvas {
-    width: 100%;
-    height: 100%;
-    border: none;
-    box-shadow: none;
+    width: 1400px;
+    height: 800px;
+    border: 2px solid #225522;
+    box-shadow: 0 0 30px rgba(40, 140, 60, 0.4);
 }
 
 #startScreen {
@@ -45,9 +48,9 @@ body {
 
 #startScreen h1 {
     font-size: 48px;
-    color: #8866ff;
+    color: #44aa55;
     margin-bottom: 10px;
-    text-shadow: 0 0 20px #6633ff;
+    text-shadow: 0 0 20px #228833;
 }
 
 #startScreen p {
@@ -59,18 +62,18 @@ body {
 #startBtn {
     padding: 15px 40px;
     font-size: 20px;
-    background: linear-gradient(135deg, #6633ff, #9966ff);
+    background: linear-gradient(135deg, #228833, #55cc66);
     border: none;
     border-radius: 8px;
     color: white;
     cursor: pointer;
     transition: all 0.3s;
-    box-shadow: 0 0 20px rgba(100, 50, 255, 0.5);
+    box-shadow: 0 0 20px rgba(40, 140, 60, 0.5);
 }
 
 #startBtn:hover {
     transform: scale(1.1);
-    box-shadow: 0 0 30px rgba(100, 50, 255, 0.8);
+    box-shadow: 0 0 30px rgba(40, 140, 60, 0.8);
 }
 
 #gameOver {
@@ -113,18 +116,18 @@ body {
 #restartBtn {
     padding: 15px 40px;
     font-size: 20px;
-    background: linear-gradient(135deg, #6633ff, #9966ff);
+    background: linear-gradient(135deg, #228833, #55cc66);
     border: none;
     border-radius: 8px;
     color: white;
     cursor: pointer;
     transition: all 0.3s;
-    box-shadow: 0 0 20px rgba(100, 50, 255, 0.5);
+    box-shadow: 0 0 20px rgba(40, 140, 60, 0.5);
 }
 
 #restartBtn:hover {
     transform: scale(1.1);
-    box-shadow: 0 0 30px rgba(100, 50, 255, 0.8);
+    box-shadow: 0 0 30px rgba(40, 140, 60, 0.8);
 }
 
 #upgradeScreen {
@@ -149,8 +152,8 @@ body {
 .upgrade-card {
     width: 200px;
     height: 280px;
-    background: linear-gradient(180deg, #1a1a2e, #0f0f1a);
-    border: 2px solid #444;
+    background: linear-gradient(180deg, #101a15, #0a1008);
+    border: 2px solid #203a20;
     border-radius: 15px;
     padding: 20px;
     cursor: pointer;
@@ -163,8 +166,8 @@ body {
 
 .upgrade-card:hover {
     transform: translateY(-10px);
-    border-color: #8866ff;
-    box-shadow: 0 15px 40px rgba(100, 50, 255, 0.4);
+    border-color: #44aa55;
+    box-shadow: 0 15px 40px rgba(40, 140, 60, 0.4);
 }
 
 .upgrade-card .icon {
@@ -203,7 +206,7 @@ body {
     right: 230px;
     width: 180px;
     background: rgba(0, 0, 0, 0.85);
-    border: 2px solid #8866ff;
+    border: 2px solid #44aa55;
     border-radius: 10px;
     padding: 15px;
     display: none;
@@ -211,14 +214,14 @@ body {
     align-items: center;
     color: white;
     z-index: 90;
-    box-shadow: 0 0 20px rgba(100, 50, 255, 0.5);
+    box-shadow: 0 0 20px rgba(40, 140, 60, 0.5);
 }
 
 #pauseScreen h1 {
     font-size: 20px;
-    color: #8866ff;
+    color: #44aa55;
     margin-bottom: 10px;
-    text-shadow: 0 0 10px #6633ff;
+    text-shadow: 0 0 10px #228833;
 }
 
 #pauseScreen p {
@@ -230,20 +233,20 @@ body {
 #pauseScreen button {
     padding: 8px 20px;
     font-size: 12px;
-    background: linear-gradient(135deg, #6633ff, #9966ff);
+    background: linear-gradient(135deg, #228833, #55cc66);
     border: none;
     border-radius: 6px;
     color: white;
     cursor: pointer;
     transition: all 0.3s;
-    box-shadow: 0 0 10px rgba(100, 50, 255, 0.4);
+    box-shadow: 0 0 10px rgba(40, 140, 60, 0.4);
     margin: 5px;
     width: 100%;
 }
 
 #pauseScreen button:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 15px rgba(100, 50, 255, 0.7);
+    box-shadow: 0 0 15px rgba(40, 140, 60, 0.7);
 }
 
 #muteBtn {
@@ -253,8 +256,9 @@ body {
 /* 状态面板 - 始终显示在右侧 */
 #statusPanel {
     width: 220px;
-    min-height: 100%;
-    max-height: 100%;
+    height: 800px;
+    max-height: 800px;
+    flex-shrink: 0;
     background: rgba(10, 10, 20, 0.95);
     border: 1px solid #444;
     border-left: none;
@@ -263,11 +267,11 @@ body {
     color: #ddd;
     font-size: 13px;
     overflow-y: auto;
-    box-shadow: 0 0 20px rgba(100, 50, 255, 0.3);
+    box-shadow: 0 0 20px rgba(40, 140, 60, 0.3);
 }
 
 #statusPanel h3 {
-    color: #aa88ff;
+    color: #55aa66;
     font-size: 14px;
     margin-bottom: 8px;
     border-bottom: 1px solid #333;
@@ -303,8 +307,8 @@ body {
 }
 
 #statusPanel .upgrade-item:hover {
-    background-color: rgba(100, 50, 255, 0.3);
-    border-color: #8866ff;
+    background-color: rgba(40, 140, 60, 0.3);
+    border-color: #44aa55;
     transform: scale(1.1);
     z-index: 10;
 }
@@ -397,7 +401,7 @@ body {
 }
 
 #itemDescription {
-    background: linear-gradient(180deg, #1a1a2e, #0f0f1a);
+    background: linear-gradient(180deg, #101a15, #0a1008);
     border: 2px solid #ffcc00;
     border-radius: 15px;
     padding: 30px;
@@ -429,16 +433,16 @@ body {
 #itemDescription button {
     padding: 12px 35px;
     font-size: 16px;
-    background: linear-gradient(135deg, #6633ff, #9966ff);
+    background: linear-gradient(135deg, #228833, #55cc66);
     border: none;
     border-radius: 8px;
     color: white;
     cursor: pointer;
     transition: all 0.3s;
-    box-shadow: 0 0 15px rgba(100, 50, 255, 0.4);
+    box-shadow: 0 0 15px rgba(40, 140, 60, 0.4);
 }
 
 #itemDescription button:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 25px rgba(100, 50, 255, 0.7);
+    box-shadow: 0 0 25px rgba(40, 140, 60, 0.7);
 }
