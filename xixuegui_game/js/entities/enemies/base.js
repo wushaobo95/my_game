@@ -1,0 +1,172 @@
+var ArcSurvivors = ArcSurvivors || {};
+
+ArcSurvivors.Enemy = function(x, y, type) {
+    var CFG = ArcSurvivors.GAME_CONFIG;
+    var EC = CFG.ENEMY_TYPES[type];
+    var FR = CFG.FROST;
+    var EL = CFG.ENEMY_LEVEL;
+
+    this.x = x;
+    this.y = y;
+    this.type = type;
+    this.active = true;
+    this.frozen = false;
+    this.frozenTimer = 0;
+    this.slowed = false;
+    this.slowedTimer = 0;
+    this.canSplit = EC.CAN_SPLIT || false;
+    this.superArmor = EC.SUPER_ARMOR || false;
+
+    var gs = ArcSurvivors.gameState;
+    var df = gs.difficultyFactor;
+    var playerLevel = ArcSurvivors.player ? ArcSurvivors.player.level : 1;
+    this.level = playerLevel;
+
+    this.radius = EC.RADIUS;
+    this.speed = EC.SPEED * (1 + (this.level - 1) * EL.SPEED_SCALE_PER_LEVEL);
+    this.baseSpeed = this.speed;
+    this.hp = (EC.HP_BASE + df * EC.HP_SCALE) * (1 + (this.level - 1) * EL.HP_SCALE_PER_LEVEL);
+    this.maxHp = this.hp;
+    this.damage = EC.DAMAGE * (1 + (this.level - 1) * EL.DAMAGE_SCALE_PER_LEVEL);
+    this.color = EC.COLOR;
+    this.shape = EC.SHAPE;
+
+    if (type === 'ranged') {
+        this.shootTimer = 0;
+        this.shootInterval = EC.SHOOT_INTERVAL;
+    }
+
+    ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.ENEMY_SPAWN, this);
+};
+
+ArcSurvivors.Enemy.prototype.update = function(dt) {
+    var CFG = ArcSurvivors.GAME_CONFIG;
+    var FR = CFG.FROST;
+
+    if (this.frozen) {
+        this.frozenTimer -= dt;
+        if (this.frozenTimer <= 0) this.frozen = false;
+        return;
+    }
+
+    if (this.slowed) {
+        this.slowedTimer -= dt;
+        if (this.slowedTimer <= 0) {
+            this.slowed = false;
+            this.speed = this.baseSpeed;
+        }
+    }
+
+    var player = ArcSurvivors.player;
+    var dx = player.x - this.x;
+    var dy = player.y - this.y;
+    var dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist > 0) {
+        this.x += (dx / dist) * this.speed * dt * 60;
+        this.y += (dy / dist) * this.speed * dt * 60;
+    }
+
+    if (ArcSurvivors.Utils.distance(this.x, this.y, player.x, player.y) < this.radius + player.radius) {
+        player.takeDamage(this.damage);
+    }
+
+    if (this.type === 'ranged') {
+        var RC = CFG.ENEMY_TYPES.ranged;
+        var dist = ArcSurvivors.Utils.distance(this.x, this.y, player.x, player.y);
+
+        if (dist < RC.SHOOT_RANGE * 0.5) {
+            this.x -= (dx / dist) * this.speed * dt * 60;
+            this.y -= (dy / dist) * this.speed * dt * 60;
+        }
+
+        if (dist < RC.SHOOT_RANGE) {
+            this.shootTimer += dt;
+            if (this.shootTimer >= this.shootInterval) {
+                this.shootTimer = 0;
+                this.rangedShoot();
+            }
+        }
+    }
+};
+
+ArcSurvivors.Enemy.prototype.rangedShoot = function() {
+    var RC = ArcSurvivors.GAME_CONFIG.ENEMY_TYPES.ranged;
+    var player = ArcSurvivors.player;
+    var angle = Math.atan2(player.y - this.y, player.x - this.x);
+
+    ArcSurvivors.enemyBullets.push(new ArcSurvivors.EnemyBullet(
+        this.x, this.y,
+        angle,
+        RC.SHOOT_SPEED,
+        this.damage * RC.SHOOT_DAMAGE_SCALE
+    ));
+};
+
+ArcSurvivors.Enemy.prototype.takeDamage = function(damage) {
+    this.hp -= damage;
+    ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.ENEMY_HURT, this, damage);
+    if (this.hp <= 0) this.die();
+};
+
+ArcSurvivors.Enemy.prototype.die = function() {
+    var CFG = ArcSurvivors.GAME_CONFIG;
+    var BC = CFG.ENEMY_TYPES.boss;
+    var HE = CFG.HIT_EFFECTS;
+
+    this.active = false;
+    ArcSurvivors.gameState.kills++;
+    var player = ArcSurvivors.player;
+    ArcSurvivors.Audio.enemyDeath();
+
+    ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.ENEMY_DIE, this);
+
+    var gemType = Math.random() < BC.LARGE_GEM_CHANCE ? 'large' : 'small';
+    ArcSurvivors.gems.push(new ArcSurvivors.Gem(this.x, this.y, gemType, this.level));
+    if (Math.random() < BC.EXTRA_GEM_CHANCE) {
+        var offsetX = (Math.random() - 0.5) * 30;
+        var offsetY = (Math.random() - 0.5) * 30;
+        ArcSurvivors.gems.push(new ArcSurvivors.Gem(this.x + offsetX, this.y + offsetY, 'small', this.level));
+    }
+    ArcSurvivors.trySpawnBuffItem(this.x, this.y);
+
+    if (player.hasVampireMask) {
+        player.hp = Math.min(player.maxHp, player.hp + CFG.VAMPIRE_MASK.HEAL_AMOUNT);
+        ArcSurvivors.spawnParticles(player.x, player.y, 3, 'rgb(255,0,0)', 3, 2);
+    }
+
+    if (player.hasKillExplosion) {
+        var KE = CFG.KILL_EXPLOSION;
+        var enemies = ArcSurvivors.enemies;
+        for (var j = 0; j < enemies.length; j++) {
+            var e = enemies[j];
+            if (e !== this && e.active) {
+                if (ArcSurvivors.Utils.distance(e.x, e.y, this.x, this.y) < KE.RADIUS) {
+                    e.takeDamage(player.attackPower * KE.DAMAGE_SCALE);
+                }
+            }
+        }
+        ArcSurvivors.spawnParticles(this.x, this.y, KE.PARTICLE_COUNT, 'rgb(255,136,68)', 8, 5);
+    }
+
+    ArcSurvivors.spawnParticles(this.x, this.y, 8, 'rgb(' + this.hexToRgb(this.color) + ')', 5, 3);
+
+    if (this.type === 'split' && this.canSplit) {
+        for (var j = 0; j < 2; j++) {
+            var angle = Math.random() * Math.PI * 2;
+            ArcSurvivors.enemies.push(new ArcSurvivors.Enemy(
+                this.x + Math.cos(angle) * 20,
+                this.y + Math.sin(angle) * 20,
+                'mini'
+            ));
+        }
+    }
+
+    ArcSurvivors.screenShake.intensity = HE.NORMAL_SHAKE_INTENSITY;
+    ArcSurvivors.screenShake.duration = HE.NORMAL_SHAKE_DURATION;
+};
+
+ArcSurvivors.Enemy.prototype.hexToRgb = function(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? parseInt(result[1], 16) + ',' + parseInt(result[2], 16) + ',' + parseInt(result[3], 16) : '255,0,0';
+};
