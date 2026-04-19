@@ -44,12 +44,17 @@ ArcSurvivors.BossBase = function(x, y, bossConfig) {
     this.color = BC.COLOR;
 
     // Boss序号（从0开始）
-    var bossIndex = ArcSurvivors.BossRegistry ? ArcSurvivors.BossRegistry.spawnCount : 0;
+    var bossIndex = ArcSurvivors.BossRegistry ? ArcSurvivors.BossRegistry.spawnCount - 1 : 0;
     var scaling = EL.BOSS_SCALING;
     
-    // 计算血量和伤害倍率（第3个boss后大幅提高）
-    var hpMultiplier = bossIndex >= scaling.THRESHOLD ? scaling.HP_MULTIPLIER : 1;
-    var damageMultiplier = bossIndex >= scaling.THRESHOLD ? scaling.DAMAGE_MULTIPLIER : 1;
+    // 计算血量和伤害倍率
+    // 前2个Boss削弱50%，第3个开始正常，第4个后大幅提高
+    var hpMultiplier = 0.5;  // 默认削弱50%
+    if (bossIndex >= 2) hpMultiplier = 1;  // 第3个正常
+    if (bossIndex >= 3) hpMultiplier = scaling.HP_MULTIPLIER;  // 第4个后大幅提高
+    
+    var damageMultiplier = 1;
+    if (bossIndex >= 3) damageMultiplier = scaling.DAMAGE_MULTIPLIER;
 
     var bossLevelScale = 1 + (playerLevel - 1) * EL.BOSS_HP_SCALE_PER_LEVEL;
     this.hp = (BC.HP_BASE * bossLevelScale + df * BC.HP_SCALE) * hpMultiplier;
@@ -352,18 +357,61 @@ ArcSurvivors.BossBase.prototype.draw = function(ctx) {
     // 激光绘制
     this.drawLaser(ctx);
 
-    // Boss本体绘制
-    var spriteName = 'enemy_boss';
-    if (RL && RL.hasSprite(spriteName)) {
-        var sprite = RL.getSprite(spriteName);
-        ctx.drawImage(sprite,
-            this.x - this.radius,
-            this.y - this.radius,
-            this.radius * 2,
-            this.radius * 2);
-        if (this.hp < this.maxHp && this.hp > 0) {
-            this._drawHpBar(ctx, BC);
+    // Boss本体绘制 - 支持16种Boss外观
+    var bossType = this.bossType || 'goat';
+    var spriteInfo = null;
+    
+    // Boss精灵图映射 (16种)
+    var BOSS_SPRITE_MAP = {
+        'goat':    { sheet: 'bosses', row: 0, col: 0 },
+        'fox':     { sheet: 'bosses', row: 0, col: 1 },
+        'deer':    { sheet: 'bosses', row: 0, col: 2 },
+        'eagle':   { sheet: 'bosses', row: 0, col: 3 },
+        'snake':   { sheet: 'bosses', row: 1, col: 0 },
+        'boar':    { sheet: 'bosses', row: 1, col: 1 },
+        'wolf':    { sheet: 'bosses', row: 1, col: 2 },
+        'horse':   { sheet: 'bosses', row: 1, col: 3 },
+        'cow':     { sheet: 'bosses', row: 2, col: 0 },
+        'leopard': { sheet: 'bosses', row: 2, col: 1 },
+        'croc':    { sheet: 'bosses', row: 2, col: 2 },
+        'bear':    { sheet: 'bosses', row: 2, col: 3 },
+        'lion':    { sheet: 'bosses', row: 3, col: 0 },
+        'tiger':   { sheet: 'bosses', row: 3, col: 1 },
+        'rhino':   { sheet: 'bosses', row: 3, col: 2 },
+        'elephant':{ sheet: 'bosses', row: 3, col: 3 }
+    };
+    
+    // 使用合图精灵
+    if (RL && RL.hasSpriteSheet('bosses')) {
+        var map = BOSS_SPRITE_MAP[bossType];
+        if (map) {
+            var sheet = RL.getSpriteSheets ? RL.getSpriteSheets().bosses : null;
+            if (sheet) {
+                var cfg = sheet.config || { cellWidth: 256, cellHeight: 256 };
+                spriteInfo = {
+                    image: sheet.image,
+                    sx: map.col * cfg.cellWidth,
+                    sy: map.row * cfg.cellHeight,
+                    sw: cfg.cellWidth,
+                    sh: cfg.cellHeight
+                };
+            }
         }
+    }
+    
+    if (spriteInfo) {
+        // Boss比小怪大50%
+        var drawRadius = this.radius * 1.5;
+        ctx.drawImage(
+            spriteInfo.image,
+            spriteInfo.sx, spriteInfo.sy,
+            spriteInfo.sw, spriteInfo.sh,
+            this.x - drawRadius,
+            this.y - drawRadius,
+            drawRadius * 2,
+            drawRadius * 2);
+        // Boss总是显示血条
+        this._drawHpBar(ctx, BC);
     } else {
         ctx.shadowColor = this.color;
         ctx.shadowBlur = RC.SHADOW_BLUR;
@@ -396,9 +444,8 @@ ArcSurvivors.BossBase.prototype.draw = function(ctx) {
         ctx.fillStyle = BC.EYE_COLOR;
         ctx.fill();
 
-        if (this.hp < this.maxHp && this.hp > 0) {
-            this._drawHpBar(ctx, BC);
-        }
+        // Boss总是显示血条
+        this._drawHpBar(ctx, BC);
     }
 
     // 伤害减免被动：绘制护盾标记
@@ -537,5 +584,7 @@ ArcSurvivors.BossBase.prototype._drawHpBar = function(ctx, BC) {
     ctx.fillStyle = BC.NAME_COLOR;
     ctx.font = BC.NAME_FONT;
     ctx.textAlign = 'center';
-    ctx.fillText(BC.NAME_LABEL, this.x, barY - 5);
+    var bossIndex = ArcSurvivors.BossRegistry ? ArcSurvivors.BossRegistry.spawnCount - 1 : 0;
+    var bossName = BC.getName ? BC.getName(bossIndex) : '兽王';
+    ctx.fillText(bossName, this.x, barY - 5);
 };

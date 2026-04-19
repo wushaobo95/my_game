@@ -62,6 +62,7 @@ ArcSurvivors.updatePoisonFog = function(boss, dt) {
             
             // 减速效果
             if (!player.slowed) {
+                player.baseSpeed = player.speed;
                 player.speed *= PF.SLOW_FACTOR;
                 player.slowed = true;
             }

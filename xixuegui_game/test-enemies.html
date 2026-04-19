@@ -11,6 +11,7 @@
             padding: 20px;
         }
         h1 { color: #8bc34a; }
+        h2 { color: #9ccc65; margin-bottom: 10px; }
         .test-container {
             background: #2d2d2d;
             padding: 20px;
@@ -32,14 +33,21 @@
             background: #8bc34a;
             color: #1a1a1a;
             border: none;
-            padding: 10px 20px;
-            font-size: 16px;
+            padding: 8px 14px;
+            font-size: 14px;
             cursor: pointer;
             border-radius: 4px;
-            margin: 5px;
+            margin: 3px;
         }
         button:hover {
             background: #9ccc65;
+        }
+        .btn-group {
+            margin: 5px 0;
+        }
+        .btn-group button {
+            background: #4a4a4a;
+            color: #fff;
         }
     </style>
 </head>
@@ -65,14 +73,9 @@
     <div class="test-container">
         <h2>敌人绘制测试</h2>
         <div id="drawStatus" class="status">未开始绘制测试</div>
-        <canvas id="enemyCanvas" width="800" height="400"></canvas>
-        <div style="margin-top: 10px;">
+        <canvas id="enemyCanvas" width="900" height="650"></canvas>
+        <div class="btn-group">
             <button onclick="drawAllEnemies()">绘制所有敌人类型</button>
-            <button onclick="drawEnemy('normal')">蜘蛛</button>
-            <button onclick="drawEnemy('fast')">蝙蝠</button>
-            <button onclick="drawEnemy('split')">蚱蜢</button>
-            <button onclick="drawEnemy('mini')">蜜蜂</button>
-            <button onclick="drawEnemy('ranged')">蝴蝶</button>
         </div>
     </div>
 
@@ -84,16 +87,36 @@
     <script src="js/core/utils.js"></script>
 
     <script>
+        // 16种敌人类型配置
+        var ENEMY_TYPE_NAMES = {
+            'normal': '森林毒蜘蛛',
+            'fast': '树洞小蝙蝠',
+            'split': '大蚱蜢母体',
+            'mini': '小蚱蜢',
+            'ranged': '花丛大黄蜂',
+            'butterfly': '迷幻蝶',
+            'ant': '军团蚁',
+            'ladybug': '幸运瓢虫',
+            'rat': '棕色老鼠',
+            'cockroach': '不死螂',
+            'mantis': '刀锋螳螂',
+            'fly': '烦人蝇',
+            'dragonfly': '极速蜻蜓',
+            'mosquito': '吸血蚊',
+            'hedgehog': '刺球猬',
+            'gecko': '壁虎蜥'
+        };
+
         function updateStatus(id, message, isError) {
-            const el = document.getElementById(id);
+            var el = document.getElementById(id);
             el.textContent = message;
             el.className = isError ? 'status error' : 'status success';
         }
 
         function updateProgress(loaded, total) {
-            const percent = Math.round((loaded / total) * 100);
+            var percent = Math.round((loaded / total) * 100);
             document.getElementById('progressFill').style.width = percent + '%';
-            updateStatus('loadStatus', `加载中: ${loaded}/${total} (${percent}%)`);
+            updateStatus('loadStatus', '加载中: ' + loaded + '/' + total + ' (' + percent + '%)');
         }
 
         function startLoading() {
@@ -111,27 +134,24 @@
         }
 
         function testSpriteSheet() {
-            const RL = ArcSurvivors.ResourceLoader;
-            const canvas = document.getElementById('sheetPreview');
-            const ctx = canvas.getContext('2d');
+            var RL = ArcSurvivors.ResourceLoader;
+            var canvas = document.getElementById('sheetPreview');
+            var ctx = canvas.getContext('2d');
             
             if (!RL.hasSpriteSheet('enemies')) {
                 updateStatus('sheetStatus', '合图未加载或加载失败', true);
                 return;
             }
             
-            // 绘制完整的合图
-            const sheetInfo = RL.getSpriteFromSheet('normal');
+            var sheetInfo = RL.getSpriteFromSheet('normal');
             if (sheetInfo && sheetInfo.image) {
-                // 合图可能是2048x2048，需要缩放显示
                 ctx.drawImage(sheetInfo.image, 0, 0, 512, 512);
-                updateStatus('sheetStatus', '合图加载成功！显示4x4网格预览', false);
+                updateStatus('sheetStatus', '合图加载成功！显示5x5网格预览', false);
                 
-                // 绘制网格线
                 ctx.strokeStyle = 'rgba(139, 195, 74, 0.5)';
                 ctx.lineWidth = 1;
-                for (let i = 1; i < 4; i++) {
-                    const pos = (i / 4) * 512;
+                for (var i = 1; i < 5; i++) {
+                    var pos = (i / 5) * 512;
                     ctx.beginPath();
                     ctx.moveTo(pos, 0);
                     ctx.lineTo(pos, 512);
@@ -144,135 +164,149 @@
             }
         }
 
-        function drawEnemy(type) {
-            const canvas = document.getElementById('enemyCanvas');
-            const ctx = canvas.getContext('2d');
-            const RL = ArcSurvivors.ResourceLoader;
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            if (!RL.hasSpriteSheet('enemies')) {
-                updateStatus('drawStatus', '合图未加载', true);
-                return;
-            }
-            
-            const spriteInfo = RL.getSpriteFromSheet(type);
-            if (!spriteInfo) {
-                updateStatus('drawStatus', '无法获取精灵: ' + type, true);
-                return;
-            }
-            
-            // 在画布中央绘制敌人
-            const x = canvas.width / 2;
-            const y = canvas.height / 2;
-            const radius = 50;
-            
-            ctx.save();
-            ctx.translate(x, y);
-            
-            // 绘制范围圆（调试用）
-            ctx.strokeStyle = 'rgba(139, 195, 74, 0.3)';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.arc(0, 0, radius, 0, Math.PI * 2);
-            ctx.stroke();
-            
-            // 绘制精灵
-            ctx.drawImage(
-                spriteInfo.image,
-                spriteInfo.sx, spriteInfo.sy,
-                spriteInfo.sw, spriteInfo.sh,
-                -radius, -radius,
-                radius * 2, radius * 2
-            );
-            
-            ctx.restore();
-            
-            // 显示信息
-            ctx.fillStyle = '#8bc34a';
-            ctx.font = '16px Arial';
-            ctx.textAlign = 'left';
-            const typeNames = {
-                'normal': '蜘蛛 (Spider)',
-                'fast': '蝙蝠 (Bat)',
-                'split': '蚱蜢 (Grasshopper)',
-                'mini': '蜜蜂 (Bee)',
-                'ranged': '蝴蝶 (Butterfly)'
-            };
-            ctx.fillText('类型: ' + typeNames[type] || type, 20, 30);
-            ctx.fillText('合图位置: 从合图切取', 20, 55);
-            
-            updateStatus('drawStatus', typeNames[type] + ' 绘制成功', false);
-        }
-
         function drawAllEnemies() {
-            const canvas = document.getElementById('enemyCanvas');
-            const ctx = canvas.getContext('2d');
-            const RL = ArcSurvivors.ResourceLoader;
+            var canvas = document.getElementById('enemyCanvas');
+            var ctx = canvas.getContext('2d');
+            var RL = ArcSurvivors.ResourceLoader;
             
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             if (!RL.hasSpriteSheet('enemies')) {
-                updateStatus('drawStatus', '合图未加载', true);
+                updateStatus('drawStatus', '合图未加载 - 使用Canvas绘制测试', true);
+                drawAllEnemiesCanvas(ctx);
                 return;
             }
             
-            const types = ['normal', 'fast', 'split', 'mini', 'ranged'];
-            const typeNames = {
-                'normal': '蜘蛛',
-                'fast': '蝙蝠',
-                'split': '蚱蜢',
-                'mini': '蜜蜂',
-                'ranged': '蝴蝶'
-            };
+            var types = Object.keys(ENEMY_TYPE_NAMES);
             
-            const startX = 80;
-            const startY = 120;
-            const spacing = 140;
-            const radius = 50;
+            var startX = 100;
+            var startY = 130;
+            var cols = 5;
+            var spacingX = 160;
+            var spacingY = 150;
+            var radius = 50;
             
             ctx.fillStyle = '#8bc34a';
-            ctx.font = 'bold 20px Arial';
+            ctx.font = 'bold 22px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('所有敌人类型预览 (5种)', canvas.width / 2, 40);
+            ctx.fillText('所有敌人类型预览 (' + types.length + '种)', canvas.width / 2, 40);
+            
+            ctx.fillStyle = '#aaa';
+            ctx.font = '12px Arial';
+            ctx.fillText('点击敌人名称按钮可单独绘制', canvas.width / 2, 65);
             
             for (var i = 0; i < types.length; i++) {
                 var type = types[i];
                 var spriteInfo = RL.getSpriteFromSheet(type);
                 
-                if (!spriteInfo) continue;
-                
-                var x = startX + (i % 5) * spacing;
-                var y = startY + Math.floor(i / 5) * 160;
+                var col = i % cols;
+                var row = Math.floor(i / cols);
+                var x = startX + col * spacingX;
+                var y = startY + row * spacingY;
                 
                 ctx.save();
                 ctx.translate(x, y);
                 
                 // 绘制背景圆
-                ctx.fillStyle = 'rgba(139, 195, 74, 0.1)';
+                ctx.fillStyle = 'rgba(139, 195, 74, 0.15)';
                 ctx.beginPath();
                 ctx.arc(0, 0, radius + 5, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // 绘制精灵
-                ctx.drawImage(
-                    spriteInfo.image,
-                    spriteInfo.sx, spriteInfo.sy,
-                    spriteInfo.sw, spriteInfo.sh,
-                    -radius, -radius,
-                    radius * 2, radius * 2
-                );
+                // 边框
+                ctx.strokeStyle = 'rgba(139, 195, 74, 0.4)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                
+                if (spriteInfo) {
+                    // 绘制精灵
+                    ctx.drawImage(
+                        spriteInfo.image,
+                        spriteInfo.sx, spriteInfo.sy,
+                        spriteInfo.sw, spriteInfo.sh,
+                        -radius, -radius,
+                        radius * 2, radius * 2
+                    );
+                } else {
+                    // 无精灵图时显示问号
+                    ctx.fillStyle = '#666';
+                    ctx.font = 'bold 30px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('?', 0, 0);
+                }
                 
                 ctx.restore();
                 
-                // 绘制名称
+                // 绘制名称和类型
                 ctx.fillStyle = '#aaa';
-                ctx.font = '14px Arial';
+                ctx.font = 'bold 13px Arial';
                 ctx.textAlign = 'center';
-                ctx.fillText(typeNames[type], x, y + radius + 25);
+                ctx.fillText(ENEMY_TYPE_NAMES[type], x, y + radius + 22);
+                
+                ctx.fillStyle = '#666';
+                ctx.font = '11px Arial';
+                ctx.fillText('(' + type + ')', x, y + radius + 36);
             }
             
-            updateStatus('drawStatus', '所有敌人类型绘制完成', false);
+            updateStatus('drawStatus', '所有敌人类型绘制完成: ' + types.length + '种', false);
+        }
+
+        // Canvas绘制测试（无精灵图时）
+        function drawAllEnemiesCanvas(ctx) {
+            var canvas = document.getElementById('enemyCanvas');
+            ctx = ctx || canvas.getContext('2d');
+            
+            var types = Object.keys(ENEMY_TYPE_NAMES);
+            
+            var startX = 100;
+            var startY = 130;
+            var cols = 5;
+            var spacingX = 160;
+            var spacingY = 150;
+            var radius = 40;
+            
+            ctx.fillStyle = '#8bc34a';
+            ctx.font = 'bold 22px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('所有敌人类型预览 - Canvas绘制', canvas.width / 2, 40);
+            
+            // 模拟敌人对象
+            for (var i = 0; i < types.length; i++) {
+                var type = types[i];
+                
+                var col = i % cols;
+                var row = Math.floor(i / cols);
+                var x = startX + col * spacingX;
+                var y = startY + row * spacingY;
+                
+                // 绘制测试圆
+                ctx.save();
+                ctx.translate(x, y);
+                
+                ctx.fillStyle = 'rgba(100, 150, 100, 0.3)';
+                ctx.beginPath();
+                ctx.arc(0, 0, radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#8bc34a';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(type.substring(0, 3).toUpperCase(), 0, 0);
+                
+                ctx.restore();
+                
+                ctx.fillStyle = '#aaa';
+                ctx.font = 'bold 13px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(ENEMY_TYPE_NAMES[type], x, y + radius + 22);
+            }
+            
+            updateStatus('drawStatus', 'Canvas测试绘制完成', false);
         }
     </script>
 </body>

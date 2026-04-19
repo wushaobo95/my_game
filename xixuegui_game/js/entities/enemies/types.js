@@ -109,6 +109,39 @@ ArcSurvivors.Enemy.prototype.draw = function(ctx) {
             case 'ranged':
                 this.drawBee(ctx, x, y, r);
                 break;
+            case 'butterfly':
+                this.drawButterfly(ctx, x, y, r);
+                break;
+            case 'ant':
+                this.drawAnt(ctx, x, y, r);
+                break;
+            case 'ladybug':
+                this.drawLadybug(ctx, x, y, r);
+                break;
+            case 'cockroach':
+                this.drawCockroach(ctx, x, y, r);
+                break;
+            case 'mantis':
+                this.drawMantis(ctx, x, y, r);
+                break;
+            case 'fly':
+                this.drawFly(ctx, x, y, r);
+                break;
+            case 'dragonfly':
+                this.drawDragonfly(ctx, x, y, r);
+                break;
+            case 'mosquito':
+                this.drawMosquito(ctx, x, y, r);
+                break;
+            case 'hedgehog':
+                this.drawHedgehog(ctx, x, y, r);
+                break;
+            case 'gecko':
+                this.drawGecko(ctx, x, y, r);
+                break;
+            case 'rat':
+                this.drawRat(ctx, x, y, r);
+                break;
             default:
                 ctx.beginPath();
                 ctx.arc(x, y, r, 0, Math.PI * 2);
@@ -520,6 +553,735 @@ ArcSurvivors.Enemy.prototype.drawBee = function(ctx, x, y, r) {
     ctx.lineTo(r * 0.08, r * 1.05);
     ctx.closePath();
     ctx.fill();
+
+    ctx.restore();
+};
+
+ArcSurvivors.Enemy.prototype.drawButterfly = function(ctx, x, y, r) {
+    var t = Date.now() / 200;
+    var wingFlap = Math.sin(t) * 0.6;
+
+    ctx.save();
+    ctx.translate(x, y);
+
+    ctx.fillStyle = 'rgba(200,100,255,0.7)';
+    ctx.strokeStyle = '#9932CC';
+    ctx.lineWidth = 1;
+
+    ctx.beginPath();
+    ctx.ellipse(-r * 0.8, -r * 0.3, r * 0.7, r * 0.5, wingFlap, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(r * 0.8, -r * 0.3, r * 0.7, r * 0.5, -wingFlap, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(-r * 0.5, r * 0.6, r * 0.4, r * 0.3, wingFlap * 0.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(r * 0.5, r * 0.6, r * 0.4, r * 0.3, -wingFlap * 0.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.4, r * 0.15, r * 0.25, 0, 0, Math.PI * 2);
+    ctx.fillStyle = '#333';
+    ctx.fill();
+
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(-r * 0.05, -r * 0.45, r * 0.04, 0, Math.PI * 2);
+    ctx.arc(r * 0.05, -r * 0.45, r * 0.04, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#9932CC';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(0, -r * 0.2);
+    ctx.lineTo(-r * 0.15, r * 0.1);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, -r * 0.2);
+    ctx.lineTo(r * 0.15, r * 0.1);
+    ctx.stroke();
+
+    ctx.restore();
+};
+
+ArcSurvivors.Enemy.prototype.drawAnt = function(ctx, x, y, r) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    r = r * 1.2;
+
+    ctx.fillStyle = '#8B0000';
+    ctx.strokeStyle = '#5c0000';
+    ctx.lineWidth = 1;
+
+    ctx.beginPath();
+    ctx.ellipse(0, r * 0.5, r * 0.35, r * 0.25, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(0, r * 0.15, r * 0.3, r * 0.22, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.15, r * 0.25, r * 0.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.45, r * 0.2, r * 0.15, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#222';
+    ctx.beginPath();
+    ctx.arc(-r * 0.08, -r * 0.5, r * 0.06, 0, Math.PI * 2);
+    ctx.arc(r * 0.08, -r * 0.5, r * 0.06, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#5c0000';
+    ctx.lineWidth = 1.5;
+
+    for (var i = 0; i < 3; i++) {
+        var side = i < 1.5 ? -1 : 1;
+        var yPos = r * 0.1 - i * r * 0.25;
+        ctx.beginPath();
+        ctx.moveTo(side * r * 0.15, yPos);
+        ctx.lineTo(side * r * 0.4, yPos + r * 0.15);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(side * r * 0.15, yPos);
+        ctx.lineTo(side * r * 0.4, yPos - r * 0.15);
+        ctx.stroke();
+    }
+
+    ctx.restore();
+};
+
+ArcSurvivors.Enemy.prototype.drawLadybug = function(ctx, x, y, r) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    ctx.beginPath();
+    ctx.ellipse(0, 0, r * 0.7, r * 0.75, 0, 0, Math.PI * 2);
+    ctx.fillStyle = '#DC143C';
+    ctx.fill();
+    ctx.strokeStyle = '#222';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.strokeStyle = '#222';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, -r * 0.7);
+    ctx.lineTo(0, r * 0.7);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.3, 0);
+    ctx.lineTo(-r * 0.1, r * 0.5);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(r * 0.3, 0);
+    ctx.lineTo(r * 0.1, r * 0.5);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.25, -r * 0.2);
+    ctx.lineTo(-r * 0.1, -r * 0.5);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(r * 0.25, -r * 0.2);
+    ctx.lineTo(r * 0.1, -r * 0.5);
+    ctx.stroke();
+
+    ctx.fillStyle = '#111';
+    ctx.beginPath();
+    ctx.ellipse(-r * 0.2, -r * 0.35, r * 0.15, r * 0.12, 0, 0, Math.PI * 2);
+    ctx.ellipse(r * 0.2, -r * 0.35, r * 0.15, r * 0.12, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(-r * 0.22, -r * 0.38, r * 0.04, 0, Math.PI * 2);
+    ctx.arc(r * 0.18, -r * 0.38, r * 0.04, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.arc(-r * 0.22, -r * 0.38, r * 0.02, 0, Math.PI * 2);
+    ctx.arc(r * 0.18, -r * 0.38, r * 0.02, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+};
+
+ArcSurvivors.Enemy.prototype.drawCockroach = function(ctx, x, y, r) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    ctx.fillStyle = '#4A4A4A';
+    ctx.strokeStyle = '#2a2a2a';
+    ctx.lineWidth = 1;
+
+    ctx.beginPath();
+    ctx.ellipse(0, r * 0.3, r * 0.6, r * 0.4, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.2, r * 0.5, r * 0.35, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.55, r * 0.35, r * 0.25, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.85, r * 0.15, r * 0.1, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#222';
+    ctx.beginPath();
+    ctx.arc(-r * 0.12, -r * 0.55, r * 0.05, 0, Math.PI * 2);
+    ctx.arc(r * 0.12, -r * 0.55, r * 0.05, 0, Math.PI * 2);
+    ctx.arc(0, -r * 0.5, r * 0.03, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#666';
+    ctx.lineWidth = 1;
+    for (var i = 0; i < 3; i++) {
+        var side = i === 0 ? -1 : 1;
+        var yPos = r * 0.1 + i * r * 0.25;
+        ctx.beginPath();
+        ctx.moveTo(side * r * 0.2, yPos);
+        ctx.lineTo(side * r * 0.5, yPos - r * 0.1);
+        ctx.stroke();
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.15, -r * 0.1);
+    ctx.quadraticCurveTo(-r * 0.25, r * 0.3, -r * 0.15, r * 0.4);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(r * 0.15, -r * 0.1);
+    ctx.quadraticCurveTo(r * 0.25, r * 0.3, r * 0.15, r * 0.4);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, -r * 0.1);
+    ctx.lineTo(0, r * 0.35);
+    ctx.stroke();
+
+    ctx.restore();
+};
+
+ArcSurvivors.Enemy.prototype.drawMantis = function(ctx, x, y, r) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    ctx.fillStyle = '#228B22';
+    ctx.strokeStyle = '#006400';
+    ctx.lineWidth = 1.5;
+
+    ctx.beginPath();
+    ctx.ellipse(0, r * 0.5, r * 0.3, r * 0.25, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(0, r * 0.15, r * 0.25, r * 0.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.2, r * 0.22, r * 0.18, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.5, r * 0.18, r * 0.15, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#111';
+    ctx.beginPath();
+    ctx.arc(-r * 0.08, -r * 0.55, r * 0.05, 0, Math.PI * 2);
+    ctx.arc(r * 0.08, -r * 0.55, r * 0.05, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#228B22';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.3, -r * 0.15);
+    ctx.lineTo(-r * 0.8, -r * 0.6);
+    ctx.lineTo(-r * 0.95, -r * 0.5);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(r * 0.3, -r * 0.15);
+    ctx.lineTo(r * 0.8, -r * 0.6);
+    ctx.lineTo(r * 0.95, -r * 0.5);
+    ctx.stroke();
+
+    ctx.fillStyle = '#ccc';
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.95, -r * 0.5);
+    ctx.lineTo(-r * 0.88, -r * 0.42);
+    ctx.lineTo(-r * 0.85, -r * 0.55);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(r * 0.95, -r * 0.5);
+    ctx.lineTo(r * 0.88, -r * 0.42);
+    ctx.lineTo(r * 0.85, -r * 0.55);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+};
+
+ArcSurvivors.Enemy.prototype.drawFly = function(ctx, x, y, r) {
+    var t = Date.now() / 100;
+    var wingVib = Math.sin(t * 3) * 0.3;
+
+    ctx.save();
+    ctx.translate(x, y);
+
+    ctx.fillStyle = '#1a1a1a';
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 1;
+
+    ctx.beginPath();
+    ctx.ellipse(0, r * 0.1, r * 0.4, r * 0.3, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(0, -r * 0.2, r * 0.25, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(200,200,200,0.6)';
+    ctx.strokeStyle = 'rgba(150,150,150,0.8)';
+    ctx.lineWidth = 0.5;
+
+    ctx.beginPath();
+    ctx.ellipse(-r * 0.3, -r * 0.1 + wingVib * r, r * 0.35, r * 0.15, 0.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(r * 0.3, -r * 0.1 + wingVib * r, r * 0.35, r * 0.15, -0.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#cc0000';
+    ctx.beginPath();
+    ctx.arc(0, -r * 0.25, r * 0.06, 0, Math.PI * 2);
+    ctx.arc(-r * 0.15, -r * 0.15, r * 0.04, 0, Math.PI * 2);
+    ctx.arc(r * 0.15, -r * 0.15, r * 0.04, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#888';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.06, r * 0.35);
+    ctx.lineTo(-r * 0.06, r * 0.5);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(r * 0.06, r * 0.35);
+    ctx.lineTo(r * 0.06, r * 0.5);
+    ctx.stroke();
+
+    ctx.restore();
+};
+
+ArcSurvivors.Enemy.prototype.drawDragonfly = function(ctx, x, y, r) {
+    var t = Date.now() / 100;
+    var wingFlap = Math.sin(t) * 0.5;
+
+    ctx.save();
+    ctx.translate(x, y);
+
+    ctx.fillStyle = this.color;
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1;
+
+    ctx.beginPath();
+    ctx.ellipse(0, 0, r * 0.3, r * 0.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(0, -r * 0.4, r * 0.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(100,200,255,0.5)';
+    ctx.strokeStyle = 'rgba(50,150,200,0.7)';
+    ctx.lineWidth = 0.5;
+
+    ctx.beginPath();
+    ctx.ellipse(-r * 0.7, -r * 0.3, r * 0.6, r * 0.2, wingFlap * 0.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(r * 0.7, -r * 0.3, r * 0.6, r * 0.2, -wingFlap * 0.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(-r * 0.6, r * 0.3, r * 0.5, r * 0.15, -wingFlap * 0.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(r * 0.6, r * 0.3, r * 0.5, r * 0.15, wingFlap * 0.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#111';
+    ctx.beginPath();
+    ctx.arc(0, -r * 0.45, r * 0.08, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#00CED1';
+    ctx.beginPath();
+    ctx.ellipse(0, r * 0.6, r * 0.08, r * 0.15, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+};
+
+ArcSurvivors.Enemy.prototype.drawMosquito = function(ctx, x, y, r) {
+    var t = Date.now() / 80;
+    var wingFlap = Math.sin(t * 2) * 0.4;
+
+    ctx.save();
+    ctx.translate(x, y);
+
+    ctx.fillStyle = '#800080';
+    ctx.strokeStyle = '#4b008b';
+    ctx.lineWidth = 1;
+
+    ctx.beginPath();
+    ctx.ellipse(0, r * 0.2, r * 0.25, r * 0.4, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.3, r * 0.25, r * 0.25, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.6, r * 0.2, r * 0.15, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#111';
+    ctx.beginPath();
+    ctx.arc(-r * 0.08, -r * 0.65, r * 0.04, 0, Math.PI * 2);
+    ctx.arc(r * 0.08, -r * 0.65, r * 0.04, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(200,150,255,0.6)';
+    ctx.strokeStyle = 'rgba(150,100,200,0.8)';
+    ctx.lineWidth = 0.5;
+
+    ctx.beginPath();
+    ctx.ellipse(-r * 0.4, r * 0.1 + wingFlap * r, r * 0.35, r * 0.12, 0.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(r * 0.4, r * 0.1 + wingFlap * r, r * 0.35, r * 0.12, -0.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.strokeStyle = '#4b008b';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(0, r * 0.5);
+    ctx.lineTo(-r * 0.05, r * 1.0);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, r * 0.5);
+    ctx.lineTo(r * 0.05, r * 1.0);
+    ctx.stroke();
+
+    ctx.fillStyle = '#800080';
+    ctx.beginPath();
+    ctx.moveTo(0, r * 1.0);
+    ctx.lineTo(-r * 0.05, r * 0.9);
+    ctx.lineTo(r * 0.05, r * 0.9);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+};
+
+ArcSurvivors.Enemy.prototype.drawHedgehog = function(ctx, x, y, r) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    ctx.fillStyle = '#8B4513';
+    ctx.strokeStyle = '#5c2d0a';
+    ctx.lineWidth = 1.5;
+
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 0.6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.35, r * 0.4, r * 0.3, 0, Math.PI, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#3d1f08';
+    ctx.lineWidth = 2;
+    for (var i = 0; i < 12; i++) {
+        var angle = (i / 12) * Math.PI + Math.PI;
+        var length = r * 0.5 + Math.random() * r * 0.2;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(angle) * r * 0.4, Math.sin(angle) * r * 0.4);
+        ctx.lineTo(Math.cos(angle) * length, Math.sin(angle) * length);
+        ctx.stroke();
+    }
+
+    ctx.fillStyle = '#333';
+    ctx.beginPath();
+    ctx.ellipse(-r * 0.15, -r * 0.35, r * 0.08, r * 0.06, 0, 0, Math.PI * 2);
+    ctx.ellipse(r * 0.15, -r * 0.35, r * 0.08, r * 0.06, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#ff4444';
+    ctx.beginPath();
+    ctx.arc(-r * 0.15, -r * 0.35, r * 0.03, 0, Math.PI * 2);
+    ctx.arc(r * 0.15, -r * 0.35, r * 0.03, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#222';
+    ctx.beginPath();
+    ctx.ellipse(0, r * 0.05, r * 0.08, r * 0.05, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#5c2d0a';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.2, r * 0.2);
+    ctx.lineTo(-r * 0.3, r * 0.5);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(r * 0.2, r * 0.2);
+    ctx.lineTo(r * 0.3, r * 0.5);
+    ctx.stroke();
+
+    ctx.restore();
+};
+
+ArcSurvivors.Enemy.prototype.drawGecko = function(ctx, x, y, r) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    ctx.fillStyle = '#6B8E23';
+    ctx.strokeStyle = '#4a6318';
+    ctx.lineWidth = 1.5;
+
+    ctx.beginPath();
+    ctx.ellipse(0, r * 0.3, r * 0.35, r * 0.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.35, r * 0.3, r * 0.25, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.65, r * 0.2, r * 0.15, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#ffcc00';
+    ctx.beginPath();
+    ctx.ellipse(-r * 0.12, -r * 0.72, r * 0.08, r * 0.1, -0.3, 0, Math.PI * 2);
+    ctx.ellipse(r * 0.12, -r * 0.72, r * 0.08, r * 0.1, 0.3, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#111';
+    ctx.beginPath();
+    ctx.ellipse(-r * 0.12, -r * 0.72, r * 0.04, r * 0.06, 0, 0, Math.PI * 2);
+    ctx.ellipse(r * 0.12, -r * 0.72, r * 0.04, r * 0.06, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#4a6318';
+    ctx.lineWidth = 1.5;
+
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.15, r * 0.35);
+    ctx.lineTo(-r * 0.4, r * 0.55);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(r * 0.15, r * 0.35);
+    ctx.lineTo(r * 0.4, r * 0.55);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.12, r * 0.45);
+    ctx.lineTo(-r * 0.35, r * 0.7);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(r * 0.12, r * 0.45);
+    ctx.lineTo(r * 0.35, r * 0.7);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.23, -r * 0.45);
+    ctx.lineTo(-r * 0.35, -r * 0.7);
+    ctx.quadraticCurveTo(-r * 0.25, -r * 0.85, -r * 0.15, -r * 0.8);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(r * 0.23, -r * 0.45);
+    ctx.lineTo(r * 0.35, -r * 0.7);
+    ctx.quadraticCurveTo(r * 0.25, -r * 0.85, r * 0.15, -r * 0.8);
+    ctx.stroke();
+
+    ctx.restore();
+};
+
+ArcSurvivors.Enemy.prototype.drawWasp = function(ctx, x, y, r) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    var t = Date.now() / 100;
+    var wingFlap = Math.sin(t * 2) * 0.35;
+
+    ctx.fillStyle = 'rgba(255,255,200,0.6)';
+    ctx.strokeStyle = 'rgba(200,200,150,0.8)';
+    ctx.lineWidth = 0.5;
+
+    ctx.beginPath();
+    ctx.ellipse(-r * 0.4, -r * 0.3 + wingFlap * r, r * 0.35, r * 0.15, 0.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(r * 0.4, -r * 0.3 + wingFlap * r, r * 0.35, r * 0.15, -0.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#FFD700';
+    ctx.strokeStyle = '#B8860B';
+    ctx.lineWidth = 1.5;
+
+    ctx.beginPath();
+    ctx.ellipse(0, r * 0.4, r * 0.25, r * 0.45, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.15, r * 0.25, r * 0.25, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(0, -r * 0.45, r * 0.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#111';
+    ctx.beginPath();
+    ctx.arc(-r * 0.08, -r * 0.5, r * 0.04, 0, Math.PI * 2);
+    ctx.arc(r * 0.08, -r * 0.5, r * 0.04, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.05, r * 0.1);
+    ctx.lineTo(-r * 0.05, r * 0.6);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(r * 0.05, r * 0.1);
+    ctx.lineTo(r * 0.05, r * 0.6);
+    ctx.stroke();
+
+    ctx.fillStyle = '#ff4444';
+    ctx.beginPath();
+    ctx.moveTo(0, r * 0.6);
+    ctx.lineTo(-r * 0.05, r * 0.75);
+    ctx.lineTo(r * 0.05, r * 0.75);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+};
+
+ArcSurvivors.Enemy.prototype.drawRat = function(ctx, x, y, r) {
+    ctx.save();
+    ctx.translate(x, y);
+
+    ctx.fillStyle = '#8B4513';
+    ctx.strokeStyle = '#5c2d0a';
+    ctx.lineWidth = 1.5;
+
+    ctx.beginPath();
+    ctx.ellipse(0, r * 0.15, r * 0.45, r * 0.35, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.25, r * 0.35, r * 0.3, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.55, r * 0.22, r * 0.18, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#111';
+    ctx.beginPath();
+    ctx.ellipse(-r * 0.15, -r * 0.58, r * 0.06, r * 0.08, 0, 0, Math.PI * 2);
+    ctx.ellipse(r * 0.15, -r * 0.58, r * 0.06, r * 0.08, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#ff4444';
+    ctx.beginPath();
+    ctx.arc(-r * 0.15, -r * 0.58, r * 0.03, 0, Math.PI * 2);
+    ctx.arc(r * 0.15, -r * 0.58, r * 0.03, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#ffaaaa';
+    ctx.beginPath();
+    ctx.moveTo(0, -r * 0.15);
+    ctx.lineTo(-r * 0.1, -r * 0.05);
+    ctx.lineTo(r * 0.1, -r * 0.05);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = '#5c2d0a';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.2, r * 0.1);
+    ctx.lineTo(-r * 0.3, r * 0.3);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(r * 0.2, r * 0.1);
+    ctx.lineTo(r * 0.3, r * 0.3);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.15, r * 0.35);
+    ctx.lineTo(-r * 0.2, r * 0.65);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(r * 0.15, r * 0.35);
+    ctx.lineTo(r * 0.2, r * 0.65);
+    ctx.stroke();
 
     ctx.restore();
 };

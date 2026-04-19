@@ -97,6 +97,14 @@ ArcSurvivors.Player.prototype.update = function(dt) {
         if (this.invulnerableTimer <= 0) this.invulnerable = false;
     }
 
+    if (this.slowed) {
+        this.slowedTimer -= dt;
+        if (this.slowedTimer <= 0) {
+            this.slowed = false;
+            this.speed = this.baseSpeed || PC.SPEED;
+        }
+    }
+
     this.runeAngle += dt * PC.RUNE_ROTATE_SPEED;
     if (this.pulseEffect > 0) this.pulseEffect -= dt * PC.PULSE_DECAY_SPEED;
 };

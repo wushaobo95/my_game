@@ -32,7 +32,7 @@ ArcSurvivors.GAME_CONFIG = {
         COLORS: {
             INNER: '#5d8c3a',
             OUTER: '#3d5c2a',
-            RUNE: '#8bc34a',
+            RUNE: '#ff8800',
             RUNE_WIDTH: 3
         }
     },
@@ -66,7 +66,7 @@ ArcSurvivors.GAME_CONFIG = {
             SHAPE: 'circle'
         },
         fast: {
-            RADIUS: 12,
+            RADIUS: 15,
             SPEED: 3.8,
             HP_BASE: 8,
             HP_SCALE: 6,
@@ -75,7 +75,7 @@ ArcSurvivors.GAME_CONFIG = {
             SHAPE: 'triangle'
         },
         split: {
-            RADIUS: 20,
+            RADIUS: 15,
             SPEED: 1.8,
             HP_BASE: 25,
             HP_SCALE: 18,
@@ -85,7 +85,7 @@ ArcSurvivors.GAME_CONFIG = {
             CAN_SPLIT: true
         },
         mini: {
-            RADIUS: 10,
+            RADIUS: 15,
             SPEED: 3,
             HP_BASE: 8,
             HP_SCALE: 0,
@@ -94,7 +94,7 @@ ArcSurvivors.GAME_CONFIG = {
             SHAPE: 'diamond'
         },
         ranged: {
-            RADIUS: 14,
+            RADIUS: 15,
             SPEED: 1.5,
             HP_BASE: 12,
             HP_SCALE: 8,
@@ -110,21 +110,21 @@ ArcSurvivors.GAME_CONFIG = {
             RADIUS: 40,
             SPEED: 1.5,
             HP_BASE: 200,
-            HP_SCALE: 1500,
-            DAMAGE: 18,
+            HP_SCALE: 3000,
+            DAMAGE: 10,
             COLOR: '#4B0082',
             SHAPE: 'boss',
-            SHOOT_INTERVAL: 2,
+            SHOOT_INTERVAL: 2.5,
             LOW_HP_THRESHOLD: 0.3,
             LOW_HP_SPEEDUP: 0.5,
             SHOOT_COUNT: 3,
             SHOOT_SPREAD: 0.3,
             SHOOT_SPEED: 4,
             SHOOT_DAMAGE_SCALE: 0.6,
-            GEM_COUNT: 8,
+            GEM_COUNT: 12,
             GEM_DIST_MIN: 20,
             GEM_DIST_MAX: 50,
-            EXP_REWARD: 200,
+            EXP_REWARD: 300,
             DEATH_PARTICLES: 30,
             DEATH_PARTICLE_SIZE: 10,
             DEATH_PARTICLE_SPEED: 8,
@@ -134,6 +134,207 @@ ArcSurvivors.GAME_CONFIG = {
             LARGE_GEM_CHANCE: 0.25,
             EXTRA_GEM_CHANCE: 0.4,
             SUPER_ARMOR: true
+        },
+        // === 新增敌人 ===
+        butterfly: {
+            RADIUS: 15,
+            SPEED: 2.0,
+            HP_BASE: 10,
+            HP_SCALE: 7,
+            DAMAGE: 4,
+            COLOR: '#9932CC',
+            SHAPE: 'polygon',
+            SPECIAL_EFFECT: 'confuse',
+            CONFUSE_DURATION: 1.5
+        },
+        ant: {
+            RADIUS: 15,
+            SPEED: 2.5,
+            HP_BASE: 5,
+            HP_SCALE: 4,
+            DAMAGE: 3,
+            COLOR: '#8B0000',
+            SHAPE: 'circle',
+            SPECIAL_EFFECT: 'swarm',
+            SWARM_COUNT: 6
+        },
+        ladybug: {
+            RADIUS: 15,
+            SPEED: 1.5,
+            HP_BASE: 20,
+            HP_SCALE: 12,
+            DAMAGE: 0,
+            COLOR: '#DC143C',
+            SHAPE: 'circle',
+            SPECIAL_EFFECT: 'lucky',
+            LARGE_GEM_CHANCE: 1.0,
+            DROP_ITEM_CHANCE: 0.5
+        },
+        cockroach: {
+            RADIUS: 15,
+            SPEED: 1.8,
+            HP_BASE: 18,
+            HP_SCALE: 12,
+            DAMAGE: 8,
+            COLOR: '#4A4A4A',
+            SHAPE: 'circle',
+            SPECIAL_EFFECT: 'evade',
+            EVADE_CHANCE: 0.7
+        },
+        mantis: {
+            RADIUS: 15,
+            SPEED: 4.5,
+            HP_BASE: 12,
+            HP_SCALE: 8,
+            DAMAGE: 15,
+            COLOR: '#228B22',
+            SHAPE: 'triangle',
+            SPECIAL_EFFECT: 'charge',
+            CHARGE_DAMAGE_SCALE: 1.5
+        },
+        fly: {
+            RADIUS: 15,
+            SPEED: 4.0,
+            HP_BASE: 4,
+            HP_SCALE: 3,
+            DAMAGE: 2,
+            COLOR: '#1a1a1a',
+            SHAPE: 'circle',
+            SPECIAL_EFFECT: 'orbit'
+        },
+        rat: {
+            RADIUS: 15,
+            SPEED: 2.8,
+            HP_BASE: 10,
+            HP_SCALE: 7,
+            DAMAGE: 5,
+            COLOR: '#8B4513',
+            SHAPE: 'ellipse'
+        },
+        dragonfly: {
+            RADIUS: 15,
+            SPEED: 5.5,
+            HP_BASE: 8,
+            HP_SCALE: 6,
+            DAMAGE: 10,
+            COLOR: '#00CED1',
+            SHAPE: 'polygon',
+            SPECIAL_EFFECT: 'dash',
+            DASH_RANGE: 150
+        },
+        mosquito: {
+            RADIUS: 15,
+            SPEED: 3.2,
+            HP_BASE: 5,
+            HP_SCALE: 4,
+            DAMAGE: 4,
+            COLOR: '#800080',
+            SHAPE: 'circle',
+            SPECIAL_EFFECT: 'poison',
+            POISON_DURATION: 3,
+            POISON_DAMAGE: 2
+        },
+        hedgehog: {
+            RADIUS: 15,
+            SPEED: 1.2,
+            HP_BASE: 30,
+            HP_SCALE: 20,
+            DAMAGE: 10,
+            COLOR: '#8B4513',
+            SHAPE: 'circle',
+            SPECIAL_EFFECT: 'reflect',
+            REFLECT_DAMAGE: 0.3
+        },
+        gecko: {
+            RADIUS: 15,
+            SPEED: 2.2,
+            HP_BASE: 15,
+            HP_SCALE: 10,
+            DAMAGE: 6,
+            COLOR: '#6B8E23',
+            SHAPE: 'polygon',
+            SPECIAL_EFFECT: 'escape',
+            ESCAPE_HP_RATIO: 0.3,
+            ESCAPE_DURATION: 2
+        }
+    },
+
+    ENEMY_SPAWN_TIME: {
+        butterfly: 55,
+        ant: 70,
+        ladybug: 85,
+        rat: 95,
+        cockroach: 105,
+        mantis: 115,
+        fly: 125,
+        dragonfly: 135,
+        mosquito: 145,
+        hedgehog: 160,
+        gecko: 175
+    },
+
+    ENEMY_SPAWN_CHANCE: {
+        butterfly: 0.12,
+        ant: 0.1,
+        ladybug: 0.05,
+        rat: 0.08,
+        cockroach: 0.1,
+        mantis: 0.08,
+        fly: 0.1,
+        dragonfly: 0.08,
+        mosquito: 0.1,
+        hedgehog: 0.08,
+        gecko: 0.08
+    },
+
+    ENEMY_BOSS_HP_SCALE: 50,
+    ENEMY_BOSS_DAMAGE_SCALE: 3,
+
+    ENEMY_LEVEL: {
+        SPEED_SCALE_PER_LEVEL: 0.05,
+        HP_SCALE_PER_LEVEL: 0.15,
+        DAMAGE_SCALE_PER_LEVEL: 0.1
+    },
+
+    ENEMY_BUFF_CHANCE: 0.03,
+
+    ENEMY_SPLIT_CHANCE: 0.3,
+
+    ENEMY_TEMPLATES: {
+        fast: {
+            RADIUS: 15,
+            SPEED: 3.8,
+            HP_BASE: 5,
+            HP_SCALE: 4,
+            DAMAGE: 4,
+            COLOR: '#800080',
+            SHAPE: 'circle',
+            SPECIAL_EFFECT: 'poison',
+            POISON_DURATION: 3,
+            POISON_DAMAGE: 2
+        },
+        hedgehog: {
+            RADIUS: 15,
+            SPEED: 1.2,
+            HP_BASE: 30,
+            HP_SCALE: 20,
+            DAMAGE: 10,
+            COLOR: '#8B4513',
+            SHAPE: 'circle',
+            SPECIAL_EFFECT: 'reflect',
+            REFLECT_DAMAGE: 0.3
+        },
+        gecko: {
+            RADIUS: 15,
+            SPEED: 2.2,
+            HP_BASE: 15,
+            HP_SCALE: 10,
+            DAMAGE: 6,
+            COLOR: '#6B8E23',
+            SHAPE: 'polygon',
+            SPECIAL_EFFECT: 'escape',
+            ESCAPE_HP_RATIO: 0.3,
+            ESCAPE_DURATION: 2
         }
     },
 
@@ -155,7 +356,7 @@ ArcSurvivors.GAME_CONFIG = {
         BATCH_COUNT_SCALE: 25,
         BATCH_OFFSET_MIN: 30,
         BATCH_OFFSET_MAX: 50,
-        BOSS_INTERVAL: 45,
+        BOSS_INTERVAL: 30,
         BOSS_MIN_TIME: 30,
         BOSS_WARNING_DURATION: 1500,
         BOSS_OFFSET: 50
@@ -168,9 +369,9 @@ ArcSurvivors.GAME_CONFIG = {
         TRAIL_ALPHA_SCALE: 0.5,
         COLORS: {
             CORE: '#ffffff',
-            MID: '#7cb342',
-            OUTER: '#558b2f',
-            TRAIL: 'rgba(92, 141, 47, {alpha})'
+            MID: '#ff8800',
+            OUTER: '#cc5500',
+            TRAIL: 'rgba(204, 85, 0, {alpha})'
         }
     },
 
@@ -180,7 +381,7 @@ ArcSurvivors.GAME_CONFIG = {
         LIFETIME: 0.2,
         HITSTOP_FRAMES: 3,
         COLORS: {
-            OUTER: '#7cb342',
+            OUTER: '#ff8800',
             OUTER_WIDTH: 5,
             CORE: '#ffffff',
             CORE_WIDTH: 2
@@ -209,9 +410,9 @@ ArcSurvivors.GAME_CONFIG = {
         PARTICLE_COUNT: 15,
         PARTICLE_SIZE: 5,
         PARTICLE_SPEED: 4,
-        GLOW_COLOR: '#8bc34a',
+        GLOW_COLOR: '#ff8800',
         GLOW_BLUR: 20,
-        ICON_FONT_SIZE: 24,
+        ICON_FONT_SIZE: 36,
         BORDER_WIDTH: 2,
         UNIFIED_ITEM: {
             ICON: '?',
@@ -289,7 +490,7 @@ ArcSurvivors.GAME_CONFIG = {
             HEIGHT: 20,
             BG_COLOR: '#333',
             BORDER_COLOR: '#666',
-            GRADIENT_START: '#66bb6a',
+            GRADIENT_START: '#ff8800',
             GRADIENT_END: '#a5d6a7'
         },
         EXP_BAR: {
@@ -338,7 +539,7 @@ ArcSurvivors.GAME_CONFIG = {
         BOSS: {
             INNER_RADIUS_SCALE: 0.5,
             INNER_COLOR: '#000',
-            INNER_BORDER: '#7cb342',
+            INNER_BORDER: '#ff8800',
             EYE_OFFSET_X: 12,
             EYE_OFFSET_Y: 5,
             EYE_RADIUS: 6,
@@ -347,11 +548,16 @@ ArcSurvivors.GAME_CONFIG = {
             HP_BAR_HEIGHT: 8,
             HP_BAR_OFFSET_Y: 20,
             HP_BG_COLOR: '#333',
-            HP_FILL_COLOR: '#66bb6a',
+            HP_FILL_COLOR: '#ff8800',
             HP_BORDER_COLOR: '#fff',
-            NAME_COLOR: '#8bc34a',
+            NAME_COLOR: '#ff8800',
             NAME_FONT: 'bold 12px sans-serif',
-            NAME_LABEL: '虫王'
+            // Boss名称根据击杀序号显示
+            getName: function(bossIndex) {
+                var names = ['青坡绵羊使', '雾林灵狐', '春涧仙鹿', '碧空羽鹰', '碧涧灵蛇', '野丘肥豚', '霜原孤狼', '旷野奔马',
+                    '山野耕牛', '幽林迅豹', '溪泽巨鳄', '深林绒熊', '晴日金狮', '风林萌虎', '山石巨犀', '远古巨象'];
+                return names[bossIndex % 16] || '兽王';
+            }
         },
         ENEMY_HP_BAR: {
             OFFSET_Y: 10,
@@ -556,7 +762,7 @@ ArcSurvivors.GAME_CONFIG = {
         DROP_CHANCE: 0.05,
         PICKUP_RADIUS: 25,
         ICON_SIZE: 20,
-        GLOW_COLOR: '#8bc34a',
+        GLOW_COLOR: '#ff8800',
         GLOW_BLUR: 15,
         PARTICLE_COUNT: 10,
         PARTICLE_SIZE: 4,
@@ -572,7 +778,7 @@ ArcSurvivors.GAME_CONFIG = {
             },
             shield: {
                 DURATION: 4,
-                COLOR: '#66bb6a'
+                COLOR: '#ff8800'
             },
             rage: {
                 DURATION: 4,

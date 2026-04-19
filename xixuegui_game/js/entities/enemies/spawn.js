@@ -24,6 +24,20 @@ ArcSurvivors.spawnEnemies = function(dt) {
         if (time > SC.SPLIT_ENEMY_TIME && Math.random() < SC.SPLIT_ENEMY_CHANCE) type = 'split';
         if (time > SC.RANGED_ENEMY_TIME && Math.random() < SC.RANGED_ENEMY_CHANCE) type = 'ranged';
 
+        var newEnemies = ['butterfly', 'ant', 'ladybug', 'rat', 'cockroach', 'mantis', 'fly', 'dragonfly', 'mosquito', 'hedgehog', 'gecko'];
+        var spawnTime = CFG.ENEMY_SPAWN_TIME;
+        var spawnChance = CFG.ENEMY_SPAWN_CHANCE;
+
+        for (var ne = 0; ne < newEnemies.length; ne++) {
+            var nType = newEnemies[ne];
+            var nTime = spawnTime[nType] || 60;
+            var nChance = spawnChance[nType] || 0.1;
+            if (time > nTime && Math.random() < nChance) {
+                type = nType;
+                break;
+            }
+        }
+
         this.enemies.push(new this.Enemy(x, y, type));
     }
 
@@ -40,6 +54,31 @@ ArcSurvivors.spawnEnemies = function(dt) {
                 case 3: bx = -SC.SPAWN_OFFSET - offset; by = Math.random() * CFG.CANVAS_HEIGHT; break;
             }
             this.enemies.push(new this.Enemy(bx, by, 'normal'));
+        }
+    }
+
+    if (Math.random() < dt * 0.5) {
+        var groupTypes = ['ant'];
+        for (var gt = 0; gt < groupTypes.length; gt++) {
+            var gType = groupTypes[gt];
+            var gTime = CFG.ENEMY_SPAWN_TIME[gType] || 60;
+            if (time > gTime && Math.random() < 0.3) {
+                var groupCount = 5 + Math.floor(Math.random() * 4);
+                var gx, gy;
+                var side = Math.floor(Math.random() * 4);
+                switch (side) {
+                    case 0: gx = Math.random() * CFG.CANVAS_WIDTH; gy = -SC.SPAWN_OFFSET; break;
+                    case 1: gx = CFG.CANVAS_WIDTH + SC.SPAWN_OFFSET; gy = Math.random() * CFG.CANVAS_HEIGHT; break;
+                    case 2: gx = Math.random() * CFG.CANVAS_WIDTH; gy = CFG.CANVAS_HEIGHT + SC.SPAWN_OFFSET; break;
+                    case 3: gx = -SC.SPAWN_OFFSET; gy = Math.random() * CFG.CANVAS_HEIGHT; break;
+                }
+                for (var gc = 0; gc < groupCount; gc++) {
+                    var offsetX = (Math.random() - 0.5) * 60;
+                    var offsetY = (Math.random() - 0.5) * 60;
+                    this.enemies.push(new this.Enemy(gx + offsetX, gy + offsetY, 'ant'));
+                }
+                break;
+            }
         }
     }
 
@@ -66,9 +105,16 @@ ArcSurvivors.spawnBoss = function(bossType) {
     this.showBossWarning();
 
     var self = this;
-    var type = bossType || 'default';
+    // 根据Boss序号选择外观类型 (0-15对应goat到elephant)
+    var bossIndex = ArcSurvivors.BossRegistry ? ArcSurvivors.BossRegistry.spawnCount : 0;
+    var bossTypes = ['goat', 'fox', 'deer', 'eagle', 'snake', 'boar', 'wolf', 'horse', 
+                 'cow', 'leopard', 'croc', 'bear', 'lion', 'tiger', 'rhino', 'elephant'];
+    var bossTypeName = bossTypes[bossIndex % 16];  // 循环使用16种
+    
+    var type = bossType || bossTypeName;
     setTimeout(function() {
         var boss = ArcSurvivors.BossRegistry.create(type, x, y);
+        boss.bossType = bossTypeName;  // 保存外观类型
         self.enemies.push(boss);
         self.Audio.init && self.Audio.pause();
         ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.BOSS_SPAWN, boss);

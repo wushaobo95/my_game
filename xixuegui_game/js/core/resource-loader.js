@@ -23,16 +23,62 @@ ArcSurvivors.ResourceLoader = (function() {
             rows: 4,
             cellWidth: 256,
             cellHeight: 256
+        },
+        'bosses': {
+            src: 'assets/sprites/enemies/boss.png',
+            cols: 4,
+            rows: 4,
+            cellWidth: 256,
+            cellHeight: 256
         }
     };
     
-    // 敌人合图映射 - 将敌人类型映射到合图位置
+    // Boss合图映射 - 4x4精灵图 (16格)
+    // 第1行(初级): 山羊、狐狸、鹿、鹰
+    // 第2行(低阶): 蛇、野猪、狼、马
+    // 第3行(中阶): 牛、豹、鳄鱼、熊
+    // 第4行(顶级): 狮子、老虎、犀牛、大象
+    var BOSS_SPRITE_MAP = {
+        'goat':    { sheet: 'bosses', row: 0, col: 0 },   // 山羊
+        'fox':     { sheet: 'bosses', row: 0, col: 1 },   // 狐狸
+        'deer':    { sheet: 'bosses', row: 0, col: 2 },   // 鹿
+        'eagle':   { sheet: 'bosses', row: 0, col: 3 },   // 鹰
+        'snake':   { sheet: 'bosses', row: 1, col: 0 },   // 蛇
+        'boar':    { sheet: 'bosses', row: 1, col: 1 },   // 野猪
+        'wolf':    { sheet: 'bosses', row: 1, col: 2 },   // 狼
+        'horse':   { sheet: 'bosses', row: 1, col: 3 },   // 马
+        'cow':     { sheet: 'bosses', row: 2, col: 0 },   // 牛
+        'leopard': { sheet: 'bosses', row: 2, col: 1 },   // 豹
+        'croc':    { sheet: 'bosses', row: 2, col: 2 },   // 鳄鱼
+        'bear':    { sheet: 'bosses', row: 2, col: 3 },   // 熊
+        'lion':    { sheet: 'bosses', row: 3, col: 0 },   // 狮子
+        'tiger':   { sheet: 'bosses', row: 3, col: 1 },   // 老虎
+        'rhino':   { sheet: 'bosses', row: 3, col: 2 },   // 犀牛
+        'elephant':{ sheet: 'bosses', row: 3, col: 3 }    // 大象
+    };
+    
+    // 敌人合图映射 - 4x4精灵图 (16格)
+    // 第1行: 蜘蛛、蝙蝠、母体蚱蜢、小型蚱蜢
+    // 第2行: 大黄蜂、蝴蝶、蚂蚁、老鼠
+    // 第3行: 瓢虫、蟑螂、螳螂、苍蝇
+    // 第4行: 蜻蜓、蚊子、刺猬、壁虎
     var ENEMY_SPRITE_MAP = {
-        'normal': { sheet: 'enemies', row: 0, col: 0 },    // 蜘蛛
-        'fast': { sheet: 'enemies', row: 0, col: 1 },      // 蝙蝠
-        'split': { sheet: 'enemies', row: 0, col: 2 },     // 蚱蜢
-        'mini': { sheet: 'enemies', row: 1, col: 0 },      // 蜜蜂
-        'ranged': { sheet: 'enemies', row: 1, col: 1 }     // 蝴蝶
+        'normal': { sheet: 'enemies', row: 0, col: 0 },     // 蜘蛛
+        'fast': { sheet: 'enemies', row: 0, col: 1 },       // 蝙蝠
+        'split': { sheet: 'enemies', row: 0, col: 2 },        // 母体蚱蜢
+        'mini': { sheet: 'enemies', row: 0, col: 3 },           // 小型蚱蜢
+        'ranged': { sheet: 'enemies', row: 1, col: 0 },        // 大黄蜂
+        'butterfly': { sheet: 'enemies', row: 1, col: 1 },     // 蝴蝶
+        'ant': { sheet: 'enemies', row: 1, col: 2 },            // 蚂蚁
+        'rat': { sheet: 'enemies', row: 1, col: 3 },               // 老鼠
+        'ladybug': { sheet: 'enemies', row: 2, col: 0 },     // 瓢虫
+        'cockroach': { sheet: 'enemies', row: 2, col: 1 },     // 蟑螂
+        'mantis': { sheet: 'enemies', row: 2, col: 2 },      // 螳螂
+        'fly': { sheet: 'enemies', row: 2, col: 3 },         // 苍蝇
+        'dragonfly': { sheet: 'enemies', row: 3, col: 0 },       // 蜻蜓
+        'mosquito': { sheet: 'enemies', row: 3, col: 1 },      // 蚊子
+        'hedgehog': { sheet: 'enemies', row: 3, col: 2 },     // 刺猬
+        'gecko': { sheet: 'enemies', row: 3, col: 3 }          // 壁虎
     };
     
     // 资源清单
@@ -45,8 +91,8 @@ ArcSurvivors.ResourceLoader = (function() {
         // 敌人合图
         'enemies': 'assets/sprites/enemies/enemies.png',
         
-        // Boss单独精灵图
-        'enemy_boss': 'assets/sprites/enemies/enemy_boss.png',
+        // Boss合图 4x4 (16种Boss)
+        'bosses': 'assets/sprites/enemies/boss.png',
         
         // 子弹特效
         'bullet_normal': 'assets/sprites/bullets/bullet_normal.png',
@@ -325,6 +371,7 @@ ArcSurvivors.ResourceLoader = (function() {
         hasSprite: hasSprite,
         getSpriteFromSheet: getSpriteFromSheet,
         hasSpriteSheet: hasSpriteSheet,
+        getSpriteSheets: function() { return spriteSheets; },
         getSpriteMap: getSpriteMap,
         getAudioBuffer: getAudioBuffer,
         hasAudio: hasAudio,
