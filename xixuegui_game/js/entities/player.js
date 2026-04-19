@@ -74,7 +74,7 @@ ArcSurvivors.Player.prototype.update = function(dt) {
         this.moving = false;
     }
 
-    this.x = Math.max(this.radius, Math.min(CFG.CANVAS_WIDTH - this.radius, this.x));
+    this.x = Math.max(this.radius, Math.min(CFG.CANVAS_WIDTH - 220 - this.radius, this.x));
     this.y = Math.max(this.radius, Math.min(CFG.CANVAS_HEIGHT - this.radius, this.y));
 
     this.attackTimer -= dt;

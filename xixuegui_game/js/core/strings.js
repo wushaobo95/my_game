@@ -7,7 +7,7 @@ ArcSurvivors.STRINGS = {
     // 升级名称和描述（卡皮巴拉自然风）
     UPGRADES: {
         1: {
-            name: '强大力量',
+            name: '力量强化',
             desc: '攻击力+{value}',
             icon: '💪'
         },
@@ -140,8 +140,13 @@ ArcSurvivors.STRINGS = {
         STATS_TITLE: '我的能力',
         SKILLS_TITLE: '技能',
         ITEMS_TITLE: '宝物',
-        INSTRUCTIONS: 'WASD 移动 | 自动喷水 | ESC 暂停 | R 重置',
+        INSTRUCTIONS: 'WASD 移动 | ESC 暂停',
         BOSS_WARNING: 'BOSS 来袭',
+        BOSS_NAMES: [
+            '绒角羚兽', '幻彩灵狐', '沐光仙鹿', '云翼苍鹰', '翠鳞幽蛇',
+            '荒林顽豚', '风原狂狼', '驰风骏驹', '岩脊蛮牛', '暗夜疾豹',
+            '渊水巨鳄', '深林绒熊', '金鬃狮灵', '烈风玄虎', '磐岩犀兽', '古森巨象'
+        ],
         NO_SKILLS: '还没学会',
         NO_ITEMS: '还没有宝物',
         MAXED_LABEL: '[已满级]',
@@ -150,7 +155,7 @@ ArcSurvivors.STRINGS = {
         MUTE_OFF: '🔇 音乐: 关',
         MUTE_ON: '🔊 音乐: 开',
         LEVEL_PREFIX: 'LV.',
-        KILLS_PREFIX: '杀虫: ',
+        KILLS_PREFIX: '击败敌人: ',
         TIME_PREFIX: '时间: ',
         TIME_SUFFIX: '秒',
         HP_RECOVERY_SUFFIX: '/秒',

@@ -102,11 +102,9 @@ ArcSurvivors.spawnBoss = function(bossType) {
         case 3: x = -SC.BOSS_OFFSET; y = CFG.CANVAS_HEIGHT / 2; break;
     }
 
-    this.showBossWarning();
-
     var self = this;
-    // 根据Boss序号选择外观类型 (0-15对应goat到elephant)
     var bossIndex = ArcSurvivors.BossRegistry ? ArcSurvivors.BossRegistry.spawnCount : 0;
+    this.showBossWarning(bossIndex);
     var bossTypes = ['goat', 'fox', 'deer', 'eagle', 'snake', 'boar', 'wolf', 'horse', 
                  'cow', 'leopard', 'croc', 'bear', 'lion', 'tiger', 'rhino', 'elephant'];
     var bossTypeName = bossTypes[bossIndex % 16];  // 循环使用16种
@@ -121,12 +119,20 @@ ArcSurvivors.spawnBoss = function(bossType) {
     }, SC.BOSS_WARNING_DURATION);
 };
 
-ArcSurvivors.showBossWarning = function() {
+ArcSurvivors.showBossWarning = function(bossIndex) {
     var SC = ArcSurvivors.GAME_CONFIG.SPAWN;
+    var UI = ArcSurvivors.STRINGS ? ArcSurvivors.STRINGS.UI : null;
+    var bossNames = (UI && UI.BOSS_NAMES) || ['绒角羚兽', '幻彩灵狐', '沐光仙鹿', '云翼苍鹰', '翠鳞幽蛇', '荒林顽豚', '风原狂狼', '驰风骏驹', '岩脊蛮牛', '暗夜疾豹', '渊水巨鳄', '深林绒熊', '金鬃狮灵', '烈风玄虎', '磐岩犀兽', '古森巨象'];
+    var bossIndexSafe = typeof bossIndex === 'number' && !isNaN(bossIndex) ? bossIndex : 0;
+    var bossName = bossNames[bossIndexSafe % 16] || bossNames[0];
     var el = document.getElementById('bossWarning');
-    el.style.display = 'block';
-    this.Audio.bossWarning();
-    setTimeout(function() {
-        el.style.display = 'none';
-    }, SC.BOSS_WARNING_DURATION);
+    var textEl = document.getElementById('bossWarningText');
+    if (textEl && el) {
+        textEl.textContent = bossName + '出现！';
+        el.style.display = 'block';
+        this.Audio.bossWarning();
+        setTimeout(function() {
+            el.style.display = 'none';
+        }, SC.BOSS_WARNING_DURATION);
+    }
 };
