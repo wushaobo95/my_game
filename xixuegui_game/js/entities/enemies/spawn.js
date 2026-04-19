@@ -335,6 +335,18 @@ ArcSurvivors.getSpawnPositionOnSide = function(side, offset) {
     return { x: x, y: y };
 };
 
+// 检查场上是否有活跃的普通Boss（不包括酱板鸭）
+ArcSurvivors.hasActiveBoss = function() {
+    for (var i = 0; i < this.enemies.length; i++) {
+        var enemy = this.enemies[i];
+        // 检查是否是Boss但不是酱板鸭
+        if (enemy.active && enemy.bossType && !enemy.isDuck) {
+            return true;
+        }
+    }
+    return false;
+};
+
 // Boss计时器
 ArcSurvivors.updateBossTimer = function(dt, time) {
     var SC = ArcSurvivors.GAME_CONFIG.SPAWN;
@@ -343,6 +355,13 @@ ArcSurvivors.updateBossTimer = function(dt, time) {
     this.gameState.bossTimer += dt;
     
     if (this.gameState.bossTimer >= SC.BOSS_INTERVAL && time > SC.BOSS_MIN_TIME) {
+        // 检查场上是否已有其他Boss（酱板鸭除外）
+        if (this.hasActiveBoss()) {
+            // 如果场上有Boss，重置计时器为90%（10秒后再次尝试）
+            this.gameState.bossTimer = SC.BOSS_INTERVAL * 0.7;
+            return;
+        }
+        
         this.gameState.bossTimer = 0;
         this.spawnBoss();
         
@@ -359,6 +378,19 @@ ArcSurvivors.spawnBoss = function(bossType) {
     var SC = CFG.SPAWN;
     var self = this;
     
+    var bossIndex = ArcSurvivors.BossRegistry ? ArcSurvivors.BossRegistry.spawnCount : 0;
+    
+    // 检查是否是凤凰（第17个Boss，即第16个普通Boss之后）
+    if (bossIndex >= 16 && !this.phoenixSpawned) {
+        this.spawnPhoenix();
+        return;
+    }
+    
+    // 如果凤凰已经生成过，不再生成其他Boss
+    if (this.phoenixSpawned) {
+        return;
+    }
+    
     var side = Math.floor(Math.random() * 4);
     var x, y;
     switch (side) {
@@ -368,7 +400,6 @@ ArcSurvivors.spawnBoss = function(bossType) {
         case 3: x = -SC.BOSS_OFFSET; y = CFG.CANVAS_HEIGHT / 2; break;
     }
     
-    var bossIndex = ArcSurvivors.BossRegistry ? ArcSurvivors.BossRegistry.spawnCount : 0;
     this.showBossWarning(bossIndex);
     
     var bossTypes = ['goat', 'fox', 'deer', 'eagle', 'snake', 'boar', 'wolf', 'horse', 
@@ -385,11 +416,70 @@ ArcSurvivors.spawnBoss = function(bossType) {
     }, SC.BOSS_WARNING_DURATION);
 };
 
+// 生成凤凰Boss（终极Boss）
+ArcSurvivors.spawnPhoenix = function() {
+    var CFG = ArcSurvivors.GAME_CONFIG;
+    var SC = CFG.SPAWN;
+    var self = this;
+    
+    this.phoenixSpawned = true;
+    
+    var side = Math.floor(Math.random() * 4);
+    var x, y;
+    switch (side) {
+        case 0: x = CFG.CANVAS_WIDTH / 2; y = -SC.BOSS_OFFSET; break;
+        case 1: x = CFG.CANVAS_WIDTH + SC.BOSS_OFFSET; y = CFG.CANVAS_HEIGHT / 2; break;
+        case 2: x = CFG.CANVAS_WIDTH / 2; y = CFG.CANVAS_HEIGHT + SC.BOSS_OFFSET; break;
+        case 3: x = -SC.BOSS_OFFSET; y = CFG.CANVAS_HEIGHT / 2; break;
+    }
+    
+    // 显示凤凰警告
+    this.showPhoenixWarning();
+    
+    setTimeout(function() {
+        var boss = ArcSurvivors.BossRegistry.create('phoenix', x, y);
+        boss.bossType = 'phoenix';
+        self.enemies.push(boss);
+        self.Audio.init && self.Audio.pause();
+        ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.BOSS_SPAWN, boss);
+        ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.PHOENIX_SPAWN, boss);
+    }, SC.BOSS_WARNING_DURATION);
+};
+
+// 生成酱板鸭Boss
+ArcSurvivors.spawnDuck = function(foxMaxHp) {
+    var CFG = ArcSurvivors.GAME_CONFIG;
+    var SC = CFG.SPAWN;
+    var self = this;
+    
+    var side = Math.floor(Math.random() * 4);
+    var x, y;
+    switch (side) {
+        case 0: x = CFG.CANVAS_WIDTH / 2; y = -SC.BOSS_OFFSET; break;
+        case 1: x = CFG.CANVAS_WIDTH + SC.BOSS_OFFSET; y = CFG.CANVAS_HEIGHT / 2; break;
+        case 2: x = CFG.CANVAS_WIDTH / 2; y = CFG.CANVAS_HEIGHT + SC.BOSS_OFFSET; break;
+        case 3: x = -SC.BOSS_OFFSET; y = CFG.CANVAS_HEIGHT / 2; break;
+    }
+    
+    // 创建酱板鸭，传入狐狸的最大血量
+    var boss = new ArcSurvivors.BossDuck(x, y, foxMaxHp || 1000);
+    this.enemies.push(boss);
+    ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.BOSS_SPAWN, boss);
+};
+
+// 在指定位置生成酱板鸭Boss（狐狸死亡时原地生成）
+ArcSurvivors.spawnDuckAt = function(x, y, foxMaxHp) {
+    // 直接创建酱板鸭，不传警告
+    var boss = new ArcSurvivors.BossDuck(x, y, foxMaxHp || 1000);
+    this.enemies.push(boss);
+    ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.BOSS_SPAWN, boss);
+};
+
 // Boss警告显示
 ArcSurvivors.showBossWarning = function(bossIndex) {
     var SC = ArcSurvivors.GAME_CONFIG.SPAWN;
     var UI = ArcSurvivors.STRINGS ? ArcSurvivors.STRINGS.UI : null;
-    var bossNames = (UI && UI.BOSS_NAMES) || ['绒角羚兽', '幻彩灵狐', '沐光仙鹿', '云翼苍鹰', '翠鳞幽蛇', '荒林顽豚', '风原狂狼', '驰风骏驹', '岩脊蛮牛', '暗夜疾豹', '渊水巨鳄', '深林绒熊', '金鬃狮灵', '烈风玄虎', '磐岩犀兽', '古森巨象'];
+    var bossNames = (UI && UI.BOSS_NAMES) || ['绒角羚兽', '雪山灵狐', '沐光仙鹿', '云翼苍鹰', '翠鳞幽蛇', '荒林顽豚', '风原狂狼', '驰风骏驹', '岩脊蛮牛', '暗夜疾豹', '渊水巨鳄', '深林绒熊', '金鬃狮灵', '烈风玄虎', '磐岩犀兽', '古森巨象'];
     
     var bossIndexSafe = typeof bossIndex === 'number' && !isNaN(bossIndex) ? bossIndex : 0;
     var bossName = bossNames[bossIndexSafe % 16] || bossNames[0];
@@ -402,6 +492,52 @@ ArcSurvivors.showBossWarning = function(bossIndex) {
         this.Audio.bossWarning();
         setTimeout(function() {
             el.style.display = 'none';
+        }, SC.BOSS_WARNING_DURATION);
+    }
+};
+
+// 凤凰警告显示
+ArcSurvivors.showPhoenixWarning = function() {
+    var SC = ArcSurvivors.GAME_CONFIG.SPAWN;
+    
+    var el = document.getElementById('bossWarning');
+    var textEl = document.getElementById('bossWarningText');
+    if (textEl && el) {
+        textEl.textContent = '★ 烈焰凤凰 降临！ ★';
+        textEl.style.color = '#FF4500';
+        textEl.style.fontSize = '32px';
+        textEl.style.fontWeight = 'bold';
+        textEl.style.textShadow = '0 0 10px #FFD700';
+        el.style.display = 'block';
+        el.style.background = 'linear-gradient(135deg, rgba(255,69,0,0.9), rgba(255,140,0,0.9))';
+        this.Audio.bossWarning && this.Audio.bossWarning();
+        setTimeout(function() {
+            el.style.display = 'none';
+            el.style.background = '';
+            textEl.style.color = '';
+            textEl.style.fontSize = '';
+            textEl.style.fontWeight = '';
+            textEl.style.textShadow = '';
+        }, SC.BOSS_WARNING_DURATION);
+    }
+};
+
+// 酱板鸭警告显示
+ArcSurvivors.showDuckWarning = function() {
+    var SC = ArcSurvivors.GAME_CONFIG.SPAWN;
+    
+    var el = document.getElementById('bossWarning');
+    var textEl = document.getElementById('bossWarningText');
+    if (textEl && el) {
+        textEl.textContent = '🦆 美味酱板鸭 出现！ 🦆';
+        textEl.style.color = '#8B4513';
+        textEl.style.fontSize = '28px';
+        el.style.display = 'block';
+        this.Audio.bossWarning && this.Audio.bossWarning();
+        setTimeout(function() {
+            el.style.display = 'none';
+            textEl.style.color = '';
+            textEl.style.fontSize = '';
         }, SC.BOSS_WARNING_DURATION);
     }
 };

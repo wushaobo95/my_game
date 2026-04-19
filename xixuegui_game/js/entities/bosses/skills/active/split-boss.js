@@ -89,8 +89,8 @@ ArcSurvivors.Skills.Active.splitBoss = function() {
                     splitBoss.skills[k].timer = 0;
                 }
                 
-                // 添加到Boss列表
-                ArcSurvivors.bosses.push(splitBoss);
+                // 添加到敌人列表
+                ArcSurvivors.enemies.push(splitBoss);
                 
                 // 生成特效
                 ArcSurvivors.spawnParticles(newX, newY, 15, 'rgb(255, 100, 100)', 6, 4);

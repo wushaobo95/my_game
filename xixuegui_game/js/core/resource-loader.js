@@ -93,7 +93,11 @@ ArcSurvivors.ResourceLoader = (function() {
         
         // Boss合图 4x4 (16种Boss)
         'bosses': 'assets/sprites/enemies/boss.png',
-        
+
+        // 特殊Boss独立图片
+        'boss_duck': 'assets/sprites/enemies/jiangbanya.png',
+        'boss_phoenix': 'assets/sprites/enemies/fenghuang.png',
+
         // 子弹特效
         'bullet_normal': 'assets/sprites/bullets/bullet_normal.png',
         'bullet_critical': 'assets/sprites/bullets/bullet_critical.png',

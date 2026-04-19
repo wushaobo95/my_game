@@ -12,7 +12,7 @@ var ArcSurvivors = ArcSurvivors || {};
 ArcSurvivors.BOSS_SKILL_CONFIGS = [
     // Boss 1: 绒角羚兽 - 基础
     { skills: ['bulletStorm', 'homingMissiles'] },
-    // Boss 2: 幻彩灵狐 - 敏捷
+    // Boss 2: 雪山灵狐 - 敏捷
     { skills: ['spiralBarrage', 'homingScatter', 'teleport'] },
     // Boss 3: 沐光仙鹿 - 辅助
     { skills: ['bulletStorm', 'auraBuff'] },

@@ -49,6 +49,14 @@
 
     EventSystem.on(Events.BOSS_DIE, function(boss) {
         console.log('Boss defeated');
+        
+        // 检查是否是狐狸（第2个Boss，索引为1）被击杀
+        var bossIndex = ArcSurvivors.BossRegistry ? ArcSurvivors.BossRegistry.spawnCount - 1 : 0;
+        if (bossIndex === 1 && boss.bossType === 'fox' && !ArcSurvivors.duckSpawned) {
+            // 在狐狸被击杀后原地生成酱板鸭
+            ArcSurvivors.duckSpawned = true;
+            ArcSurvivors.spawnDuckAt(boss.x, boss.y, boss.maxHp);
+        }
     });
 
     EventSystem.on(Events.ENEMY_DIE, function(enemy) {
@@ -127,6 +135,11 @@
         GS.lightningEffects = [];
         GS.traps = [];
         if (ArcSurvivors.BossRegistry) ArcSurvivors.BossRegistry.spawnCount = 0;
+        
+        // 重置凤凰和酱板鸭生成标记
+        ArcSurvivors.phoenixSpawned = false;
+        ArcSurvivors.duckSpawned = false;
+        
         document.getElementById('gameOver').style.display = 'none';
         document.getElementById('upgradeScreen').style.display = 'none';
         document.getElementById('pauseScreen').style.display = 'none';

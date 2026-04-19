@@ -243,7 +243,9 @@ ArcSurvivors.getItemDisplay = function(item) {
         case 103:
             desc = ArcSurvivors.formatString(desc, { percent: Math.round(CFG.KILL_EXPLOSION.DAMAGE_SCALE * 100) });
             break;
-        
+        case 104:
+            desc = ArcSurvivors.formatString(desc, { value: CFG.VAMPIRE_MASK.HEAL_AMOUNT });
+            break;
         case 105:
             desc = ArcSurvivors.formatString(desc, { percent: Math.round((CFG.UPGRADES.PICKUP_RANGE_BONUS - 1) * 100) });
             break;

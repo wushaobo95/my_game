@@ -630,8 +630,8 @@ ArcSurvivors.GAME_CONFIG = {
             getName: function(bossIndex) {
                 var names = ["绒角羚兽", "雪山灵狐", "沐光仙鹿", "云翼苍鹰", "翠鳞幽蛇", "荒林顽豚",
                     "风原狂狼", "驰风骏驹", "岩脊蛮牛", "暗夜疾豹", "渊水巨鳄", "深林绒熊",
-                    "金鬃狮灵", "烈风玄虎", "磐岩犀兽", "古森巨象"];
-                return names[bossIndex % 16] || '兽王';
+                    "金鬃狮灵", "烈风玄虎", "磐岩犀兽", "古森巨象", "烈焰凤凰"];
+                return names[bossIndex % 17] || '兽王';
             }
         },
         ENEMY_HP_BAR: {
