@@ -100,7 +100,10 @@
     };
 
     GS.resetGame = function() {
-        GS.gameState = { running: true, paused: false, time: 0, kills: 0, difficultyFactor: 1, bossTimer: 0, lightningStormTimer: 0, venomTrapTimer: 0 };
+        GS.gameState = { running: true, paused: false, time: 0, kills: 0, difficultyFactor: 1, bossTimer: 0, lightningStormTimer: 0 };
+
+        // 火球护身管理器
+        GS.fireOrbManager = null;
         GS.player = new GS.Player();
         GS.enemies = [];
         GS.bullets = [];
@@ -172,28 +175,9 @@
         }
     };
 
-    GS.spawnVenomTrap = function() {
-        var player = GS.player;
-        var level = player.venomTrapLevel;
-        var VT = CFG.VENOM_TRAP;
-
-        // 查找已存在的毒液陷阱
-        var existing = null;
-        for (var i = 0; i < GS.traps.length; i++) {
-            if (GS.traps[i] instanceof ArcSurvivors.VenomTrap) {
-                existing = GS.traps[i];
-                break;
-            }
-        }
-
-        if (existing) {
-            // 更新已有陷阱的伤害和范围
-            existing.damage = player.attackPower * VT.DAMAGE_SCALE;
-            existing.radius = VT.BASE_RADIUS + (level - 1) * VT.RADIUS_PER_LEVEL;
-        } else {
-            // 首次生成毒液陷阱
-            GS.traps.push(new ArcSurvivors.VenomTrap(player.x, player.y, level));
-            GS.spawnParticles(player.x, player.y, VT.PARTICLE_COUNT, 'rgb(0, 100, 0)', VT.PARTICLE_SIZE, VT.PARTICLE_SPEED);
+    GS.initFireOrbManager = function() {
+        if (!GS.fireOrbManager) {
+            GS.fireOrbManager = new ArcSurvivors.FireOrbManager(GS.player);
         }
     };
 
@@ -404,6 +388,7 @@
     });
 
     function handleUpgradeClick(e) {
+        if (GS.gameState.paused) return;
         var target = e.target;
         while (target && !target.classList.contains('upgrade-item')) {
             target = target.parentElement;
@@ -474,22 +459,13 @@
                 }
             }
 
-            // 毒液陷阱逻辑
-            if (GS.player.venomTrapLevel > 0) {
-                var hasVenomTrap = false;
-                for (var vi = 0; vi < GS.traps.length; vi++) {
-                    if (GS.traps[vi] instanceof ArcSurvivors.VenomTrap) {
-                        hasVenomTrap = true;
-                        break;
-                    }
+            // 火球护身更新
+            if (GS.player.fireOrbLevel > 0) {
+                if (!GS.fireOrbManager) {
+                    GS.initFireOrbManager();
                 }
-                if (!hasVenomTrap) {
-                    GS.spawnVenomTrap();
-                }
-                GS.gameState.venomTrapTimer += dt;
-                if (GS.gameState.venomTrapTimer >= CFG.VENOM_TRAP.INTERVAL) {
-                    GS.gameState.venomTrapTimer = 0;
-                    GS.spawnVenomTrap();
+                if (GS.fireOrbManager) {
+                    GS.fireOrbManager.update(dt);
                 }
             }
 
@@ -561,6 +537,11 @@
         GS.player.draw(ctx);
 
         for (i = 0; i < GS.particles.length; i++) GS.particles[i].draw(ctx);
+
+        // 绘制火球护身
+        if (GS.fireOrbManager) {
+            GS.fireOrbManager.draw(ctx);
+        }
 
         // 绘制闪电效果
         for (i = 0; i < GS.lightningEffects.length; i++) {

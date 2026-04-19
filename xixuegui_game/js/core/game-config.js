@@ -639,19 +639,25 @@ ArcSurvivors.GAME_CONFIG = {
         PARTICLE_SPEED: 4
     },
     
-    // 毒液陷阱（八眼蜘蛛的毒液）
-    VENOM_TRAP: {
-        INTERVAL: 4,
-        DURATION: 5,
-        DAMAGE_SCALE: 1.0,
-        DAMAGE_INTERVAL: 0.5,
-        BASE_RADIUS: 50,
-        RADIUS_PER_LEVEL: 15,
-        COLOR: 'rgba(0, 100, 0, 0.25)',
-        BORDER_COLOR: 'rgba(0, 140, 0, 0.5)',
-        PARTICLE_COUNT: 8,
-        PARTICLE_SIZE: 4,
-        PARTICLE_SPEED: 3
+    // 火球护身 - 环绕玩家的火焰子弹
+    FIRE_ORB: {
+        // 轨道半径随等级增加
+        BASE_ORBIT_RADIUS: 80,
+        ORBIT_RADIUS_PER_LEVEL: 15,
+        // 旋转速度 (度/秒)
+        ROTATION_SPEED: 200,
+        // 子弹大小
+        ORB_SIZE: 12,
+        // 伤害配置
+        DAMAGE_SCALE: 0.5,  // 每颗子弹50%攻击力
+        DAMAGE_INTERVAL: 0.4,  // 每0.4秒同一敌人可被同一颗火球伤害一次
+        // 视觉效果
+        COLOR: 'rgb(255, 80, 0)',
+        CORE_COLOR: 'rgb(255, 200, 50)',
+        TRAIL_LENGTH: 6,
+        PARTICLE_COUNT: 3,
+        PARTICLE_SIZE: 3,
+        PARTICLE_SPEED: 2
     },
     
     // 复活石

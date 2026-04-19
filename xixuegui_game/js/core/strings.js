@@ -52,9 +52,9 @@ ArcSurvivors.STRINGS = {
             icon: '⛈️'
         },
         13: {
-            name: '八眼蜘蛛的毒液',
-            desc: '生成环绕自身的毒液领域，持续伤害周围敌人',
-            icon: '🕷️'
+            name: '火球护身',
+            desc: '{count}颗火球环绕自身旋转，触碰敌人造成伤害',
+            icon: '🔥'
         }
     },
 

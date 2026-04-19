@@ -95,10 +95,10 @@ ArcSurvivors.UPGRADES = [
     {
         id: 13,
         apply: function(p) {
-            p.venomTrapLevel = Math.min((p.venomTrapLevel || 0) + 1, 5);
+            p.fireOrbLevel = Math.min((p.fireOrbLevel || 0) + 1, 5);
         },
         canAppear: function(p) {
-            return (p.venomTrapLevel || 0) < 5;
+            return (p.fireOrbLevel || 0) < 5;
         }
     }
 ];
@@ -210,7 +210,8 @@ ArcSurvivors.getUpgradeDisplay = function(upgrade) {
             desc = ArcSurvivors.formatString(desc, { interval: CFG.LIGHTNING_STORM.INTERVAL, count: 1 });
             break;
         case 13:
-            desc = STR.desc;
+            var nextLevel = (this.player.fireOrbLevel || 0) + 1;
+            desc = ArcSurvivors.formatString(desc, { count: nextLevel });
             break;
     }
 
@@ -368,6 +369,8 @@ ArcSurvivors.showItemDescription = function(item) {
 
 ArcSurvivors.showUpgradeDescription = function(upgrade) {
     var STR = ArcSurvivors.STRINGS.UI;
+    var wasPausedBefore = this.gameState.paused;
+    this._descWasPausedBefore = wasPausedBefore;
     this.gameState.paused = true;
 
     var container = document.getElementById('itemDescription');
@@ -401,7 +404,7 @@ ArcSurvivors.showUpgradeDescription = function(upgrade) {
     var self = this;
     document.getElementById('itemConfirmBtn').addEventListener('click', function() {
         document.getElementById('itemDescriptionScreen').style.display = 'none';
-        self.gameState.paused = false;
+        self.gameState.paused = self._descWasPausedBefore;
     });
 };
 
