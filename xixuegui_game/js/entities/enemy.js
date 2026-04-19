@@ -189,13 +189,33 @@ ArcSurvivors.Enemy.prototype.draw = function(ctx) {
 
     ctx.save();
 
-    // 检查是否有精灵图资源
-    var spriteName = 'enemy_' + this.type;
-    if (RL && RL.hasSprite(spriteName)) {
-        // 使用精灵图绘制
-        var sprite = RL.getSprite(spriteName);
-        var drawWidth = this.radius * 2;
-        var drawHeight = this.radius * 2;
+    // 检查是否有合图资源
+    var spriteInfo = null;
+    if (RL && RL.hasSpriteSheet('enemies')) {
+        spriteInfo = RL.getSpriteFromSheet(this.type);
+    }
+    
+    // 如果没有合图，回退到旧版精灵图检测
+    if (!spriteInfo) {
+        var spriteName = 'enemy_' + this.type;
+        if (RL && RL.hasSprite(spriteName)) {
+            var oldSprite = RL.getSprite(spriteName);
+            if (oldSprite) {
+                spriteInfo = {
+                    image: oldSprite,
+                    sx: 0,
+                    sy: 0,
+                    sw: oldSprite.width,
+                    sh: oldSprite.height
+                };
+            }
+        }
+    }
+    
+    if (spriteInfo) {
+        // 使用精灵图/合图绘制，放大一倍
+        var drawWidth = this.radius * 4;
+        var drawHeight = this.radius * 4;
 
         // 绘制冰冻/减速效果
         if (this.frozen) {
@@ -215,12 +235,16 @@ ArcSurvivors.Enemy.prototype.draw = function(ctx) {
             }
         }
 
-        // 绘制精灵图
-        ctx.drawImage(sprite,
-            this.x - this.radius,
-            this.y - this.radius,
+        // 绘制精灵图（从合图切取或完整精灵图），放大一倍
+        ctx.drawImage(
+            spriteInfo.image,
+            spriteInfo.sx, spriteInfo.sy,
+            spriteInfo.sw, spriteInfo.sh,
+            this.x - this.radius * 2,
+            this.y - this.radius * 2,
             drawWidth,
-            drawHeight);
+            drawHeight
+        );
 
         // 普通敌人血条
         if (this.hp < this.maxHp && this.hp > 0) {

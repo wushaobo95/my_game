@@ -7,12 +7,33 @@ var ArcSurvivors = ArcSurvivors || {};
 
 ArcSurvivors.ResourceLoader = (function() {
     var sprites = {};
+    var spriteSheets = {}; // 合图资源
     var audioBuffers = {};
     var audioContext = null;
     var loadedCount = 0;
     var totalCount = 0;
     var onProgress = null;
     var onComplete = null;
+    
+    // 合图配置 - 4x4网格，每个格子256x256像素
+    var SPRITE_SHEET_CONFIG = {
+        'enemies': {
+            src: 'assets/sprites/enemies/enemies.png',
+            cols: 4,
+            rows: 4,
+            cellWidth: 256,
+            cellHeight: 256
+        }
+    };
+    
+    // 敌人合图映射 - 将敌人类型映射到合图位置
+    var ENEMY_SPRITE_MAP = {
+        'normal': { sheet: 'enemies', row: 0, col: 0 },    // 蜘蛛
+        'fast': { sheet: 'enemies', row: 0, col: 1 },      // 蝙蝠
+        'split': { sheet: 'enemies', row: 0, col: 2 },     // 蚱蜢
+        'mini': { sheet: 'enemies', row: 1, col: 0 },      // 蜜蜂
+        'ranged': { sheet: 'enemies', row: 1, col: 1 }     // 蝴蝶
+    };
     
     // 资源清单
     var manifest = {
@@ -21,31 +42,11 @@ ArcSurvivors.ResourceLoader = (function() {
         'player_invulnerable': 'assets/sprites/player/player_invulnerable.png',
         'player_shield': 'assets/sprites/player/player_shield.png',
         
-        // 敌人精灵图 - 5种小怪
-        'enemy_normal': 'assets/sprites/enemies/enemy_spider.png',      // 毒蜘蛛
-        'enemy_fast': 'assets/sprites/enemies/enemy_bat.png',           // 小蝙蝠
-        'enemy_split': 'assets/sprites/enemies/enemy_grasshopper.png',  // 蚱蜢
-        'enemy_mini': 'assets/sprites/enemies/enemy_bee.png',             // 蜜蜂
-        'enemy_ranged': 'assets/sprites/enemies/enemy_butterfly.png',   // 蝴蝶
-        'enemy_boss': 'assets/sprites/enemies/enemy_boss.png',
+        // 敌人合图
+        'enemies': 'assets/sprites/enemies/enemies.png',
         
-        // 其他怪物精灵图（用于后续扩展）
-        'enemy_spider': 'assets/sprites/enemies/enemy_spider.png',
-        'enemy_bat': 'assets/sprites/enemies/enemy_bat.png',
-        'enemy_grasshopper': 'assets/sprites/enemies/enemy_grasshopper.png',
-        'enemy_cricket': 'assets/sprites/enemies/enemy_cricket.png',
-        'enemy_bee': 'assets/sprites/enemies/enemy_bee.png',
-        'enemy_butterfly': 'assets/sprites/enemies/enemy_butterfly.png',
-        'enemy_ant': 'assets/sprites/enemies/enemy_ant.png',
-        'enemy_mouse': 'assets/sprites/enemies/enemy_mouse.png',
-        'enemy_ladybug': 'assets/sprites/enemies/enemy_ladybug.png',
-        'enemy_beetle': 'assets/sprites/enemies/enemy_beetle.png',
-        'enemy_mantis': 'assets/sprites/enemies/enemy_mantis.png',
-        'enemy_fly': 'assets/sprites/enemies/enemy_fly.png',
-        'enemy_dragonfly': 'assets/sprites/enemies/enemy_dragonfly.png',
-        'enemy_mosquito': 'assets/sprites/enemies/enemy_mosquito.png',
-        'enemy_hedgehog': 'assets/sprites/enemies/enemy_hedgehog.png',
-        'enemy_lizard': 'assets/sprites/enemies/enemy_lizard.png',
+        // Boss单独精灵图
+        'enemy_boss': 'assets/sprites/enemies/enemy_boss.png',
         
         // 子弹特效
         'bullet_normal': 'assets/sprites/bullets/bullet_normal.png',
@@ -95,8 +96,10 @@ ArcSurvivors.ResourceLoader = (function() {
         onProgress = onProgressCallback;
         onComplete = onCompleteCallback;
         
-        // 计算总资源数
-        totalCount = Object.keys(manifest).length + Object.keys(audioManifest).length;
+        // 计算总资源数（普通精灵图 + 合图 + 音频）
+        totalCount = Object.keys(manifest).length + 
+                     Object.keys(SPRITE_SHEET_CONFIG).length +
+                     Object.keys(audioManifest).length;
         loadedCount = 0;
         
         // 初始化音频上下文
@@ -112,14 +115,41 @@ ArcSurvivors.ResourceLoader = (function() {
     }
     
     function loadSprites() {
-        var keys = Object.keys(manifest);
-        
-        for (var i = 0; i < keys.length; i++) {
-            var key = keys[i];
-            var src = manifest[key];
-            
-            loadImage(key, src);
+        // 首先加载合图
+        var sheetKeys = Object.keys(SPRITE_SHEET_CONFIG);
+        for (var i = 0; i < sheetKeys.length; i++) {
+            var key = sheetKeys[i];
+            var config = SPRITE_SHEET_CONFIG[key];
+            loadSpriteSheet(key, config.src);
         }
+        
+        // 然后加载普通精灵图
+        var keys = Object.keys(manifest);
+        for (var j = 0; j < keys.length; j++) {
+            var spriteKey = keys[j];
+            var src = manifest[spriteKey];
+            loadImage(spriteKey, src);
+        }
+    }
+    
+    function loadSpriteSheet(key, src) {
+        var img = new Image();
+        var config = SPRITE_SHEET_CONFIG[key];
+        
+        img.onload = function() {
+            spriteSheets[key] = {
+                image: img,
+                config: config
+            };
+            resourceLoaded();
+        };
+        
+        img.onerror = function() {
+            console.warn('Failed to load sprite sheet: ' + key + ' from ' + src);
+            resourceLoaded();
+        };
+        
+        img.src = src;
     }
     
     function loadImage(key, src) {
@@ -199,6 +229,34 @@ ArcSurvivors.ResourceLoader = (function() {
         return sprites.hasOwnProperty(name);
     }
     
+    function getSpriteFromSheet(spriteName) {
+        var map = ENEMY_SPRITE_MAP[spriteName];
+        if (!map) return null;
+        
+        var sheet = spriteSheets[map.sheet];
+        if (!sheet) return null;
+        
+        var cfg = sheet.config;
+        var sx = map.col * cfg.cellWidth;
+        var sy = map.row * cfg.cellHeight;
+        
+        return {
+            image: sheet.image,
+            sx: sx,
+            sy: sy,
+            sw: cfg.cellWidth,
+            sh: cfg.cellHeight
+        };
+    }
+    
+    function hasSpriteSheet(name) {
+        return spriteSheets.hasOwnProperty(name);
+    }
+    
+    function getSpriteMap() {
+        return ENEMY_SPRITE_MAP;
+    }
+    
     function getAudioBuffer(name) {
         return audioBuffers[name] || null;
     }
@@ -265,6 +323,9 @@ ArcSurvivors.ResourceLoader = (function() {
         init: init,
         getSprite: getSprite,
         hasSprite: hasSprite,
+        getSpriteFromSheet: getSpriteFromSheet,
+        hasSpriteSheet: hasSpriteSheet,
+        getSpriteMap: getSpriteMap,
         getAudioBuffer: getAudioBuffer,
         hasAudio: hasAudio,
         playAudio: playAudio,
