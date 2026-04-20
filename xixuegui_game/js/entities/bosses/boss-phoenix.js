@@ -58,7 +58,7 @@ ArcSurvivors.BossPhoenix.prototype._equipAllSkills = function() {
         'concentricRings', 'homingScatter', 'summonElites', 'berserk', 'auraBuff',
         'shield', 'reflect', 'rockArmor', 'knockback', 'iceBreath', 'stunRoar',
         'laserMatrix', 'splitShot', 'darknessField', 'lifeSteal', 'timeSlow',
-        'chainLightning', 'splitBoss'
+        'chainLightning'
     ];
     
     // 为凤凰添加所有技能（但每个技能有独立的冷却）
@@ -334,6 +334,10 @@ ArcSurvivors.BossPhoenix.prototype.draw = function(ctx) {
             drawRadius * 2,
             drawRadius * 2
         );
+        
+        // 重置阴影状态
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
     } else {
         // 默认绘制 - 凤凰形状
         var t = Date.now() / 200;
