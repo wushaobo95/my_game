@@ -29,7 +29,7 @@ ArcSurvivors.BossPhoenix = function(x, y) {
     this.hp = this.maxHp;
     
     // 高伤害
-    this.damage = BC.DAMAGE * 3;
+    this.damage = 40;
     
     // 较快的移速
     this.speed = BC.SPEED * 1.2;
@@ -37,12 +37,73 @@ ArcSurvivors.BossPhoenix = function(x, y) {
     // 标记为凤凰
     this.isPhoenix = true;
     
+    // 施加凤凰诅咒：无限持续掉血，屏蔽回血
+    this._applyPhoenixCurse();
+    
     // 装配所有技能
     this._equipAllSkills();
 };
 
 ArcSurvivors.BossPhoenix.prototype = Object.create(ArcSurvivors.BossBase.prototype);
 ArcSurvivors.BossPhoenix.prototype.constructor = ArcSurvivors.BossPhoenix;
+
+// ============================================================
+// 施加凤凰诅咒
+// ============================================================
+ArcSurvivors.BossPhoenix.prototype._applyPhoenixCurse = function() {
+    var player = ArcSurvivors.player;
+    if (!player) return;
+    
+    // 凤凰诅咒：每秒掉血，屏蔽回血
+    player.phoenixCursed = true;
+    player.phoenixCurseDamage = 2; // 每秒掉2血
+    player.phoenixCurseTimer = 0;
+    
+    // 屏蔽回血效果
+    player.hasVampireHeal = false;
+    player.hasLifeSteal = false;
+    player.hasHealingCircle = false;
+    player.hasHolyWater = false;
+    
+    // 显示诅咒特效
+    ArcSurvivors.spawnParticles(player.x, player.y, 20, 'rgb(255, 69, 0)', 8, 5);
+    
+    // 在UI上显示警告
+    var warningEl = document.getElementById('boss-warning');
+    if (warningEl) {
+        warningEl.textContent = '⚠ 凤凰诅咒：持续掉血且无法回血！ ⚠';
+        warningEl.style.display = 'block';
+        warningEl.style.color = '#FF4500';
+        warningEl.style.fontSize = '24px';
+        setTimeout(function() {
+            if (warningEl) warningEl.style.display = 'none';
+        }, 5000);
+    }
+};
+
+// ============================================================
+// 更新凤凰诅咒（每帧调用）
+// ============================================================
+ArcSurvivors.BossPhoenix.prototype._updatePhoenixCurse = function(dt) {
+    var player = ArcSurvivors.player;
+    if (!player || !player.phoenixCursed) return;
+    
+    player.phoenixCurseTimer += dt;
+    if (player.phoenixCurseTimer >= 1) {
+        player.phoenixCurseTimer = 0;
+        player.hp -= player.phoenixCurseDamage;
+        
+        // 显示掉血粒子
+        ArcSurvivors.spawnParticles(player.x, player.y, 3, 'rgb(255, 0, 0)', 3, 2);
+        
+        // 检查死亡
+        if (player.hp <= 0) {
+            player.hp = 0;
+            ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.PLAYER_DIE);
+            ArcSurvivors.gameOver();
+        }
+    }
+};
 
 // ============================================================
 // 装备所有技能（随机选择使用）
@@ -88,6 +149,9 @@ ArcSurvivors.BossPhoenix.prototype._equipAllSkills = function() {
 // update覆写 - 增强版，可能同时使用多个技能
 // ============================================================
 ArcSurvivors.BossPhoenix.prototype.update = function(dt) {
+    // 更新凤凰诅咒
+    this._updatePhoenixCurse(dt);
+    
     var player = ArcSurvivors.player;
     var dx = player.x - this.x;
     var dy = player.y - this.y;
