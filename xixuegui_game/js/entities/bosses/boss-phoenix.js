@@ -24,8 +24,8 @@ ArcSurvivors.BossPhoenix = function(x, y) {
     var df = ArcSurvivors.gameState.difficultyFactor;
     var bossLevelScale = 1 + (playerLevel - 1) * 0.2;
     
-    // 基础血量是正常Boss的50倍
-    this.maxHp = (BC.HP_BASE * bossLevelScale + df * BC.HP_SCALE) * 50;
+    // 基础血量是正常Boss的100倍
+    this.maxHp = (BC.HP_BASE * bossLevelScale + df * BC.HP_SCALE) * 100;
     this.hp = this.maxHp;
     
     // 高伤害
@@ -38,7 +38,7 @@ ArcSurvivors.BossPhoenix = function(x, y) {
     this.isPhoenix = true;
     
     // 施加凤凰诅咒：无限持续掉血，屏蔽回血
-    this._applyPhoenixCurse();
+    // this._applyPhoenixCurse(); // 暂时屏蔽
     
     // 装配所有技能
     this._equipAllSkills();
@@ -150,7 +150,7 @@ ArcSurvivors.BossPhoenix.prototype._equipAllSkills = function() {
 // ============================================================
 ArcSurvivors.BossPhoenix.prototype.update = function(dt) {
     // 更新凤凰诅咒
-    this._updatePhoenixCurse(dt);
+    // this._updatePhoenixCurse(dt); // 暂时屏蔽
     
     var player = ArcSurvivors.player;
     var dx = player.x - this.x;

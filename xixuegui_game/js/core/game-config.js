@@ -891,7 +891,6 @@ ArcSurvivors.GAME_CONFIG = {
             },
             BERSERK: {
                 COOLDOWN: 8,
-                PHASE: 3,
                 DURATION: 5,
                 DURATION_PHASE2: 7,
                 SPEED_MULT: 1.5,
@@ -901,7 +900,6 @@ ArcSurvivors.GAME_CONFIG = {
             },
             AURA_BUFF: {
                 COOLDOWN: 8,
-                PHASE: 3,
                 RADIUS: 200,
                 RADIUS_PHASE2: 250,
                 DURATION: 8,
@@ -912,7 +910,6 @@ ArcSurvivors.GAME_CONFIG = {
             },
             SHIELD: {
                 COOLDOWN: 8,
-                PHASE: 3,
                 DURATION: 3,
                 DURATION_PHASE2: 4,
                 HP_ABSORB: 0.3,
@@ -920,7 +917,6 @@ ArcSurvivors.GAME_CONFIG = {
             },
             REFLECT: {
                 COOLDOWN: 8,
-                PHASE: 3,
                 DURATION: 4,
                 REFLECT_PERCENT: 0.4,
                 REFLECT_PERCENT_PHASE2: 0.5,
@@ -929,7 +925,6 @@ ArcSurvivors.GAME_CONFIG = {
             },
             ROCK_ARMOR: {
                 COOLDOWN: 10,
-                PHASE: 3,
                 DURATION: 6,
                 DAMAGE_REDUCTION: 0.6,
                 DAMAGE_REDUCTION_PHASE2: 0.7,
@@ -1001,7 +996,6 @@ ArcSurvivors.GAME_CONFIG = {
             },
             LIFE_STEAL: {
                 COOLDOWN: 6,
-                PHASE: 3,
                 DURATION: 4,
                 DURATION_PHASE2: 5,
                 HEAL_PERCENT: 0.3,
@@ -1026,6 +1020,36 @@ ArcSurvivors.GAME_CONFIG = {
                 DAMAGE_SCALE: 0.4,
                 DAMAGE_DECAY: 0.2,
                 UNLOCK_LEVEL: 9
+            },
+            ROAR_WAVE: {
+                COOLDOWN: 6,
+                WAVE_COUNT: 3,
+                WAVE_COUNT_PHASE2: 5,
+                WAVE_INTERVAL: 0.3,
+                RADIUS: 300,
+                DAMAGE_SCALE: 0.35,
+                SPEED: 4,
+                UNLOCK_LEVEL: 13
+            },
+            SPIN_SLASH: {
+                COOLDOWN: 5,
+                SLASH_COUNT: 6,
+                SLASH_COUNT_PHASE2: 8,
+                DURATION: 1.5,
+                DAMAGE_SCALE: 0.3,
+                RADIUS: 180,
+                SLOW_FACTOR: 0.5,
+                SLOW_DURATION: 2,
+                UNLOCK_LEVEL: 14
+            },
+            HORN_BLAST: {
+                COOLDOWN: 7,
+                RADIUS: 250,
+                RADIUS_PHASE3: 320,
+                DAMAGE_SCALE: 0.4,
+                KNOCKBACK_FORCE: 200,
+                WARNING_DURATION: 1,
+                UNLOCK_LEVEL: 15
             },
             SPLIT_BOSS: {
                 HP_PERCENT: 0.7,        // 继承70%血量

@@ -19,8 +19,8 @@ ArcSurvivors.BossDuck = function(x, y, foxMaxHp) {
     this.color = '#8B4513'; // 酱板鸭颜色
     this.bossType = 'duck';
     
-    // 血量是狐狸的70%（传入的foxMaxHp）
-    this.maxHp = foxMaxHp * 0.7;
+    // 血量是狐狸的140%（传入的foxMaxHp，翻倍）
+    this.maxHp = foxMaxHp * 1.4;
     this.hp = this.maxHp;
     
     // 无伤害
@@ -127,7 +127,7 @@ ArcSurvivors.BossDuck.prototype.draw = function(ctx) {
     // 尝试使用酱板鸭图片
     if (RL && RL.hasSprite('boss_duck')) {
         var sprite = RL.getSprite('boss_duck');
-        var drawRadius = this.radius * 1.5;
+        var drawRadius = this.radius * 3;
         ctx.drawImage(
             sprite,
             this.x - drawRadius,

@@ -33,15 +33,15 @@ ArcSurvivors.BOSS_SKILL_CONFIGS = [
     // Boss 11: 渊水巨鳄 - 控制
     { skills: ['iceBreath', 'knockback', 'scatterShot', 'timeSlow'] },
     // Boss 12: 深林绒熊 - 坦克
-    { skills: ['stunRoar', 'reflect', 'berserk'] },
+    { skills: ['stunRoar', 'knockback', 'shield'] },
     // Boss 13: 金鬃狮灵 - 领袖
-    { skills: ['summonElites', 'laserMatrix', 'auraBuff'] },
+    { skills: ['roarWave', 'summonElites', 'auraBuff'] },
     // Boss 14: 烈风玄虎 - 爆发
-    { skills: ['stunRoar', 'berserk', 'charge', 'lifeSteal'] },
+    { skills: ['spinSlash', 'focusFire', 'charge', 'homingMissiles'] },
     // Boss 15: 磐岩犀兽 - 坦克+爆发
-    { skills: ['shield', 'reflect', 'berserk'] },
+    { skills: ['hornBlast', 'charge', 'knockback', 'shield'] },
     // Boss 16: 古森巨象 - 终极
-    { skills: ['laserMatrix', 'concentricRings', 'iceBreath', 'splitShot', 'timeSlow'] }
+    { skills: ['laserMatrix', 'concentricRings', 'iceBreath', 'splitShot'] }
 ];
 
 // ============================================================
