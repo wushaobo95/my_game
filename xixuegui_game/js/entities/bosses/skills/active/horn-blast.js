@@ -22,6 +22,7 @@ ArcSurvivors.Skills.Active.hornBlast = function() {
             this._phase = 'warning';
             this._blastRadius = boss.bossPhase >= 3 ? SC.RADIUS_PHASE3 : SC.RADIUS;
             this._damageDealt = false;
+            this._castTimer = 0;
         },
 
         updateCast: function(boss, dt) {

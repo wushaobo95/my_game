@@ -22,7 +22,6 @@ ArcSurvivors.Skills.Active.roarWave = function() {
             this._waveIndex = 0;
             this._waves = [];
             this._castTimer = 0;
-            this._castTimer = 0;
             
             var waveCount = boss.bossPhase >= 2 ? SC.WAVE_COUNT_PHASE2 : SC.WAVE_COUNT;
             var startAngle = Math.random() * Math.PI * 2;
