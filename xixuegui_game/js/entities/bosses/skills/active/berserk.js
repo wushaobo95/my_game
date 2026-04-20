@@ -12,7 +12,7 @@ ArcSurvivors.Skills.Active.berserk = function() {
         name: 'berserk',
         cooldown: SC.COOLDOWN,
         timer: 0,
-        phase: 0,
+        phase: SC.PHASE || 0,
         castDuration: 0.5, // 短暂施法时间
         _isActive: false,
         _originalSpeed: 0,

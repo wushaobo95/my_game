@@ -12,7 +12,7 @@ ArcSurvivors.Skills.Active.reflect = function() {
         name: 'reflect',
         cooldown: SC.COOLDOWN,
         timer: 0,
-        phase: 0,
+        phase: SC.PHASE || 0,
         castDuration: 0.3, // 短暂施法
         _reflectActive: false,
         _reflectTimer: 0,

@@ -12,7 +12,7 @@ ArcSurvivors.Skills.Active.rockArmor = function() {
         name: 'rock_armor',
         cooldown: SC.COOLDOWN,
         timer: 0,
-        phase: 0,
+        phase: SC.PHASE || 0,
         castDuration: 0.5, // 施法时间
         _armorActive: false,
         _armorTimer: 0,

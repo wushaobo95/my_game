@@ -12,7 +12,7 @@ ArcSurvivors.Skills.Active.auraBuff = function() {
         name: 'aura_buff',
         cooldown: SC.COOLDOWN,
         timer: 0,
-        phase: 0,
+        phase: SC.PHASE || 0,
         castDuration: SC.DURATION,
         _isActive: false,
         _auraTimer: 0,

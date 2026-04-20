@@ -12,7 +12,7 @@ ArcSurvivors.Skills.Active.lifeSteal = function() {
         name: 'life_steal',
         cooldown: SC.COOLDOWN,
         timer: 0,
-        phase: 0,
+        phase: SC.PHASE || 0,
         castDuration: SC.DURATION,
         _isActive: false,
         _stealTimer: 0,

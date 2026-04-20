@@ -817,7 +817,7 @@ ArcSurvivors.GAME_CONFIG = {
                 UNLOCK_LEVEL: 5
             },
             SUMMON_MINIONS: {
-                COOLDOWN: 12,
+                COOLDOWN: 8,
                 COUNT: 3,
                 SPAWN_RADIUS: 100,
                 UNLOCK_LEVEL: 6
@@ -881,7 +881,7 @@ ArcSurvivors.GAME_CONFIG = {
                 UNLOCK_LEVEL: 12
             },
             SUMMON_ELITES: {
-                COOLDOWN: 20,
+                COOLDOWN: 8,
                 COUNT: 2,
                 COUNT_PHASE2: 3,
                 SPAWN_RADIUS: 120,
@@ -890,7 +890,8 @@ ArcSurvivors.GAME_CONFIG = {
                 UNLOCK_LEVEL: 13
             },
             BERSERK: {
-                COOLDOWN: 15,
+                COOLDOWN: 8,
+                PHASE: 3,
                 DURATION: 5,
                 DURATION_PHASE2: 7,
                 SPEED_MULT: 1.5,
@@ -899,7 +900,8 @@ ArcSurvivors.GAME_CONFIG = {
                 UNLOCK_LEVEL: 14
             },
             AURA_BUFF: {
-                COOLDOWN: 15,
+                COOLDOWN: 8,
+                PHASE: 3,
                 RADIUS: 200,
                 RADIUS_PHASE2: 250,
                 DURATION: 8,
@@ -909,14 +911,16 @@ ArcSurvivors.GAME_CONFIG = {
                 UNLOCK_LEVEL: 8
             },
             SHIELD: {
-                COOLDOWN: 12,
+                COOLDOWN: 8,
+                PHASE: 3,
                 DURATION: 3,
                 DURATION_PHASE2: 4,
                 HP_ABSORB: 0.3,
                 UNLOCK_LEVEL: 6
             },
             REFLECT: {
-                COOLDOWN: 15,
+                COOLDOWN: 8,
+                PHASE: 3,
                 DURATION: 4,
                 REFLECT_PERCENT: 0.4,
                 REFLECT_PERCENT_PHASE2: 0.5,
@@ -924,7 +928,8 @@ ArcSurvivors.GAME_CONFIG = {
                 UNLOCK_LEVEL: 10
             },
             ROCK_ARMOR: {
-                COOLDOWN: 20,
+                COOLDOWN: 10,
+                PHASE: 3,
                 DURATION: 6,
                 DAMAGE_REDUCTION: 0.6,
                 DAMAGE_REDUCTION_PHASE2: 0.7,
@@ -954,7 +959,7 @@ ArcSurvivors.GAME_CONFIG = {
                 UNLOCK_LEVEL: 8
             },
             STUN_ROAR: {
-                COOLDOWN: 15,
+                COOLDOWN: 8,
                 RADIUS: 250,
                 RADIUS_PHASE2: 300,
                 DURATION: 1.5,
@@ -963,7 +968,7 @@ ArcSurvivors.GAME_CONFIG = {
                 UNLOCK_LEVEL: 11
             },
             LASER_MATRIX: {
-                COOLDOWN: 20,
+                COOLDOWN: 8,
                 LASER_COUNT: 5,
                 LASER_COUNT_PHASE2: 7,
                 WARNING_DURATION: 2,
@@ -986,7 +991,7 @@ ArcSurvivors.GAME_CONFIG = {
                 UNLOCK_LEVEL: 10
             },
             DARKNESS_FIELD: {
-                COOLDOWN: 18,
+                COOLDOWN: 10,
                 DURATION: 6,
                 DURATION_PHASE2: 8,
                 RADIUS: 180,
@@ -995,7 +1000,8 @@ ArcSurvivors.GAME_CONFIG = {
                 UNLOCK_LEVEL: 12
             },
             LIFE_STEAL: {
-                COOLDOWN: 8,
+                COOLDOWN: 6,
+                PHASE: 3,
                 DURATION: 4,
                 DURATION_PHASE2: 5,
                 HEAL_PERCENT: 0.3,
@@ -1004,7 +1010,7 @@ ArcSurvivors.GAME_CONFIG = {
                 UNLOCK_LEVEL: 11
             },
             TIME_SLOW: {
-                COOLDOWN: 16,
+                COOLDOWN: 10,
                 DURATION: 5,
                 DURATION_PHASE2: 6,
                 RADIUS: 200,

@@ -65,7 +65,9 @@ ArcSurvivors.BossDefault = function(x, y) {
         for (var i = 0; i < skillConfig.skills.length; i++) {
             var skillName = skillConfig.skills[i];
             if (ArcSurvivors.Skills.Active[skillName]) {
-                this.addSkill(ArcSurvivors.Skills.Active[skillName]());
+                var skill = ArcSurvivors.Skills.Active[skillName]();
+                skill.timer = skill.cooldown; // 初始立即可触发
+                this.addSkill(skill);
             }
         }
     }

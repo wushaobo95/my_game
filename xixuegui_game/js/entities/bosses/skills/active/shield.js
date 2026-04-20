@@ -12,7 +12,7 @@ ArcSurvivors.Skills.Active.shield = function() {
         name: 'shield',
         cooldown: SC.COOLDOWN,
         timer: 0,
-        phase: 0,
+        phase: SC.PHASE || 0,
         castDuration: 0.3, // 短暂施法
         _shieldActive: false,
         _shieldTimer: 0,
