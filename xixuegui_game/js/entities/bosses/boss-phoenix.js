@@ -38,7 +38,7 @@ ArcSurvivors.BossPhoenix = function(x, y) {
     this.isPhoenix = true;
     
     // 施加凤凰诅咒：无限持续掉血，屏蔽回血
-    // this._applyPhoenixCurse(); // 暂时屏蔽
+    this._applyPhoenixCurse(); // 暂时屏蔽
     
     // 装配所有技能
     this._equipAllSkills();
