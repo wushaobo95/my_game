@@ -430,10 +430,10 @@ ArcSurvivors.GAME_CONFIG = {
         BATCH_COUNT_SCALE: 25,
         BATCH_OFFSET_MIN: 30,
         BATCH_OFFSET_MAX: 50,
-        BOSS_INTERVAL: 30,
-        BOSS_MIN_TIME: 30,
+        BOSS_INTERVAL: 5,
+        BOSS_MIN_TIME: 5,
         BOSS_WARNING_DURATION: 1500,
-        BOSS_OFFSET: 50
+        BOSS_OFFSET: 5
     },
 
     // 子弹系统
@@ -495,6 +495,25 @@ ArcSurvivors.GAME_CONFIG = {
         }
     },
 
+    // 技能拾取 - 蓝色
+    SKILL_PICKUP: {
+        RADIUS: 15,
+        BOB_HEIGHT: 5,
+        BOB_SPEED: 3,
+        PARTICLE_COUNT: 15,
+        PARTICLE_SIZE: 5,
+        PARTICLE_SPEED: 4,
+        GLOW_COLOR: '#4488ff',
+        GLOW_BLUR: 20,
+        ICON_FONT_SIZE: 36,
+        BORDER_WIDTH: 2,
+        UNIFIED_SKILL: {
+            ICON: '✦',
+            COLOR: '#66bbff',
+            GLOW_COLOR: '#4488ff'
+        }
+    },
+
     // 粒子系统
     PARTICLE: {
         MAX_COUNT: 300
@@ -546,7 +565,7 @@ ArcSurvivors.GAME_CONFIG = {
         BOSS_DAMAGE_SCALE_PER_LEVEL: 0.03, // Boss每级增加3%伤害
         BOSS_SCALING: {
             THRESHOLD: 3, // 第3个boss后开始大幅成长
-            HP_MULTIPLIER: 2.5, // 血量倍率
+            HP_MULTIPLIER: 2.0, // 血量倍率（减少20%）
             DAMAGE_MULTIPLIER: 1.5 // 伤害倍率
         }
     },

@@ -134,6 +134,8 @@
         GS.buffPickups = [];
         GS.lightningEffects = [];
         GS.traps = [];
+        GS.floatingTexts = [];
+        GS.skillPickups = [];
         if (ArcSurvivors.BossRegistry) ArcSurvivors.BossRegistry.spawnCount = 0;
         
         // 重置凤凰和酱板鸭生成标记
@@ -513,6 +515,9 @@
             for (i = 0; i < GS.buffPickups.length; i++) GS.buffPickups[i].update(dt);
             GS.buffPickups = GS.buffPickups.filter(function(bp) { return bp.active; });
 
+            for (i = 0; i < GS.skillPickups.length; i++) GS.skillPickups[i].update(dt);
+            GS.skillPickups = GS.skillPickups.filter(function(sp) { return sp.active; });
+
             // 更新陷阱
             for (i = 0; i < GS.traps.length; i++) GS.traps[i].update(dt);
             GS.traps = GS.traps.filter(function(t) { return t.active; });
@@ -529,6 +534,16 @@
                 GS.lightningEffects[i].timer -= dt;
             }
             GS.lightningEffects = GS.lightningEffects.filter(function(le) { return le.timer > 0; });
+
+            // 更新浮动文字
+            if (GS.floatingTexts) {
+                for (i = 0; i < GS.floatingTexts.length; i++) {
+                    var ft = GS.floatingTexts[i];
+                    ft.timer -= dt;
+                    ft.y -= 40 * dt;
+                }
+                GS.floatingTexts = GS.floatingTexts.filter(function(ft) { return ft.timer > 0; });
+            }
 
             if (GS.screenShake.duration > 0) GS.screenShake.duration -= dt;
 
@@ -552,6 +567,7 @@
         for (i = 0; i < GS.gems.length; i++) GS.gems[i].draw(ctx);
         for (i = 0; i < GS.itemPickups.length; i++) GS.itemPickups[i].draw(ctx);
         for (i = 0; i < GS.buffPickups.length; i++) GS.buffPickups[i].draw(ctx);
+        for (i = 0; i < GS.skillPickups.length; i++) GS.skillPickups[i].draw(ctx);
         for (i = 0; i < GS.bullets.length; i++) GS.bullets[i].draw(ctx);
         for (i = 0; i < GS.enemyBullets.length; i++) GS.enemyBullets[i].draw(ctx);
         for (i = 0; i < GS.enemies.length; i++) GS.enemies[i].draw(ctx);
@@ -572,6 +588,21 @@
         for (i = 0; i < GS.lightningEffects.length; i++) {
             var le = GS.lightningEffects[i];
             GS.Renderer.drawLightning(ctx, le.x1, le.y1, le.x2, le.y2, le.color, 3);
+        }
+
+        // 绘制浮动文字
+        if (GS.floatingTexts) {
+            for (i = 0; i < GS.floatingTexts.length; i++) {
+                var ft = GS.floatingTexts[i];
+                ctx.save();
+                ctx.globalAlpha = Math.min(1, ft.timer * 2);
+                ctx.font = 'bold 16px sans-serif';
+                ctx.fillStyle = ft.color;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(ft.text, ft.x, ft.y);
+                ctx.restore();
+            }
         }
 
         GS.Renderer.drawDangerWarning(ctx);

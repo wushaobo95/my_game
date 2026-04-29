@@ -235,7 +235,8 @@ ArcSurvivors.Player.prototype.gainExp = function(amount) {
         );
         ArcSurvivors.Audio.levelUp();
         ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.PLAYER_LEVEL_UP, this.level);
-        ArcSurvivors.showUpgradeScreen();
+        // 在玩家位置生成技能掉落物品
+        ArcSurvivors.spawnSkillPickup(this.x, this.y);
     }
 };
 

@@ -369,8 +369,20 @@ ArcSurvivors.trySpawnItem = function() {
 
     if (available.length === 0) return null;
 
-    // 返回统一法宝物品标记，而不是具体法宝
-    return { isUnified: true };
+    // 随机选择一个具体法宝
+    var index = Math.floor(Math.random() * available.length);
+    var selected = available[index];
+    
+    // 创建一个新对象，继承原始法宝的属性，添加isUnified标记
+    var pickup = {};
+    for (var key in selected) {
+        if (selected.hasOwnProperty(key)) {
+            pickup[key] = selected[key];
+        }
+    }
+    pickup.isUnified = true;
+    
+    return pickup;
 };
 
 ArcSurvivors.showItemDescription = function(item) {
@@ -480,4 +492,119 @@ ArcSurvivors.showItemChoiceScreen = function() {
     }
 
     document.getElementById('upgradeScreen').style.display = 'flex';
+};
+
+// 随机选择并自动应用一个可用技能
+ArcSurvivors.autoApplyRandomUpgrade = function() {
+    var CFG = ArcSurvivors.GAME_CONFIG;
+    var UE = CFG.UPGRADE_EFFECT;
+
+    // 获取可用技能池
+    var available = this.UPGRADES.filter(function(u) {
+        return u.canAppear(this.player);
+    }.bind(this));
+
+    if (available.length === 0) return;
+
+    // 随机选择一个技能
+    var index = Math.floor(Math.random() * available.length);
+    var upgrade = available[index];
+
+    // 应用技能效果
+    upgrade.apply(this.player);
+    this.player.acquiredUpgrades.push(upgrade);
+    this.player.pulseEffect = UE.PULSE_STRENGTH;
+
+    ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.UPGRADE_SELECT, upgrade);
+
+    // 减速效果
+    var enemies = this.enemies;
+    for (var k = 0; k < enemies.length; k++) {
+        enemies[k].speed *= UE.SLOW_FACTOR;
+        (function(e) {
+            setTimeout(function() {
+                if (e.active) e.speed *= UE.SLOW_RECOVERY;
+            }, UE.SLOW_DURATION);
+        })(enemies[k]);
+    }
+
+    // 显示获得的技能信息
+    var display = this.getUpgradeDisplay(upgrade);
+    this.showFloatingText('+' + display.icon + ' ' + display.name, 'rgb(100,255,100)');
+};
+
+// 随机选择并自动应用一个可用法宝
+ArcSurvivors.autoApplyRandomItem = function() {
+    var player = this.player;
+    var ownedItems = player.acquiredUpgrades.filter(function(u) { return u.isItem; });
+    var ownedIds = ownedItems.map(function(u) { return u.id; });
+
+    var available = this.ITEMS.filter(function(item) {
+        // 可重复掉落的法宝
+        if (item.repeatable) {
+            var count = 0;
+            for (var i = 0; i < ownedItems.length; i++) {
+                if (ownedItems[i].id === item.id) count++;
+            }
+            return count < (item.maxCount || 999);
+        }
+        // 普通法宝：检查是否已拥有
+        return ownedIds.indexOf(item.id) === -1;
+    });
+
+    if (available.length === 0) return;
+
+    // 随机选择一个法宝
+    var index = Math.floor(Math.random() * available.length);
+    var item = available[index];
+
+    // 应用法宝效果
+    item.apply(player);
+    player.acquiredUpgrades.push(item);
+
+    ArcSurvivors.EventSystem.emit(ArcSurvivors.Events.ITEM_PICKUP, item);
+
+    // 显示获得的法宝信息
+    var display = this.getItemDisplay(item);
+    this.showFloatingText('+' + display.icon + ' ' + display.name, 'rgb(255,215,0)');
+};
+
+// 浮动文字提示
+ArcSurvivors.showFloatingText = function(text, color) {
+    var player = this.player;
+    if (!player) return;
+
+    var floatText = {
+        x: player.x,
+        y: player.y - 30,
+        text: text,
+        color: color || 'rgb(255,255,255)',
+        timer: 1.5,
+        active: true
+    };
+
+    if (!this.floatingTexts) this.floatingTexts = [];
+    this.floatingTexts.push(floatText);
+};
+
+// 在指定位置生成技能掉落物品
+ArcSurvivors.spawnSkillPickup = function(x, y) {
+    // 获取可用技能池
+    var available = this.UPGRADES.filter(function(u) {
+        return u.canAppear(this.player);
+    }.bind(this));
+
+    if (available.length === 0) return;
+
+    // 随机选择一个技能
+    var index = Math.floor(Math.random() * available.length);
+    var upgrade = available[index];
+
+    // 在玩家位置附近随机偏移
+    var offsetX = (Math.random() - 0.5) * 40;
+    var offsetY = (Math.random() - 0.5) * 40;
+
+    // 创建技能掉落物品
+    var skillPickup = new ArcSurvivors.SkillPickup(x + offsetX, y + offsetY, upgrade);
+    this.skillPickups.push(skillPickup);
 };
