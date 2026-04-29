@@ -49,10 +49,7 @@ ArcSurvivors.BossBase = function(x, y, bossConfig) {
     
     // 计算血量和伤害倍率 - 平滑成长曲线
     var hpMultiplier = 1;  // 基础倍率
-    if (bossIndex === 0) hpMultiplier = 0.7;      // 第1个稍弱（新手友好）
-    if (bossIndex === 1) hpMultiplier = 0.85;     // 第2个正常偏易
-    if (bossIndex === 5) hpMultiplier = 1.275;    // 第6个(酱板鸭)是第2个(狐狸)的150%
-    if (bossIndex >= 3 && bossIndex !== 5) hpMultiplier = scaling.HP_MULTIPLIER;  // 第4个后提高
+    if (bossIndex >= 1 && bossIndex !== 5) hpMultiplier = scaling.HP_MULTIPLIER;  // 第2个后提高
     if (bossIndex >= 4 && bossIndex !== 5) hpMultiplier += (bossIndex - 3) * 0.3; // 逐步增加
     
     var damageMultiplier = 1;

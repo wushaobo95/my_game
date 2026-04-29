@@ -479,7 +479,7 @@ ArcSurvivors.spawnDuckAt = function(x, y, foxMaxHp) {
 ArcSurvivors.showBossWarning = function(bossIndex) {
     var SC = ArcSurvivors.GAME_CONFIG.SPAWN;
     var UI = ArcSurvivors.STRINGS ? ArcSurvivors.STRINGS.UI : null;
-    var bossNames = (UI && UI.BOSS_NAMES) || ['绒角羚兽', '雪山灵狐', '沐光仙鹿', '云翼苍鹰', '翠鳞幽蛇', '荒林顽豚', '风原狂狼', '驰风骏驹', '岩脊蛮牛', '暗夜疾豹', '渊水巨鳄', '深林绒熊', '金鬃狮灵', '烈风玄虎', '磐岩犀兽', '古森巨象'];
+    var bossNames = (UI && UI.BOSS_NAMES) || ['熊猫假面愚者', '棕毛窥魂幼兽', '社畜摸鱼执行官', '橘猫摆烂领主', '干饭躺平之王', '熊猫热血狂战士', '赤狐伪笑守护者', '柴犬歪头欺诈师', '牛头暴躁督军', '白熊点赞之神', '奶猫怯战幼帝', '金毛已老实囚徒', '橘猫大眼惊魂使', '柴犬歪嘴邪尊', '白猫鼻息凝视者', '柴犬假笑霸主'];
     
     var bossIndexSafe = typeof bossIndex === 'number' && !isNaN(bossIndex) ? bossIndex : 0;
     var bossName = bossNames[bossIndexSafe % 16] || bossNames[0];

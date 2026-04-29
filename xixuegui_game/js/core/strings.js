@@ -132,7 +132,7 @@ ArcSurvivors.STRINGS = {
         GAME_TITLE: '卡皮巴拉冒险',
         GAME_OVER_TITLE: '游戏结束啦',
         FINAL_TIME: '坚守时间: {time}秒',
-        FINAL_KILLS: '打败虫子: {kills}只',
+        FINAL_KILLS: '打败怪物: {kills}只',
         FINAL_LEVEL: '成长等级: {level}级',
         RESTART_BTN: '再来一局 (R)',
         PAUSE_TITLE: '休息一下',
@@ -145,9 +145,10 @@ ArcSurvivors.STRINGS = {
         INSTRUCTIONS: 'WASD 移动 | ESC 暂停',
         BOSS_WARNING: 'BOSS 来袭',
         BOSS_NAMES: [
-            '绒角羚兽', '雪山灵狐', '沐光仙鹿', '云翼苍鹰', '翠鳞幽蛇',
-            '荒林顽豚', '风原狂狼', '驰风骏驹', '岩脊蛮牛', '暗夜疾豹',
-            '渊水巨鳄', '深林绒熊', '金鬃狮灵', '烈风玄虎', '磐岩犀兽', '古森巨象', '烈焰凤凰'
+            '熊猫假面愚者', '棕毛窥魂幼兽', '社畜摸鱼执行官', '橘猫摆烂领主',
+            '干饭躺平之王', '熊猫热血狂战士', '赤狐伪笑守护者', '柴犬歪头欺诈师',
+            '牛头暴躁督军', '白熊点赞之神', '奶猫怯战幼帝', '金毛已老实囚徒',
+            '橘猫大眼惊魂使', '柴犬歪嘴邪尊', '白猫鼻息凝视者', '柴犬假笑霸主', '烈焰凤凰'
         ],
         NO_SKILLS: '还没学会',
         NO_ITEMS: '还没有宝物',

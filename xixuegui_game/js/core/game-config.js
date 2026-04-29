@@ -13,14 +13,14 @@ ArcSurvivors.GAME_CONFIG = {
         RADIUS: 35,
         HP: 100,
         SPEED: 5,
-        ATTACK_POWER: 36,
+        ATTACK_POWER: 50,
         ATTACK_COOLDOWN: 0.4,
         BULLET_SPEED: 8,
         BULLET_SIZE: 8,
         BULLET_PENETRATION: 1,
         PICKUP_RANGE: 160,
-        BASE_EXP_TO_LEVEL: 100,
-        EXP_GROWTH_RATE: 1.4,
+        BASE_EXP_TO_LEVEL: 50,
+        EXP_GROWTH_RATE: 1.3,
         MAX_EXP_PER_LEVEL: 8000,
         INVULNERABLE_DURATION: 0.5,
         DODGE_CHANCE: 0,
@@ -54,7 +54,7 @@ ArcSurvivors.GAME_CONFIG = {
         }
     },
 
-    // 敌人类型配置 - 虫子主题颜色
+    // 敌人类型配置 - 怪物主题颜色
     ENEMY_TYPES: {
         normal: {
             RADIUS: 15,
@@ -340,7 +340,7 @@ ArcSurvivors.GAME_CONFIG = {
     // 生成系统
     SPAWN: {
         // 基础刷怪率
-        BASE_RATE: 1.5,
+        BASE_RATE: 2.25,
         RATE_INCREASE_INTERVAL: 10,
         RATE_INCREASE_AMOUNT: 0.5,
         MAX_RATE: 5,
@@ -411,7 +411,7 @@ ArcSurvivors.GAME_CONFIG = {
         
         // 休息窗口
         REST_WINDOW: {
-            ENABLED: true,
+            ENABLED: false,
             DURATION: 8,  // Boss战后8秒
             SPAWN_RATE_MULTIPLIER: 0.3,
             NO_BATCH_SPAWN: true,
@@ -433,7 +433,7 @@ ArcSurvivors.GAME_CONFIG = {
         BOSS_INTERVAL: 5,
         BOSS_MIN_TIME: 5,
         BOSS_WARNING_DURATION: 1500,
-        BOSS_OFFSET: 5
+        BOSS_OFFSET: 0
     },
 
     // 子弹系统
@@ -647,9 +647,10 @@ ArcSurvivors.GAME_CONFIG = {
             NAME_FONT: 'bold 12px sans-serif',
             // Boss名称根据击杀序号显示
             getName: function(bossIndex) {
-                var names = ["绒角羚兽", "雪山灵狐", "沐光仙鹿", "云翼苍鹰", "翠鳞幽蛇", "荒林顽豚",
-                    "风原狂狼", "驰风骏驹", "岩脊蛮牛", "暗夜疾豹", "渊水巨鳄", "深林绒熊",
-                    "金鬃狮灵", "烈风玄虎", "磐岩犀兽", "古森巨象", "烈焰凤凰"];
+                var names = ["熊猫假面愚者", "棕毛窥魂幼兽", "社畜摸鱼执行官", "橘猫摆烂领主",
+                    "干饭躺平之王", "熊猫热血狂战士", "赤狐伪笑守护者", "柴犬歪头欺诈师",
+                    "牛头暴躁督军", "白熊点赞之神", "奶猫怯战幼帝", "金毛已老实囚徒",
+                    "橘猫大眼惊魂使", "柴犬歪嘴邪尊", "白猫鼻息凝视者", "柴犬假笑霸主", "烈焰凤凰"];
                 return names[bossIndex % 17] || '兽王';
             }
         },
@@ -697,7 +698,7 @@ ArcSurvivors.GAME_CONFIG = {
         MAX_HP_BONUS: 10,
         MOVE_SPEED_BONUS: 1.05,
         MOVE_SPEED_LIMIT: 1.5,
-        MAX_EXTRA_PROJECTILES: 5,
+        MAX_EXTRA_PROJECTILES: 7,
         REGEN_RATE_BONUS: 1,
         PICKUP_RANGE_BONUS: 1.4,
         CRITICAL_CHANCE_BONUS: 0.1,
@@ -1089,7 +1090,7 @@ ArcSurvivors.GAME_CONFIG = {
 
     // Buff道具（临时效果）
     BUFF_ITEMS: {
-        DROP_CHANCE: 0.05,
+        DROP_CHANCE: 0.10,
         PICKUP_RADIUS: 25,
         ICON_SIZE: 20,
         GLOW_COLOR: '#ff8800',

@@ -596,6 +596,21 @@ ArcSurvivors.spawnSkillPickup = function(x, y) {
 
     if (available.length === 0) return;
 
+    // 检查是否有其他技能未满级（攻击力和生命强化的ID是1和5）
+    var basicSkillIds = [1, 5]; // 攻击强化、生命强化
+    var hasOtherSkillsNotMaxed = available.some(function(u) {
+        return basicSkillIds.indexOf(u.id) === -1;
+    });
+
+    // 如果有其他技能未满级，则排除攻击力和生命强化
+    if (hasOtherSkillsNotMaxed) {
+        available = available.filter(function(u) {
+            return basicSkillIds.indexOf(u.id) === -1;
+        });
+    }
+
+    if (available.length === 0) return;
+
     // 随机选择一个技能
     var index = Math.floor(Math.random() * available.length);
     var upgrade = available[index];
