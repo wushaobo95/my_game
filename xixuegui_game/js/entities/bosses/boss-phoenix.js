@@ -55,7 +55,7 @@ ArcSurvivors.BossPhoenix.prototype._applyPhoenixCurse = function() {
     if (!player) return;
     
     // 凤凰诅咒：每秒掉血，屏蔽回血
-    player.phoenixCursed = true;
+    player.phoenixCursed = false;
     player.phoenixCurseDamage = 2; // 每秒掉2血
     player.phoenixCurseTimer = 0;
     
