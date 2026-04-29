@@ -129,7 +129,7 @@ ArcSurvivors.STRINGS = {
 
     // UI 文案 - 卡皮巴拉自然风
     UI: {
-        GAME_TITLE: '卡皮巴拉冒险',
+        GAME_TITLE: '卡皮巴拉来了',
         GAME_OVER_TITLE: '游戏结束啦',
         FINAL_TIME: '坚守时间: {time}秒',
         FINAL_KILLS: '打败怪物: {kills}只',
